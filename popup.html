@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML Note Highlighter</title>
+    <style>
+        body {
+            width: 320px;
+            min-height: 400px;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8f9fa;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 0 0 12px 12px;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .header p {
+            margin: 8px 0 0 0;
+            font-size: 12px;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 20px;
+        }
+        
+        .section {
+            margin-bottom: 24px;
+        }
+        
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .section-icon {
+            font-size: 16px;
+        }
+        
+        .feature-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 0;
+            font-size: 13px;
+            color: #666;
+        }
+        
+        .feature-icon {
+            font-size: 12px;
+            color: #28a745;
+        }
+        
+        .shortcut {
+            background: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-family: monospace;
+            color: #495057;
+        }
+        
+        .status {
+            background: #fff;
+            border-radius: 8px;
+            padding: 16px;
+            border: 1px solid #e0e0e0;
+            margin-bottom: 16px;
+        }
+        
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .status-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .status-label {
+            font-size: 13px;
+            color: #666;
+        }
+        
+        .status-value {
+            font-size: 13px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .action-btn {
+            padding: 12px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .action-btn.primary {
+            background: #007bff;
+            color: white;
+        }
+        
+        .action-btn.primary:hover {
+            background: #0056b3;
+        }
+        
+        .action-btn.secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .action-btn.secondary:hover {
+            background: #545b62;
+        }
+        
+        .action-btn.danger {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .action-btn.danger:hover {
+            background: #c82333;
+        }
+        
+        .footer {
+            padding: 16px 20px;
+            border-top: 1px solid #e0e0e0;
+            text-align: center;
+            font-size: 11px;
+            color: #999;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 20px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 20px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: #007bff;
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(20px);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📝 HTML Note Highlighter</h1>
+        <p>网页高亮和笔记工具</p>
+    </div>
+    
+    <div class="content">
+        <div class="section">
+            <div class="section-title">
+                <span class="section-icon">⚡</span>
+                快速操作
+            </div>
+            <div class="action-buttons">
+                <button id="toggleHighlight" class="action-btn primary">
+                    <span>✏️</span>
+                    <span>切换高亮模式</span>
+                </button>
+                <button id="savePage" class="action-btn secondary">
+                    <span>💾</span>
+                    <span>保存页面</span>
+                </button>
+                <button id="clearAll" class="action-btn danger">
+                    <span>🗑️</span>
+                    <span>清除所有高亮</span>
+                </button>
+            </div>
+        </div>
+        
+        <div class="section">
+            <div class="section-title">
+                <span class="section-icon">📊</span>
+                当前状态
+            </div>
+            <div class="status">
+                <div class="status-item">
+                    <span class="status-label">高亮模式</span>
+                    <label class="toggle-switch" for="highlightMode" title="切换高亮模式">
+                        <input type="checkbox" id="highlightMode" aria-label="高亮模式开关">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">高亮数量</span>
+                    <span class="status-value" id="highlightCount">0</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">笔记数量</span>
+                    <span class="status-value" id="noteCount">0</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <div class="section-title">
+                <span class="section-icon">⌨️</span>
+                快捷键
+            </div>
+            <ul class="feature-list">
+                <li class="feature-item">
+                    <span class="feature-icon">✓</span>
+                    <span>切换高亮模式</span>
+                    <span class="shortcut">Ctrl+Shift+H</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">✓</span>
+                    <span>保存页面</span>
+                    <span class="shortcut">Ctrl+Shift+S</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">✓</span>
+                    <span>点击高亮编辑笔记</span>
+                    <span class="shortcut">鼠标点击</span>
+                </li>
+            </ul>
+        </div>
+        
+        <div class="section">
+            <div class="section-title">
+                <span class="section-icon">💡</span>
+                使用说明
+            </div>
+            <ul class="feature-list">
+                <li class="feature-item">
+                    <span class="feature-icon">1</span>
+                    <span>开启高亮模式</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">2</span>
+                    <span>选择网页文本</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">3</span>
+                    <span>添加笔记内容</span>
+                </li>
+                <li class="feature-item">
+                    <span class="feature-icon">4</span>
+                    <span>保存为HTML文件</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p>HTML Note Highlighter v1.0</p>
+        <p>本地网页高亮和笔记工具</p>
+    </div>
+    
+    <script src="popup.js"></script>
+</body>
+</html> 
