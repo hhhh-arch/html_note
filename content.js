@@ -87,7 +87,7 @@ class HTMLNoteHighlighter {
     // 读取当前颜色并创建高亮元素
     chrome.storage && chrome.storage.sync && chrome.storage.sync.get('highlightColor', ({ highlightColor }) => {
       const color = highlightColor || '#ffeb3b';
-      
+
       try {
         // 使用更健壮的方法来处理复杂选区
         const highlightSpan = this.createHighlightSpanWithColor(color);
@@ -147,21 +147,21 @@ class HTMLNoteHighlighter {
 
   highlightSelectionWithDefaultColor() {
     try {
-      const selection = window.getSelection();
+    const selection = window.getSelection();
       if (!selection || !selection.rangeCount || selection.isCollapsed) {
         console.log('[debug] 没有有效的选区');
         return;
       }
   
-      const range = selection.getRangeAt(0);
-      const selectedText = selection.toString().trim();
-      if (selectedText.length === 0) return;
+    const range = selection.getRangeAt(0);
+    const selectedText = selection.toString().trim();
+    if (selectedText.length === 0) return;
   
-      if (this.isAlreadyHighlighted(range)) {
-        this.showNotification('该文本已经高亮过了');
-        selection.removeAllRanges();
-        return;
-      }
+    if (this.isAlreadyHighlighted(range)) {
+      this.showNotification('该文本已经高亮过了');
+      selection.removeAllRanges();
+      return;
+    }
   
       const highlightSpan = this.createHighlightSpan();
   
@@ -348,58 +348,57 @@ class HTMLNoteHighlighter {
 
   getTextNodesInRange(range) {
     const textNodes = [];
-    const startContainer = range.startContainer;
-    const endContainer = range.endContainer;
-    const startOffset = range.startOffset;
-    const endOffset = range.endOffset;
-    
-    // 如果开始和结束是同一个文本节点
-    if (startContainer === endContainer && startContainer.nodeType === Node.TEXT_NODE) {
-      textNodes.push({
-        node: startContainer,
-        startOffset: startOffset,
-        endOffset: endOffset
-      });
-      return textNodes;
-    }
-    
-    // 获取选区内的所有节点
-    const nodes = [];
-    let node = startContainer;
-    
-    while (node && node !== endContainer.nextSibling) {
-      nodes.push(node);
-      node = this.getNextNode(node, endContainer);
-    }
-    
-    // 处理每个节点
-    for (let i = 0; i < nodes.length; i++) {
-      const node = nodes[i];
-      const isFirst = i === 0;
-      const isLast = i === nodes.length - 1;
-      
-      if (node.nodeType === Node.TEXT_NODE) {
-        let startPos = 0;
-        let endPos = node.textContent.length;
-        
-        // 如果是第一个节点，从startOffset开始
-        if (isFirst && node === startContainer) {
-          startPos = startOffset;
+    const { startContainer, endContainer, startOffset, endOffset } = range;
+    const ancestor = range.commonAncestorContainer;
+
+    // 用 TreeWalker 遍历所有文本节点
+    const walker = document.createTreeWalker(
+      ancestor.nodeType === 1 ? ancestor : ancestor.parentNode,
+      NodeFilter.SHOW_TEXT,
+      {
+        acceptNode: (node) => {
+          // 只处理有内容的文本节点
+          if (!node.textContent.trim()) return NodeFilter.FILTER_REJECT;
+          // 判断节点和选区的关系
+          const nodeRange = document.createRange();
+          nodeRange.selectNodeContents(node);
+          if (
+            nodeRange.compareBoundaryPoints(Range.END_TO_START, range) <= 0 &&
+            nodeRange.compareBoundaryPoints(Range.START_TO_END, range) >= 0
+          ) {
+            return NodeFilter.FILTER_ACCEPT;
+          }
+          return NodeFilter.FILTER_REJECT;
         }
-        
-        // 如果是最后一个节点，到endOffset结束
-        if (isLast && node === endContainer) {
-          endPos = endOffset;
-        }
-        
-        if (startPos < endPos) {
-          textNodes.push({
-            node: node,
-            startOffset: startPos,
-            endOffset: endPos
-          });
-        }
+      },
+      false
+    );
+
+    let node;
+    while ((node = walker.nextNode())) {
+      let nodeStart = 0;
+      let nodeEnd = node.textContent.length;
+      if (node === startContainer) nodeStart = startOffset;
+      if (node === endContainer) nodeEnd = endOffset;
+      if (nodeStart < nodeEnd) {
+        textNodes.push({ node, startOffset: nodeStart, endOffset: nodeEnd });
       }
+    }
+    return textNodes;
+  }
+
+  getAllTextNodes(element) {
+    const textNodes = [];
+    const walker = document.createTreeWalker(
+      element,
+      NodeFilter.SHOW_TEXT,
+      null,
+      false
+    );
+    
+    let node;
+    while (node = walker.nextNode()) {
+      textNodes.push(node);
     }
     
     return textNodes;
