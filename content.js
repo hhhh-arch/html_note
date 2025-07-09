@@ -147,6 +147,8 @@ class HTMLNoteHighlighter {
 
   highlightSelectionWithDefaultColor() {
     const selection = window.getSelection();
+    console.log('[debug] selection:', selection);
+
     if (!selection.rangeCount || selection.isCollapsed) return;
     const range = selection.getRangeAt(0);
     const selectedText = selection.toString().trim();
