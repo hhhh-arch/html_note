@@ -230,6 +230,11 @@ class HTMLNoteHighlighter {
     const startContainer = range.startContainer;
     const endContainer = range.endContainer;
     
+    // 如果开始和结束是同一个节点，不是跨块级元素
+    if (startContainer === endContainer) {
+      return false;
+    }
+    
     // 获取选区内的所有节点
     const nodes = [];
     let node = startContainer;
@@ -243,12 +248,22 @@ class HTMLNoteHighlighter {
     
     // 检查是否有多个块级元素
     const blockElements = nodes.filter(node => 
-      this.isBlockElement(node) && 
-      node !== startContainer && 
-      node !== endContainer
+      this.isBlockElement(node)
     );
     
-    return blockElements.length > 0;
+    // 如果只有一个块级元素，检查是否跨越了多个子元素
+    if (blockElements.length === 1) {
+      const blockElement = blockElements[0];
+      const startNode = range.startContainer;
+      const endNode = range.endContainer;
+      
+      // 检查是否跨越了多个子元素
+      if (startNode !== endNode) {
+        return true;
+      }
+    }
+    
+    return blockElements.length > 1;
   }
 
   isBlockElement(element) {
@@ -274,28 +289,98 @@ class HTMLNoteHighlighter {
   }
 
   wrapCrossBlockSelection(range, color = '#f7c2d6') {
-    // 对于跨块级元素的选区，我们需要更精确地处理
+    // 使用CSS样式高亮，不改变DOM结构
+    try {
+      // 获取选区内的所有文本节点
+      const textNodes = this.getTextNodesInRange(range);
+      
+      if (textNodes.length === 0) {
+        // 如果没有文本节点，使用备用方法
+        this.fallbackHighlight(range, color);
+        return;
+      }
+      
+      // 为每个文本节点创建高亮span
+      const highlightSpans = [];
+      
+      textNodes.forEach(({ node, startOffset, endOffset }) => {
+        if (startOffset === endOffset) return; // 跳过空选区
+        
+        const textContent = node.textContent;
+        const selectedText = textContent.substring(startOffset, endOffset);
+        
+        if (selectedText.trim()) {
+          // 创建高亮span
+          const highlightSpan = this.createHighlightSpanWithColor(color);
+          highlightSpan.textContent = selectedText;
+          
+          // 分割文本节点
+          const beforeText = textContent.substring(0, startOffset);
+          const afterText = textContent.substring(endOffset);
+          
+          // 创建新的文本节点
+          if (beforeText) {
+            const beforeNode = document.createTextNode(beforeText);
+            node.parentNode.insertBefore(beforeNode, node);
+          }
+          
+          node.parentNode.insertBefore(highlightSpan, node.nextSibling);
+          highlightSpans.push(highlightSpan);
+          
+          if (afterText) {
+            const afterNode = document.createTextNode(afterText);
+            node.parentNode.insertBefore(afterNode, highlightSpan.nextSibling);
+          }
+          
+          // 移除原始节点
+          node.parentNode.removeChild(node);
+        }
+      });
+      
+      // 合并相邻的高亮span
+      this.mergeAdjacentHighlights(highlightSpans);
+      
+    } catch (error) {
+      console.error('跨块级元素高亮失败，尝试备用方法:', error);
+      this.fallbackHighlight(range, color);
+    }
+  }
+
+  getTextNodesInRange(range) {
+    const textNodes = [];
     const startContainer = range.startContainer;
     const endContainer = range.endContainer;
     const startOffset = range.startOffset;
     const endOffset = range.endOffset;
     
-    // 创建多个高亮span来处理不同的部分
-    const highlightSpans = [];
+    // 如果开始和结束是同一个文本节点
+    if (startContainer === endContainer && startContainer.nodeType === Node.TEXT_NODE) {
+      textNodes.push({
+        node: startContainer,
+        startOffset: startOffset,
+        endOffset: endOffset
+      });
+      return textNodes;
+    }
     
     // 获取选区内的所有节点
-    const nodes = this.getNodesInRange(range);
+    const nodes = [];
+    let node = startContainer;
     
+    while (node && node !== endContainer.nextSibling) {
+      nodes.push(node);
+      node = this.getNextNode(node, endContainer);
+    }
+    
+    // 处理每个节点
     for (let i = 0; i < nodes.length; i++) {
       const node = nodes[i];
       const isFirst = i === 0;
       const isLast = i === nodes.length - 1;
       
       if (node.nodeType === Node.TEXT_NODE) {
-        // 处理文本节点
-        let textContent = node.textContent;
         let startPos = 0;
-        let endPos = textContent.length;
+        let endPos = node.textContent.length;
         
         // 如果是第一个节点，从startOffset开始
         if (isFirst && node === startContainer) {
@@ -307,55 +392,32 @@ class HTMLNoteHighlighter {
           endPos = endOffset;
         }
         
-        // 提取需要高亮的文本
-        const textToHighlight = textContent.substring(startPos, endPos);
-        
-        if (textToHighlight.trim()) {
-          const textSpan = this.createHighlightSpanWithColor(color);
-          textSpan.textContent = textToHighlight;
-          
-          // 分割文本节点
-          if (startPos > 0) {
-            const beforeText = textContent.substring(0, startPos);
-            const beforeNode = document.createTextNode(beforeText);
-            node.parentNode.insertBefore(beforeNode, node);
-          }
-          
-          node.parentNode.insertBefore(textSpan, node.nextSibling);
-          highlightSpans.push(textSpan);
-          
-          if (endPos < textContent.length) {
-            const afterText = textContent.substring(endPos);
-            const afterNode = document.createTextNode(afterText);
-            node.parentNode.insertBefore(afterNode, textSpan.nextSibling);
-          }
-          
-          // 移除原始节点
-          node.parentNode.removeChild(node);
-        }
-      } else if (node.nodeType === Node.ELEMENT_NODE) {
-        // 处理元素节点
-        if (this.isBlockElement(node)) {
-          // 对于块级元素，完整替换
-          const blockSpan = this.createHighlightSpanWithColor(color);
-          blockSpan.appendChild(node.cloneNode(true));
-          node.parentNode.replaceChild(blockSpan, node);
-          highlightSpans.push(blockSpan);
-        } else {
-          // 对于内联元素，保持原样，但添加高亮样式
-          node.style.backgroundColor = color;
-          node.classList.add('html-note-highlight');
-          node.setAttribute('data-note-id', `note-${++this.noteCounter}`);
-          node.setAttribute('data-note', '');
-          node.setAttribute('data-timestamp', Date.now().toString());
-          node.setAttribute('data-color', color);
-          highlightSpans.push(node);
+        if (startPos < endPos) {
+          textNodes.push({
+            node: node,
+            startOffset: startPos,
+            endOffset: endPos
+          });
         }
       }
     }
     
-    // 合并相邻的高亮span
-    this.mergeAdjacentHighlights(highlightSpans);
+    return textNodes;
+  }
+
+  fallbackHighlight(range, color) {
+    // 备用方法：只高亮文本内容，不改变HTML结构
+    const selectedText = range.toString();
+    if (!selectedText.trim()) return;
+    
+    // 创建一个文本节点来替换选区
+    const textNode = document.createTextNode(selectedText);
+    const highlightSpan = this.createHighlightSpanWithColor(color);
+    highlightSpan.appendChild(textNode);
+    
+    // 删除原始内容并插入高亮span
+    range.deleteContents();
+    range.insertNode(highlightSpan);
   }
 
   getNodesInRange(range) {
@@ -553,11 +615,57 @@ class HTMLNoteHighlighter {
   }
 
   removeHighlight(highlightElement) {
-    const parent = highlightElement.parentNode;
-    while (highlightElement.firstChild) {
-      parent.insertBefore(highlightElement.firstChild, highlightElement);
+    // 获取高亮元素内的所有内容
+    const contents = [];
+    let child = highlightElement.firstChild;
+    
+    while (child) {
+      const nextChild = child.nextSibling;
+      contents.push(child);
+      child = nextChild;
     }
+    
+    // 将内容移回父元素
+    const parent = highlightElement.parentNode;
+    contents.forEach(node => {
+      parent.insertBefore(node, highlightElement);
+    });
+    
+    // 移除高亮元素
     parent.removeChild(highlightElement);
+    
+    // 合并相邻的文本节点
+    this.normalizeTextNodes(parent);
+  }
+
+  normalizeTextNodes(element) {
+    // 合并相邻的文本节点
+    const walker = document.createTreeWalker(
+      element,
+      NodeFilter.SHOW_TEXT,
+      null,
+      false
+    );
+    
+    const textNodes = [];
+    let node;
+    while (node = walker.nextNode()) {
+      textNodes.push(node);
+    }
+    
+    // 合并相邻的文本节点
+    for (let i = 0; i < textNodes.length - 1; i++) {
+      const current = textNodes[i];
+      const next = textNodes[i + 1];
+      
+      if (current.parentNode === next.parentNode && 
+          current.nextSibling === next) {
+        current.textContent += next.textContent;
+        next.parentNode.removeChild(next);
+        textNodes.splice(i + 1, 1);
+        i--; // 重新检查当前位置
+      }
+    }
   }
 
   savePage() {
