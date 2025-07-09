@@ -331,3 +331,23 @@ body[style*="crosshair"] {
     color: #e2e8f0;
   }
 } 
+
+/* popup 颜色选择面板 */
+.color-picker {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+.color-swatch {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 2px solid #eee;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  transition: border 0.2s;
+}
+.color-swatch.selected {
+  border: 2px solid #333;
+} 

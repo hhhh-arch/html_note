@@ -45,6 +45,40 @@ class PopupManager {
       });
     }
 
+    // 颜色选择逻辑
+    const colorPicker = document.getElementById('colorPicker');
+    let currentColor = '#ffeb3b';
+
+    // 初始化时读取已选颜色
+    chrome.storage.sync.get('highlightColor', ({ highlightColor }) => {
+      if (highlightColor) {
+        currentColor = highlightColor;
+        highlightSwatch(highlightColor);
+      } else {
+        highlightSwatch(currentColor);
+      }
+    });
+
+    function highlightSwatch(color) {
+      document.querySelectorAll('.color-swatch').forEach(swatch => {
+        if (swatch.dataset.color === color) {
+          swatch.classList.add('selected');
+        } else {
+          swatch.classList.remove('selected');
+        }
+      });
+    }
+
+    if (colorPicker) {
+      colorPicker.addEventListener('click', (e) => {
+        if (e.target.classList.contains('color-swatch')) {
+          currentColor = e.target.dataset.color;
+          chrome.storage.sync.set({ highlightColor: currentColor });
+          highlightSwatch(currentColor);
+        }
+      });
+    }
+
     // 定期更新状态
     setInterval(() => this.updateStatus(), 1000);
   }

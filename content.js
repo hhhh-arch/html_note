@@ -83,20 +83,25 @@ class HTMLNoteHighlighter {
     highlightSpan.setAttribute('data-note', '');
     highlightSpan.setAttribute('data-timestamp', Date.now().toString());
     
-    // 包裹选中的文本
-    try {
-      range.surroundContents(highlightSpan);
-      selection.removeAllRanges();
-      
-      // 自动弹出笔记编辑器
-      setTimeout(() => {
-        this.showNoteEditor(highlightSpan);
-      }, 100);
-      
-    } catch (error) {
-      console.error('高亮文本时出错:', error);
-      this.showNotification('高亮失败，请重试');
-    }
+    // 读取当前颜色并包裹选中文本
+    chrome.storage && chrome.storage.sync && chrome.storage.sync.get('highlightColor', ({ highlightColor }) => {
+      const color = highlightColor || '#ffeb3b';
+      highlightSpan.style.backgroundColor = color;
+      highlightSpan.setAttribute('data-color', color);
+
+      // 包裹选中的文本
+      try {
+        range.surroundContents(highlightSpan);
+        selection.removeAllRanges();
+        // 自动弹出笔记编辑器
+        setTimeout(() => {
+          this.showNoteEditor(highlightSpan);
+        }, 100);
+      } catch (error) {
+        console.error('高亮文本时出错:', error);
+        this.showNotification('高亮失败，请重试');
+      }
+    });
   }
 
   isAlreadyHighlighted(range) {
