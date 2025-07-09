@@ -148,16 +148,12 @@ class HTMLNoteHighlighter {
   highlightSelectionWithDefaultColor() {
     try {
       const selection = window.getSelection();
-      console.log('[DEBUG] selection:', selection);
-  
       if (!selection || !selection.rangeCount || selection.isCollapsed) {
-        console.log('[DEBUG] 无有效选区');
+        console.log('[debug] 没有有效的选区');
         return;
       }
   
       const range = selection.getRangeAt(0);
-      console.log('[DEBUG] range:', range);
-  
       const selectedText = selection.toString().trim();
       if (selectedText.length === 0) return;
   
@@ -168,17 +164,21 @@ class HTMLNoteHighlighter {
       }
   
       const highlightSpan = this.createHighlightSpan();
+  
+      // 👇 使用 extract + insert 替代 surround，绕过 DOMException
       this.wrapRangeWithSpan(range, highlightSpan);
+  
       selection.removeAllRanges();
       setTimeout(() => {
-        window.HTMLNoteHighlighter.showToolbarForHighlight(highlightSpan);
+        if (typeof this.showToolbarForHighlight === 'function') {
+          this.showToolbarForHighlight(highlightSpan);
+        }
       }, 100);
     } catch (error) {
       console.error('高亮文本时出错:', error);
-      this.showNotification('高亮失败，请重试');
+      this.showNotification('高亮失败（可能选中内容结构复杂）');
     }
   }
-  
 
   createHighlightSpan() {
     const highlightSpan = document.createElement('span');
@@ -205,17 +205,195 @@ class HTMLNoteHighlighter {
   }
 
   wrapRangeWithSpan(range, highlightSpan) {
-    // 获取选区的内容
-    const contents = range.extractContents();
+    try {
+      // 检查是否是跨块级元素的选区
+      if (this.isCrossBlockSelection(range)) {
+        const color = highlightSpan.getAttribute('data-color') || '#f7c2d6';
+        this.wrapCrossBlockSelection(range, color);
+      } else {
+        // 对于简单的选区，使用原来的方法
+        const contents = range.extractContents();
+        highlightSpan.appendChild(contents);
+        range.insertNode(highlightSpan);
+      }
+      
+      // 清理可能的空文本节点
+      this.cleanupEmptyNodes(highlightSpan);
+    } catch (error) {
+      console.error('wrapRangeWithSpan 报错:', error);
+      throw error;
+    }
+  }
+
+  isCrossBlockSelection(range) {
+    // 检查选区是否跨越多个块级元素
+    const startContainer = range.startContainer;
+    const endContainer = range.endContainer;
     
-    // 将内容放入高亮span中
-    highlightSpan.appendChild(contents);
+    // 获取选区内的所有节点
+    const nodes = [];
+    let node = startContainer;
     
-    // 将高亮span插入到选区位置
-    range.insertNode(highlightSpan);
+    while (node && node !== endContainer.nextSibling) {
+      if (node.nodeType === Node.ELEMENT_NODE) {
+        nodes.push(node);
+      }
+      node = this.getNextNode(node, endContainer);
+    }
     
-    // 清理可能的空文本节点
-    this.cleanupEmptyNodes(highlightSpan);
+    // 检查是否有多个块级元素
+    const blockElements = nodes.filter(node => 
+      this.isBlockElement(node) && 
+      node !== startContainer && 
+      node !== endContainer
+    );
+    
+    return blockElements.length > 0;
+  }
+
+  isBlockElement(element) {
+    const blockTags = ['DIV', 'P', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'SECTION', 'ARTICLE', 'HEADER', 'FOOTER', 'MAIN', 'ASIDE', 'NAV', 'BLOCKQUOTE', 'PRE', 'LI', 'DT', 'DD'];
+    return blockTags.includes(element.tagName);
+  }
+
+  getNextNode(node, endNode) {
+    if (node === endNode) return null;
+    
+    if (node.firstChild) {
+      return node.firstChild;
+    }
+    
+    while (node) {
+      if (node.nextSibling) {
+        return node.nextSibling;
+      }
+      node = node.parentNode;
+    }
+    
+    return null;
+  }
+
+  wrapCrossBlockSelection(range, color = '#f7c2d6') {
+    // 对于跨块级元素的选区，我们需要更精确地处理
+    const startContainer = range.startContainer;
+    const endContainer = range.endContainer;
+    const startOffset = range.startOffset;
+    const endOffset = range.endOffset;
+    
+    // 创建多个高亮span来处理不同的部分
+    const highlightSpans = [];
+    
+    // 获取选区内的所有节点
+    const nodes = this.getNodesInRange(range);
+    
+    for (let i = 0; i < nodes.length; i++) {
+      const node = nodes[i];
+      const isFirst = i === 0;
+      const isLast = i === nodes.length - 1;
+      
+      if (node.nodeType === Node.TEXT_NODE) {
+        // 处理文本节点
+        let textContent = node.textContent;
+        let startPos = 0;
+        let endPos = textContent.length;
+        
+        // 如果是第一个节点，从startOffset开始
+        if (isFirst && node === startContainer) {
+          startPos = startOffset;
+        }
+        
+        // 如果是最后一个节点，到endOffset结束
+        if (isLast && node === endContainer) {
+          endPos = endOffset;
+        }
+        
+        // 提取需要高亮的文本
+        const textToHighlight = textContent.substring(startPos, endPos);
+        
+        if (textToHighlight.trim()) {
+          const textSpan = this.createHighlightSpanWithColor(color);
+          textSpan.textContent = textToHighlight;
+          
+          // 分割文本节点
+          if (startPos > 0) {
+            const beforeText = textContent.substring(0, startPos);
+            const beforeNode = document.createTextNode(beforeText);
+            node.parentNode.insertBefore(beforeNode, node);
+          }
+          
+          node.parentNode.insertBefore(textSpan, node.nextSibling);
+          highlightSpans.push(textSpan);
+          
+          if (endPos < textContent.length) {
+            const afterText = textContent.substring(endPos);
+            const afterNode = document.createTextNode(afterText);
+            node.parentNode.insertBefore(afterNode, textSpan.nextSibling);
+          }
+          
+          // 移除原始节点
+          node.parentNode.removeChild(node);
+        }
+      } else if (node.nodeType === Node.ELEMENT_NODE) {
+        // 处理元素节点
+        if (this.isBlockElement(node)) {
+          // 对于块级元素，完整替换
+          const blockSpan = this.createHighlightSpanWithColor(color);
+          blockSpan.appendChild(node.cloneNode(true));
+          node.parentNode.replaceChild(blockSpan, node);
+          highlightSpans.push(blockSpan);
+        } else {
+          // 对于内联元素，保持原样，但添加高亮样式
+          node.style.backgroundColor = color;
+          node.classList.add('html-note-highlight');
+          node.setAttribute('data-note-id', `note-${++this.noteCounter}`);
+          node.setAttribute('data-note', '');
+          node.setAttribute('data-timestamp', Date.now().toString());
+          node.setAttribute('data-color', color);
+          highlightSpans.push(node);
+        }
+      }
+    }
+    
+    // 合并相邻的高亮span
+    this.mergeAdjacentHighlights(highlightSpans);
+  }
+
+  getNodesInRange(range) {
+    const nodes = [];
+    const startContainer = range.startContainer;
+    const endContainer = range.endContainer;
+    
+    // 如果开始和结束是同一个节点
+    if (startContainer === endContainer) {
+      nodes.push(startContainer);
+      return nodes;
+    }
+    
+    // 获取所有在选区内的节点
+    let node = startContainer;
+    const endNode = endContainer.nextSibling;
+    
+    while (node && node !== endNode) {
+      nodes.push(node);
+      node = this.getNextNode(node, endContainer);
+    }
+    
+    return nodes;
+  }
+
+  mergeAdjacentHighlights(highlightSpans) {
+    for (let i = 0; i < highlightSpans.length - 1; i++) {
+      const current = highlightSpans[i];
+      const next = highlightSpans[i + 1];
+      
+      if (current.nextSibling === next) {
+        // 合并相邻的高亮span
+        current.appendChild(next);
+        next.parentNode.removeChild(next);
+        highlightSpans.splice(i + 1, 1);
+        i--; // 重新检查当前位置
+      }
+    }
   }
 
   cleanupEmptyNodes(element) {
