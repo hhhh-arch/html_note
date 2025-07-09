@@ -35,6 +35,8 @@ class HTMLNoteHighlighter {
     document.addEventListener('click', (e) => {
       if (e.target.classList.contains('html-note-highlight')) {
         this.showToolbarForHighlight(e.target);
+
+        
       }
     });
 
@@ -82,22 +84,14 @@ class HTMLNoteHighlighter {
       return;
     }
 
-    // 创建高亮元素
-    const highlightSpan = document.createElement('span');
-    highlightSpan.className = 'html-note-highlight';
-    highlightSpan.setAttribute('data-note-id', `note-${++this.noteCounter}`);
-    highlightSpan.setAttribute('data-note', '');
-    highlightSpan.setAttribute('data-timestamp', Date.now().toString());
-    
-    // 读取当前颜色并包裹选中文本
+    // 读取当前颜色并创建高亮元素
     chrome.storage && chrome.storage.sync && chrome.storage.sync.get('highlightColor', ({ highlightColor }) => {
       const color = highlightColor || '#ffeb3b';
-      highlightSpan.style.backgroundColor = color;
-      highlightSpan.setAttribute('data-color', color);
-
-      // 包裹选中的文本
+      
       try {
-        range.surroundContents(highlightSpan);
+        // 使用更健壮的方法来处理复杂选区
+        const highlightSpan = this.createHighlightSpanWithColor(color);
+        this.wrapRangeWithSpan(range, highlightSpan);
         selection.removeAllRanges();
         // 自动弹出笔记编辑器
         setTimeout(() => {
@@ -162,6 +156,22 @@ class HTMLNoteHighlighter {
       selection.removeAllRanges();
       return;
     }
+    
+    try {
+      // 使用更健壮的方法来处理复杂选区
+      const highlightSpan = this.createHighlightSpan();
+      this.wrapRangeWithSpan(range, highlightSpan);
+      selection.removeAllRanges();
+      setTimeout(() => {
+        window.HTMLNoteHighlighter.showToolbarForHighlight(highlightSpan);
+      }, 100);
+    } catch (error) {
+      console.error('高亮文本时出错:', error);
+      this.showNotification('高亮失败，请重试');
+    }
+  }
+
+  createHighlightSpan() {
     const highlightSpan = document.createElement('span');
     highlightSpan.className = 'html-note-highlight';
     highlightSpan.setAttribute('data-note-id', `note-${++this.noteCounter}`);
@@ -171,16 +181,56 @@ class HTMLNoteHighlighter {
     const color = '#f7c2d6';
     highlightSpan.style.backgroundColor = color;
     highlightSpan.setAttribute('data-color', color);
-    try {
-      range.surroundContents(highlightSpan);
-      selection.removeAllRanges();
-      setTimeout(() => {
-        window.HTMLNoteHighlighter.showToolbarForHighlight(highlightSpan);
-      }, 100);
-    } catch (error) {
-      console.error('高亮文本时出错:', error);
-      this.showNotification('高亮失败，请重试');
+    return highlightSpan;
+  }
+
+  createHighlightSpanWithColor(color) {
+    const highlightSpan = document.createElement('span');
+    highlightSpan.className = 'html-note-highlight';
+    highlightSpan.setAttribute('data-note-id', `note-${++this.noteCounter}`);
+    highlightSpan.setAttribute('data-note', '');
+    highlightSpan.setAttribute('data-timestamp', Date.now().toString());
+    highlightSpan.style.backgroundColor = color;
+    highlightSpan.setAttribute('data-color', color);
+    return highlightSpan;
+  }
+
+  wrapRangeWithSpan(range, highlightSpan) {
+    // 获取选区的内容
+    const contents = range.extractContents();
+    
+    // 将内容放入高亮span中
+    highlightSpan.appendChild(contents);
+    
+    // 将高亮span插入到选区位置
+    range.insertNode(highlightSpan);
+    
+    // 清理可能的空文本节点
+    this.cleanupEmptyNodes(highlightSpan);
+  }
+
+  cleanupEmptyNodes(element) {
+    // 清理空的文本节点
+    const walker = document.createTreeWalker(
+      element,
+      NodeFilter.SHOW_TEXT,
+      null,
+      false
+    );
+    
+    const nodesToRemove = [];
+    let node;
+    while (node = walker.nextNode()) {
+      if (node.textContent.trim() === '') {
+        nodesToRemove.push(node);
+      }
     }
+    
+    nodesToRemove.forEach(node => {
+      if (node.parentNode) {
+        node.parentNode.removeChild(node);
+      }
+    });
   }
 
   isAlreadyHighlighted(range) {
@@ -197,6 +247,8 @@ class HTMLNoteHighlighter {
   }
 
   showToolbarForHighlight(highlightElement) {
+    // console.log('showToolbarForHighlight: ', highlightElement);
+    // this.showNoteEditor(highlightElement);
     // 移除已存在的工具栏和编辑框
     document.querySelectorAll('.html-note-toolbar-float, .note-editor, .color-picker-float').forEach(el => el.remove());
     const rect = highlightElement.getBoundingClientRect();
@@ -214,6 +266,8 @@ class HTMLNoteHighlighter {
       ev.stopPropagation();
       this.showColorPickerForHighlight(highlightElement, toolbar);
     };
+    //TODO： 加入把selected text 的background color 设置为当前高亮颜色
+
     // 复制按钮
     const copyBtn = document.createElement('button');
     copyBtn.className = 'toolbar-float-btn';
@@ -231,7 +285,7 @@ class HTMLNoteHighlighter {
     noteBtn.innerHTML = '<svg width="22" height="22" viewBox="0 0 22 22"><rect x="4" y="4" width="14" height="14" rx="4" fill="#fff" stroke="#bfc4d1" stroke-width="1.5"/><text x="11" y="16" text-anchor="middle" font-size="12" fill="#bfc4d1">"</text></svg>';
     noteBtn.onclick = (ev) => {
       ev.stopPropagation();
-      this.showNoteEditor(highlightElement, toolbar);
+      this.showNoteEditor(highlightElement);
     };
     // 删除按钮
     const delBtn = document.createElement('button');
@@ -285,7 +339,7 @@ class HTMLNoteHighlighter {
     }, 10);
   }
 
-  showNoteEditor(highlightElement, toolbar) {
+  showNoteEditor(highlightElement) {
     document.querySelectorAll('.note-editor').forEach(el => el.remove());
     const currentNote = highlightElement.getAttribute('data-note') || '';
     const editor = document.createElement('div');
@@ -451,3 +505,4 @@ class HTMLNoteHighlighter {
 const highlighter = new HTMLNoteHighlighter();
 window.HTMLNoteHighlighter = highlighter;
 window.HTMLNoteHighlighter.showToolbarForHighlight = highlighter.showToolbarForHighlight.bind(highlighter); 
+window.HTMLNoteHighlighter.showNoteEditor = highlighter.showNoteEditor.bind(highlighter);
