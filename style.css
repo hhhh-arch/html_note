@@ -351,3 +351,119 @@ body[style*="crosshair"] {
 .color-swatch.selected {
   border: 2px solid #333;
 } 
+
+/* 浮动工具栏样式 */
+.html-note-toolbar-float {
+  position: fixed;
+  display: flex;
+  align-items: center;
+  background: #232734;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.22);
+  padding: 6px 14px;
+  gap: 8px;
+  z-index: 10020;
+  min-width: 120px;
+}
+.toolbar-float-btn {
+  background: none;
+  border: none;
+  outline: none;
+  border-radius: 6px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.18s, box-shadow 0.18s;
+  color: #fff;
+  font-size: 18px;
+  margin: 0 2px;
+}
+.toolbar-float-btn:hover {
+  background: #35394a;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+}
+
+/* 颜色选择面板浮窗 */
+.color-picker-float {
+  position: fixed;
+  display: flex;
+  gap: 8px;
+  background: #232734;
+  border-radius: 10px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.22);
+  padding: 10px 14px;
+  z-index: 10021;
+}
+.color-swatch-float {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  transition: border 0.18s, box-shadow 0.18s;
+}
+.color-swatch-float:hover {
+  border: 2px solid #f7c2d6;
+  box-shadow: 0 2px 8px rgba(247,194,214,0.18);
+}
+
+/* 编辑框浮窗 */
+.note-editor {
+  position: fixed;
+  min-width: 340px;
+  background: #232734;
+  color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.22);
+  z-index: 10022;
+  border: 1px solid #35394a;
+  padding: 0;
+}
+.note-editor-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px 0 18px;
+  font-size: 15px;
+  font-weight: 500;
+  color: #bfc4d1;
+}
+.note-editor-close {
+  background: none;
+  border: none;
+  color: #bfc4d1;
+  font-size: 22px;
+  cursor: pointer;
+  border-radius: 4px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.18s;
+}
+.note-editor-close:hover {
+  background: #35394a;
+  color: #fff;
+}
+.note-editor-textarea {
+  width: 100%;
+  min-height: 60px;
+  background: #232734;
+  color: #fff;
+  border: none;
+  border-radius: 0 0 12px 12px;
+  font-size: 15px;
+  padding: 16px 18px 18px 18px;
+  resize: vertical;
+  box-sizing: border-box;
+  outline: none;
+}
+.note-editor-textarea::placeholder {
+  color: #bfc4d1;
+  opacity: 0.8;
+} 

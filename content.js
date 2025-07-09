@@ -31,10 +31,10 @@ class HTMLNoteHighlighter {
       }
     });
 
-    // 监听点击高亮区域
+    // 监听点击高亮区域，弹出工具栏和编辑框
     document.addEventListener('click', (e) => {
       if (e.target.classList.contains('html-note-highlight')) {
-        this.showNoteEditor(e.target);
+        this.showToolbarForHighlight(e.target);
       }
     });
 
@@ -175,7 +175,7 @@ class HTMLNoteHighlighter {
       range.surroundContents(highlightSpan);
       selection.removeAllRanges();
       setTimeout(() => {
-        this.showToolbarForHighlight(highlightSpan);
+        window.HTMLNoteHighlighter.showToolbarForHighlight(highlightSpan);
       }, 100);
     } catch (error) {
       console.error('高亮文本时出错:', error);
@@ -196,74 +196,118 @@ class HTMLNoteHighlighter {
     return false;
   }
 
-  showNoteEditor(highlightElement) {
-    // 移除已存在的编辑器
-    const existingEditor = document.querySelector('.note-editor');
-    if (existingEditor) {
-      existingEditor.remove();
-    }
+  showToolbarForHighlight(highlightElement) {
+    // 移除已存在的工具栏和编辑框
+    document.querySelectorAll('.html-note-toolbar-float, .note-editor, .color-picker-float').forEach(el => el.remove());
+    const rect = highlightElement.getBoundingClientRect();
+    // 工具栏
+    const toolbar = document.createElement('div');
+    toolbar.className = 'html-note-toolbar-float';
+    toolbar.style.left = `${rect.left + rect.width/2 - 90}px`;
+    toolbar.style.top = `${rect.top - 50}px`;
+    // 颜色按钮
+    const colorBtn = document.createElement('button');
+    colorBtn.className = 'toolbar-float-btn';
+    colorBtn.title = '更改颜色';
+    colorBtn.innerHTML = '<svg width="22" height="22" viewBox="0 0 22 22"><rect x="3" y="3" width="16" height="16" rx="5" fill="'+(highlightElement.getAttribute('data-color')||'#f7c2d6')+'"/></svg>';
+    colorBtn.onclick = (ev) => {
+      ev.stopPropagation();
+      this.showColorPickerForHighlight(highlightElement, toolbar);
+    };
+    // 复制按钮
+    const copyBtn = document.createElement('button');
+    copyBtn.className = 'toolbar-float-btn';
+    copyBtn.title = '复制文本';
+    copyBtn.innerHTML = '<svg width="22" height="22" viewBox="0 0 22 22"><rect x="6" y="6" width="10" height="10" rx="2" fill="#fff" stroke="#bfc4d1" stroke-width="1.5"/><rect x="3" y="3" width="10" height="10" rx="2" fill="none" stroke="#bfc4d1" stroke-width="1.5"/></svg>';
+    copyBtn.onclick = (ev) => {
+      ev.stopPropagation();
+      navigator.clipboard.writeText(highlightElement.textContent);
+      this.showNotification('已复制高亮文本');
+    };
+    // 注释按钮
+    const noteBtn = document.createElement('button');
+    noteBtn.className = 'toolbar-float-btn';
+    noteBtn.title = '添加/编辑笔记';
+    noteBtn.innerHTML = '<svg width="22" height="22" viewBox="0 0 22 22"><rect x="4" y="4" width="14" height="14" rx="4" fill="#fff" stroke="#bfc4d1" stroke-width="1.5"/><text x="11" y="16" text-anchor="middle" font-size="12" fill="#bfc4d1">"</text></svg>';
+    noteBtn.onclick = (ev) => {
+      ev.stopPropagation();
+      this.showNoteEditor(highlightElement, toolbar);
+    };
+    // 删除按钮
+    const delBtn = document.createElement('button');
+    delBtn.className = 'toolbar-float-btn';
+    delBtn.title = '删除高亮';
+    delBtn.innerHTML = '<svg width="22" height="22" viewBox="0 0 22 22"><rect x="5" y="5" width="12" height="12" rx="3" fill="#fff" stroke="#e57373" stroke-width="1.5"/><line x1="8" y1="8" x2="14" y2="14" stroke="#e57373" stroke-width="2"/><line x1="14" y1="8" x2="8" y2="14" stroke="#e57373" stroke-width="2"/></svg>';
+    delBtn.onclick = (ev) => {
+      ev.stopPropagation();
+      this.removeHighlight(highlightElement);
+      toolbar.remove();
+      document.querySelectorAll('.note-editor').forEach(el => el.remove());
+      this.showNotification('高亮已删除');
+    };
+    toolbar.append(colorBtn, copyBtn, noteBtn, delBtn);
+    document.body.appendChild(toolbar);
+  }
 
+  showColorPickerForHighlight(highlightElement, toolbar) {
+    document.querySelectorAll('.color-picker-float').forEach(el => el.remove());
+    const picker = document.createElement('div');
+    picker.className = 'color-picker-float';
+    picker.style.left = toolbar.style.left;
+    picker.style.top = `${parseInt(toolbar.style.top) - 56}px`;
+    const colors = ['#f7c2d6','#ffeb3b','#b2f7ef','#ffd6e0','#c2e9fb','#fff9c4'];
+    colors.forEach(color => {
+      const swatch = document.createElement('div');
+      swatch.className = 'color-swatch-float';
+      swatch.style.background = color;
+      if (highlightElement.getAttribute('data-color') === color) {
+        swatch.style.outline = '2px solid #333';
+      }
+      swatch.onclick = (ev) => {
+        ev.stopPropagation();
+        highlightElement.style.backgroundColor = color;
+        highlightElement.setAttribute('data-color', color);
+        picker.remove();
+        // 更新toolbar颜色icon
+        const colorBtnSvg = toolbar.querySelector('button.toolbar-float-btn:first-child svg rect');
+        if (colorBtnSvg) colorBtnSvg.setAttribute('fill', color);
+      };
+      picker.appendChild(swatch);
+    });
+    document.body.appendChild(picker);
+    setTimeout(() => {
+      document.addEventListener('mousedown', function closePicker(ev) {
+        if (!picker.contains(ev.target)) {
+          picker.remove();
+          document.removeEventListener('mousedown', closePicker);
+        }
+      });
+    }, 10);
+  }
+
+  showNoteEditor(highlightElement, toolbar) {
+    document.querySelectorAll('.note-editor').forEach(el => el.remove());
     const currentNote = highlightElement.getAttribute('data-note') || '';
-    
-    // 创建编辑器
     const editor = document.createElement('div');
     editor.className = 'note-editor';
     editor.innerHTML = `
       <div class="note-editor-header">
-        <span>编辑笔记</span>
+        <span>Tags</span>
         <button class="note-editor-close">&times;</button>
       </div>
-      <textarea class="note-editor-textarea" placeholder="在这里输入你的笔记...">${currentNote}</textarea>
-      <div class="note-editor-buttons">
-        <button class="note-editor-save">保存</button>
-        <button class="note-editor-delete">删除高亮</button>
-      </div>
+      <textarea class="note-editor-textarea" placeholder="Take a note ...">${currentNote}</textarea>
     `;
-
-    // 定位编辑器
     const rect = highlightElement.getBoundingClientRect();
-    editor.style.position = 'fixed';
     editor.style.left = `${rect.left}px`;
-    editor.style.top = `${rect.bottom + 5}px`;
-    editor.style.zIndex = '10000';
-
+    editor.style.top = `${rect.bottom + 10}px`;
     document.body.appendChild(editor);
-
-    // 绑定事件
     const textarea = editor.querySelector('.note-editor-textarea');
-    const saveBtn = editor.querySelector('.note-editor-save');
-    const deleteBtn = editor.querySelector('.note-editor-delete');
     const closeBtn = editor.querySelector('.note-editor-close');
-
-    saveBtn.addEventListener('click', () => {
-      const noteText = textarea.value.trim();
-      highlightElement.setAttribute('data-note', noteText);
-      highlightElement.title = noteText || '点击编辑笔记';
-      editor.remove();
-      this.showNotification('笔记已保存');
-    });
-
-    deleteBtn.addEventListener('click', () => {
-      if (confirm('确定要删除这个高亮吗？')) {
-        this.removeHighlight(highlightElement);
-        editor.remove();
-        this.showNotification('高亮已删除');
-      }
-    });
-
-    closeBtn.addEventListener('click', () => {
-      editor.remove();
-    });
-
-    // 点击外部关闭编辑器
-    document.addEventListener('click', function closeEditor(e) {
-      if (!editor.contains(e.target) && !highlightElement.contains(e.target)) {
-        editor.remove();
-        document.removeEventListener('click', closeEditor);
-      }
-    });
-
-    // 聚焦到文本框
+    textarea.onblur = () => {
+      highlightElement.setAttribute('data-note', textarea.value.trim());
+      highlightElement.title = textarea.value.trim() || '点击编辑笔记';
+    };
+    closeBtn.onclick = () => editor.remove();
     textarea.focus();
   }
 
@@ -405,6 +449,5 @@ class HTMLNoteHighlighter {
 
 // 初始化插件
 const highlighter = new HTMLNoteHighlighter();
-
-// 导出到全局作用域（用于调试）
-window.HTMLNoteHighlighter = highlighter; 
+window.HTMLNoteHighlighter = highlighter;
+window.HTMLNoteHighlighter.showToolbarForHighlight = highlighter.showToolbarForHighlight.bind(highlighter); 
