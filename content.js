@@ -5,6 +5,7 @@ class HTMLNoteHighlighter {
   constructor() {
     this.isActive = false;
     this.noteCounter = 0;
+    this.highlightButton = null; // 悬浮高亮按钮
     this.init();
   }
 
@@ -18,6 +19,11 @@ class HTMLNoteHighlighter {
   }
 
   setupEventListeners() {
+    // 监听选区变化，弹出高亮按钮
+    document.addEventListener('selectionchange', () => {
+      this.showHighlightButtonForSelection();
+    });
+
     // 监听鼠标选择文本
     document.addEventListener('mouseup', (e) => {
       if (this.isActive) {
@@ -52,7 +58,7 @@ class HTMLNoteHighlighter {
     this.updateToolbarStatus();
     
     if (this.isActive) {
-      document.body.style.cursor = 'crosshair';
+
       this.showNotification('高亮模式已开启 - 选择文本进行高亮');
     } else {
       document.body.style.cursor = 'default';
@@ -102,6 +108,79 @@ class HTMLNoteHighlighter {
         this.showNotification('高亮失败，请重试');
       }
     });
+  }
+
+  showHighlightButtonForSelection() {
+    // 移除已有按钮
+    if (this.highlightButton) {
+      this.highlightButton.remove();
+      this.highlightButton = null;
+    }
+    const selection = window.getSelection();
+    if (!selection.rangeCount || selection.isCollapsed) return;
+    const range = selection.getRangeAt(0);
+    const rect = range.getBoundingClientRect();
+    if (rect.width === 0 && rect.height === 0) return;
+    // 创建按钮
+    const btn = document.createElement('button');
+    btn.className = 'html-note-highlight-btn';
+    btn.title = '高亮所选文本';
+    btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 20 20"><rect x="3" y="14" width="14" height="3" rx="1.5" fill="#f7c2d6"/><rect x="6" y="3" width="8" height="10" rx="2" fill="#333"/></svg>';
+    btn.style.position = 'fixed';
+    btn.style.left = `${rect.left + rect.width/2 - 16}px`;
+    btn.style.top = `${rect.top - 36}px`;
+    btn.style.zIndex = 10010;
+    btn.style.background = '#fff';
+    btn.style.border = '1px solid #eee';
+    btn.style.borderRadius = '6px';
+    btn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
+    btn.style.padding = '4px';
+    btn.style.cursor = 'pointer';
+    btn.style.display = 'flex';
+    btn.style.alignItems = 'center';
+    btn.style.justifyContent = 'center';
+    btn.style.transition = 'box-shadow 0.2s';
+    btn.onmouseenter = () => btn.style.boxShadow = '0 4px 16px rgba(0,0,0,0.18)';
+    btn.onmouseleave = () => btn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
+    document.body.appendChild(btn);
+    this.highlightButton = btn;
+    btn.onclick = () => {
+      this.highlightSelectionWithDefaultColor();
+      btn.remove();
+      this.highlightButton = null;
+    };
+  }
+
+  highlightSelectionWithDefaultColor() {
+    const selection = window.getSelection();
+    if (!selection.rangeCount || selection.isCollapsed) return;
+    const range = selection.getRangeAt(0);
+    const selectedText = selection.toString().trim();
+    if (selectedText.length === 0) return;
+    if (this.isAlreadyHighlighted(range)) {
+      this.showNotification('该文本已经高亮过了');
+      selection.removeAllRanges();
+      return;
+    }
+    const highlightSpan = document.createElement('span');
+    highlightSpan.className = 'html-note-highlight';
+    highlightSpan.setAttribute('data-note-id', `note-${++this.noteCounter}`);
+    highlightSpan.setAttribute('data-note', '');
+    highlightSpan.setAttribute('data-timestamp', Date.now().toString());
+    // 默认色
+    const color = '#f7c2d6';
+    highlightSpan.style.backgroundColor = color;
+    highlightSpan.setAttribute('data-color', color);
+    try {
+      range.surroundContents(highlightSpan);
+      selection.removeAllRanges();
+      setTimeout(() => {
+        this.showToolbarForHighlight(highlightSpan);
+      }, 100);
+    } catch (error) {
+      console.error('高亮文本时出错:', error);
+      this.showNotification('高亮失败，请重试');
+    }
   }
 
   isAlreadyHighlighted(range) {
