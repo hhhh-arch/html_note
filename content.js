@@ -40,10 +40,10 @@ class HTMLNoteHighlighter {
           const allSpans = document.querySelectorAll('.html-note-highlight[data-group-id="' + groupId + '"]');
           // 传第一个span和groupId给工具栏
           this.showToolbarForHighlight(allSpans[0], groupId);
-          this.showNoteEditor(allSpans[0], groupId);
+          this.showNoteEditor(allSpans[0], groupId, e);
         } else {
           this.showToolbarForHighlight(e.target);
-          this.showNoteEditor(e.target);
+          this.showNoteEditor(e.target, undefined, e);
         }
       }
     });
@@ -561,6 +561,7 @@ class HTMLNoteHighlighter {
     picker.style.left = toolbar.style.left;
     picker.style.top = `${parseInt(toolbar.style.top) - 56}px`;
     const colors = ['#f7c2d6','#ffeb3b','#b2f7ef','#ffd6e0','#c2e9fb','#fff9c4'];
+    const groupId = highlightElement.getAttribute('data-group-id');
     colors.forEach(color => {
       const swatch = document.createElement('div');
       swatch.className = 'color-swatch-float';
@@ -570,8 +571,15 @@ class HTMLNoteHighlighter {
       }
       swatch.onclick = (ev) => {
         ev.stopPropagation();
-        highlightElement.style.backgroundColor = color;
-        highlightElement.setAttribute('data-color', color);
+        if (groupId) {
+          document.querySelectorAll('.html-note-highlight[data-group-id="'+groupId+'"]').forEach(span => {
+            span.style.backgroundColor = color;
+            span.setAttribute('data-color', color);
+          });
+        } else {
+          highlightElement.style.backgroundColor = color;
+          highlightElement.setAttribute('data-color', color);
+        }
         picker.remove();
         // 更新toolbar颜色icon
         const colorBtnSvg = toolbar.querySelector('button.toolbar-float-btn:first-child svg rect');
@@ -590,7 +598,7 @@ class HTMLNoteHighlighter {
     }, 10);
   }
 
-  showNoteEditor(highlightElement, groupId) {
+  showNoteEditor(highlightElement, groupId, mouseEvent) {
     document.querySelectorAll('.note-editor').forEach(el => el.remove());
     // 取同组第一个的 data-note
     let currentNote = highlightElement.getAttribute('data-note') || '';
@@ -607,9 +615,15 @@ class HTMLNoteHighlighter {
       </div>
       <textarea class="note-editor-textarea" placeholder="Take a note ...">${currentNote}</textarea>
     `;
-    const rect = highlightElement.getBoundingClientRect();
-    editor.style.left = `${rect.left}px`;
-    editor.style.top = `${rect.bottom + 10}px`;
+    // 定位：优先用鼠标事件，否则用高亮元素
+    if (mouseEvent) {
+      editor.style.left = `${mouseEvent.clientX}px`;
+      editor.style.top = `${mouseEvent.clientY + 10}px`;
+    } else {
+      const rect = highlightElement.getBoundingClientRect();
+      editor.style.left = `${rect.left}px`;
+      editor.style.top = `${rect.bottom + 10}px`;
+    }
     document.body.appendChild(editor);
     const textarea = editor.querySelector('.note-editor-textarea');
     const closeBtn = editor.querySelector('.note-editor-close');
