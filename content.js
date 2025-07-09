@@ -146,21 +146,27 @@ class HTMLNoteHighlighter {
   }
 
   highlightSelectionWithDefaultColor() {
-    const selection = window.getSelection();
-    console.log('[debug] selection:', selection);
-
-    if (!selection.rangeCount || selection.isCollapsed) return;
-    const range = selection.getRangeAt(0);
-    const selectedText = selection.toString().trim();
-    if (selectedText.length === 0) return;
-    if (this.isAlreadyHighlighted(range)) {
-      this.showNotification('该文本已经高亮过了');
-      selection.removeAllRanges();
-      return;
-    }
-    
     try {
-      // 使用更健壮的方法来处理复杂选区
+      const selection = window.getSelection();
+      console.log('[DEBUG] selection:', selection);
+  
+      if (!selection || !selection.rangeCount || selection.isCollapsed) {
+        console.log('[DEBUG] 无有效选区');
+        return;
+      }
+  
+      const range = selection.getRangeAt(0);
+      console.log('[DEBUG] range:', range);
+  
+      const selectedText = selection.toString().trim();
+      if (selectedText.length === 0) return;
+  
+      if (this.isAlreadyHighlighted(range)) {
+        this.showNotification('该文本已经高亮过了');
+        selection.removeAllRanges();
+        return;
+      }
+  
       const highlightSpan = this.createHighlightSpan();
       this.wrapRangeWithSpan(range, highlightSpan);
       selection.removeAllRanges();
@@ -172,6 +178,7 @@ class HTMLNoteHighlighter {
       this.showNotification('高亮失败，请重试');
     }
   }
+  
 
   createHighlightSpan() {
     const highlightSpan = document.createElement('span');
