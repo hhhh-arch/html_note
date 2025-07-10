@@ -1,4 +1,4 @@
-export function showNoteEditor(highlightElement, groupId, mouseEvent) {
+function showNoteEditor(highlightElement, groupId, mouseEvent) {
     //TODO： 这里加入editor的颜色
     document.querySelectorAll('.note-editor').forEach(el => el.remove());
     // 取同组第一个的 data-note

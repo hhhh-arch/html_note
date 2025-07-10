@@ -15,7 +15,7 @@
 // - 响应式设计，适配不同屏幕尺寸
 // - 深色模式支持
 // - 打印时隐藏高亮元素
-import { showNoteEditor } from './editor.js';
+
 class HTMLNoteHighlighter {
   constructor() {
     this.isActive = false;
@@ -55,11 +55,11 @@ class HTMLNoteHighlighter {
           const allSpans = document.querySelectorAll('.html-note-highlight[data-group-id="' + groupId + '"]');
           // 传第一个span和groupId给工具栏
           this.showToolbarForHighlight(allSpans[0], groupId);
-          this.showNoteEditor(allSpans[0], groupId, e);
+          showNoteEditor(allSpans[0], groupId, e);
           //TODO: 这里点击编辑框出不来
         } else {
           this.showToolbarForHighlight(e.target);
-          this.showNoteEditor(e.target, undefined, e);
+          showNoteEditor(e.target, undefined, e);
         }
       }
     });
@@ -125,7 +125,7 @@ class HTMLNoteHighlighter {
         selection.removeAllRanges();
         // 自动弹出笔记编辑器
         setTimeout(() => {
-          this.showNoteEditor(highlightSpan, this._currentHighlightGroupId);
+          showNoteEditor(highlightSpan, this._currentHighlightGroupId);
         }, 100);
       } catch (error) {
         console.error('高亮文本时出错:', error);
@@ -557,7 +557,7 @@ class HTMLNoteHighlighter {
     noteBtn.innerHTML = '<svg width="22" height="22" viewBox="0 0 22 22"><rect x="4" y="4" width="14" height="14" rx="4" fill="#fff" stroke="#bfc4d1" stroke-width="1.5"/><text x="11" y="16" text-anchor="middle" font-size="12" fill="#bfc4d1">"</text></svg>';
     noteBtn.onclick = (ev) => {
       ev.stopPropagation();
-      this.showNoteEditor(highlightElement, groupId);
+      showNoteEditor(highlightElement, groupId);
     };
     // 删除按钮
     const delBtn = document.createElement('button');
@@ -847,7 +847,7 @@ class HTMLNoteHighlighter {
 const highlighter = new HTMLNoteHighlighter();
 window.HTMLNoteHighlighter = highlighter;
 window.HTMLNoteHighlighter.showToolbarForHighlight = highlighter.showToolbarForHighlight.bind(highlighter); 
-window.HTMLNoteHighlighter.showNoteEditor = highlighter.showNoteEditor.bind(highlighter);
+
 /**
  * 创建高亮span元素（使用指定颜色）
  * @param {string} color - 高亮颜色
@@ -890,4 +890,64 @@ function changeColorbyGroupId(color, groupId) {
   });
   
   console.log(`已成功更改${highlightElements.length}个高亮元素的颜色为: ${color}`);
+}
+function showNoteEditor(highlightElement, groupId, mouseEvent) {
+ 
+  document.querySelectorAll('.note-editor').forEach(el => el.remove());
+  // 取同组第一个的 data-note
+  let currentNote = highlightElement.getAttribute('data-note') || '';
+  if (groupId) {
+    const first = document.querySelector('.html-note-highlight[data-group-id="'+groupId+'"]');
+    if (first) currentNote = first.getAttribute('data-note') || '';
+  }
+  const editor = document.createElement('div');
+  editor.className = 'note-editor';
+  // editor.innerHTML = `
+  //   <div class="note-editor-header">
+  //     <span>Tags</span>
+  //     <button class="note-editor-close">&times;</button>
+  //   </div>
+  //   <textarea class="note-editor-textarea" placeholder="Take a note ...">${currentNote}</textarea>
+  // `;
+  editor.innerHTML = `<div class="note-editor" style="background:#232734;color:#bfc4d1;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,0.22);border:1px solid #35394a;min-width:340px;padding:0;">
+<div class="note-editor-header" style="background:#232734;padding:14px 18px 0 18px;display:flex;align-items:center;font-size:15px;font-weight:500;color:#bfc4d1;border-radius:12px 12px 0 0;">
+  <input type="text" class="note-editor-tags" placeholder="Tags" style="background:#232734;color:#bfc4d1;border:1px solid #35394a;border-radius:6px;font-size:14px;padding:2px 8px;outline:none;width:120px;height:28px;" />
+</div>
+<textarea class="note-editor-textarea" placeholder="Take a note ..." style="width:100%;min-height:60px;background:#232734;color:#bfc4d1;border:none;border-radius:0 0 12px 12px;font-size:15px;padding:16px 18px 18px 18px;resize:vertical;box-sizing:border-box;outline:none;margin-top:2px;"></textarea>
+</div> `
+  // 定位：优先用鼠标事件，否则用高亮元素
+  if (mouseEvent) {
+    editor.style.left = `${mouseEvent.clientX}px`;
+    editor.style.top = `${mouseEvent.clientY + 10}px`;
+  } else {
+    const rect = highlightElement.getBoundingClientRect();
+    editor.style.left = `${rect.left}px`;
+    editor.style.top = `${rect.bottom + 10}px`;
+  }
+  document.body.appendChild(editor);
+  const textarea = editor.querySelector('.note-editor-textarea');
+  
+
+  // if mouse click anywhere, close the editor and save the note
+  document.addEventListener('mousedown', (ev) => {
+    if (!editor.contains(ev.target)) {
+      textarea.onblur = () => {
+        const note = textarea.value.trim();
+        if (groupId) {
+          document.querySelectorAll('.html-note-highlight[data-group-id="'+groupId+'"]').forEach(span => {
+            span.setAttribute('data-note', note);
+            console.log('save note', note);
+            span.title = note || '点击编辑笔记';
+          });
+        } else {
+          console.log('save note', note);
+          highlightElement.setAttribute('data-note', note);
+          highlightElement.title = note || '点击编辑笔记';
+          //TODO: 这里的保存并不成功
+        }
+      };
+      editor.remove();
+    }
+  });
+  textarea.focus();
 }
