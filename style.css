@@ -98,96 +98,63 @@
 
 /* 笔记编辑器样式 */
 .note-editor {
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-  border: 1px solid #e0e0e0;
-  min-width: 300px;
-  max-width: 500px;
-  z-index: 10002;
+  position: fixed;
+  min-width: 340px;
+  background: #232734;
+  color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.22);
+  z-index: 10022;
+  border: 1px solid #35394a;
+  padding: 0;
 }
 
 .note-editor-header {
-  background:#232734;
-  padding:14px 18px 0 18px;
-  display:flex;
-  align-items:center;
-  font-size:15px;
-  font-weight:500;
-  color:#bfc4d1;
-  border-radius:12px 12px 0 0;
+  display: flex;
+  align-items: center;
+  padding: 14px 18px 0 18px;
+  font-size: 15px;
+  font-weight: 500;
+  color: #bfc4d1;
 }
 
-.note-editor-tags {
-  background:#232734;
-  color:#bfc4d1;
-  border:1px solid #35394a;
-  border-radius:6px;
-  font-size:14px;
-  padding:2px 8px;
-  outline:none;
-  width:120px;
-  height:28px;
+.note-editor-close {
+  background: none;
+  border: none;
+  color: #bfc4d1;
+  font-size: 22px;
+  cursor: pointer;
+  border-radius: 4px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.18s;
+}
+
+.note-editor-close:hover {
+  background: #35394a;
+  color: #fff;
 }
 
 .note-editor-textarea {
-  width:100%;
-  min-height:60px;
-  background:#232734;
-  color:#bfc4d1;
-  border:none;
-  border-radius:0 0 12px 12px;
-  font-size:15px;
-  padding:16px 18px 18px 18px;
-  resize:vertical;
-  box-sizing:border-box;outline:none;margin-top:2px;
-}
-
-.note-editor-textarea:focus {
+  width: 100%;
+  min-height: 60px;
+  background: #232734;
+  color: #fff;
+  border: none;
+  border-radius: 0 0 12px 12px;
+  font-size: 15px;
+  padding: 16px 18px 18px 18px;
+  resize: vertical;
+  box-sizing: border-box;
   outline: none;
-  background: #fafafa;
 }
 
 .note-editor-textarea::placeholder {
-  color: #999;
-}
-
-.note-editor-buttons {
-  display: flex;
-  gap: 8px;
-  padding: 12px 16px;
-  border-top: 1px solid #e0e0e0;
-  background: #f8f9fa;
-  border-radius: 0 0 8px 8px;
-}
-
-.note-editor-save,
-.note-editor-delete {
-  padding: 8px 16px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  transition: all 0.2s ease;
-}
-
-.note-editor-save {
-  background: #007bff;
-  color: #fff;
-}
-
-.note-editor-save:hover {
-  background: #0056b3;
-}
-
-.note-editor-delete {
-  background: #dc3545;
-  color: #fff;
-}
-
-.note-editor-delete:hover {
-  background: #c82333;
+  color: #bfc4d1;
+  opacity: 0.8;
 }
 
 /* 通知样式 */
@@ -217,129 +184,6 @@
     transform: translateX(-50%) translateY(0);
   }
 }
-
-/* 响应式设计 */
-@media (max-width: 768px) {
-  .html-note-toolbar {
-    top: 10px;
-    right: 10px;
-    min-width: 100px;
-  }
-  
-  .toolbar-text {
-    display: none;
-  }
-  
-  .note-editor {
-    min-width: 280px;
-    max-width: calc(100vw - 40px);
-  }
-  
-  .html-note-notification {
-    left: 10px;
-    right: 10px;
-    transform: none;
-    text-align: center;
-  }
-}
-
-/* 高亮模式下的光标样式 */
-body[style*="crosshair"] {
-  -webkit-user-select: text;
-  -moz-user-select: text;
-  -ms-user-select: text;
-  user-select: text;
-}
-
-/* 确保高亮元素在打印时可见 */
-@media print {
-  .html-note-highlight {
-    background-color: #ffeb3b !important;
-    color: #000 !important;
-    box-shadow: none !important;
-  }
-  
-  .html-note-toolbar,
-  .note-editor,
-  .html-note-notification {
-    display: none !important;
-  }
-}
-
-/* 深色模式支持 */
-@media (prefers-color-scheme: dark) {
-  .html-note-toolbar {
-    background: #2d3748;
-    border-color: #4a5568;
-  }
-  
-  .toolbar-btn {
-    background: #4a5568;
-    color: #e2e8f0;
-  }
-  
-  .toolbar-btn:hover {
-    background: #718096;
-  }
-  
-  .toolbar-btn.active {
-    background: #3182ce;
-  }
-  
-  .toolbar-btn.active:hover {
-    background: #2c5aa0;
-  }
-  
-  .note-editor {
-    background: #2d3748;
-    border-color: #4a5568;
-  }
-  
-  .note-editor-header {
-    background: #4a5568;
-    color: #e2e8f0;
-    border-color: #718096;
-  }
-  
-  .note-editor-textarea {
-    background: #2d3748;
-    color: #e2e8f0;
-  }
-  
-  .note-editor-textarea:focus {
-    background: #4a5568;
-  }
-  
-  .note-editor-buttons {
-    background: #4a5568;
-    border-color: #718096;
-  }
-  
-  .html-note-notification {
-    background: #2d3748;
-    color: #e2e8f0;
-  }
-} 
-
-/* popup 颜色选择面板 */
-.color-picker {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 12px;
-  flex-wrap: wrap;
-}
-.color-swatch {
-  width: 28px;
-  height: 28px;
-  border-radius: 6px;
-  cursor: pointer;
-  border: 2px solid #eee;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-  transition: border 0.2s;
-}
-.color-swatch.selected {
-  border: 2px solid #333;
-} 
 
 /* 浮动工具栏样式 */
 .html-note-toolbar-float {
@@ -400,62 +244,7 @@ body[style*="crosshair"] {
   box-shadow: 0 2px 8px rgba(247,194,214,0.18);
 }
 
-/* 编辑框浮窗 */
-.note-editor {
-  position: fixed;
-  min-width: 340px;
-  background: #232734;
-  color: #fff;
-  border-radius: 12px;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.22);
-  z-index: 10022;
-  border: 1px solid #35394a;
-  padding: 0;
-}
-.note-editor-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 18px 0 18px;
-  font-size: 15px;
-  font-weight: 500;
-  color: #bfc4d1;
-}
-.note-editor-close {
-  background: none;
-  border: none;
-  color: #bfc4d1;
-  font-size: 22px;
-  cursor: pointer;
-  border-radius: 4px;
-  width: 28px;
-  height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.18s;
-}
-.note-editor-close:hover {
-  background: #35394a;
-  color: #fff;
-}
-.note-editor-textarea {
-  width: 100%;
-  min-height: 60px;
-  background: #232734;
-  color: #fff;
-  border: none;
-  border-radius: 0 0 12px 12px;
-  font-size: 15px;
-  padding: 16px 18px 18px 18px;
-  resize: vertical;
-  box-sizing: border-box;
-  outline: none;
-}
-.note-editor-textarea::placeholder {
-  color: #bfc4d1;
-  opacity: 0.8;
-} 
+/* tag 气泡样式 */
 .tag-bubble {
   background: #232734;
   border: 1px solid #35394a;
