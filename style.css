@@ -108,50 +108,39 @@
 }
 
 .note-editor-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 16px;
-  border-bottom: 1px solid #e0e0e0;
-  background: #f8f9fa;
-  border-radius: 8px 8px 0 0;
-  font-weight: 600;
-  color: #333;
+  background:#232734;
+  padding:14px 18px 0 18px;
+  display:flex;
+  align-items:center;
+  font-size:15px;
+  font-weight:500;
+  color:#bfc4d1;
+  border-radius:12px 12px 0 0;
 }
 
-.note-editor-close {
-  background: none;
-  border: none;
-  font-size: 18px;
-  cursor: pointer;
-  color: #666;
-  padding: 0;
-  width: 24px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 4px;
-  transition: background-color 0.2s ease;
-}
-
-.note-editor-close:hover {
-  background: #e9ecef;
-  color: #333;
+.note-editor-tags {
+  background:#232734;
+  color:#bfc4d1;
+  border:1px solid #35394a;
+  border-radius:6px;
+  font-size:14px;
+  padding:2px 8px;
+  outline:none;
+  width:120px;
+  height:28px;
 }
 
 .note-editor-textarea {
-  width: 100%;
-  min-height: 100px;
-  padding: 12px 16px;
-  border: none;
-  resize: vertical;
-  font-family: inherit;
-  font-size: 14px;
-  line-height: 1.5;
-  color: #333;
-  background: #fff;
-  box-sizing: border-box;
+  width:100%;
+  min-height:60px;
+  background:#232734;
+  color:#bfc4d1;
+  border:none;
+  border-radius:0 0 12px 12px;
+  font-size:15px;
+  padding:16px 18px 18px 18px;
+  resize:vertical;
+  box-sizing:border-box;outline:none;margin-top:2px;
 }
 
 .note-editor-textarea:focus {
@@ -467,3 +456,18 @@ body[style*="crosshair"] {
   color: #bfc4d1;
   opacity: 0.8;
 } 
+.tag-bubble {
+  background: #232734;
+  border: 1px solid #35394a;
+  color: #bfc4d1;
+  border-radius: 6px;
+  padding: 2px 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  margin-right: 4px;
+}
+.tag-bubble .tag-remove:hover {
+  color: #ff6b6b;
+}

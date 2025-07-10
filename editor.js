@@ -6,15 +6,19 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
     const first = document.querySelector('.html-note-highlight[data-group-id="' + groupId + '"]');
     if (first) currentNote = first.getAttribute('data-note') || '';
   }
-
+    // 读取已有tags
+    let tagsArr = [];
+    if (highlightElement.hasAttribute('data-tags')) {
+      tagsArr = highlightElement.getAttribute('data-tags').split(',').filter(Boolean);
+    }
 
   const editor = document.createElement('div');
   editor.className = 'note-editor';
   editor.innerHTML = `
-    <div class="note-editor-header" style="background:#232734;padding:14px 18px 0 18px;display:flex;align-items:center;font-size:15px;font-weight:500;color:#bfc4d1;border-radius:12px 12px 0 0;">
-      <input type="text" class="note-editor-tags" placeholder="Tags" style="background:#232734;color:#bfc4d1;border:1px solid #35394a;border-radius:6px;font-size:14px;padding:2px 8px;outline:none;width:120px;height:28px;" />
+    <div class="note-editor-header">
+      <input type="text" class="note-editor-tags" placeholder="Tags" />
     </div>
-    <textarea class="note-editor-textarea" placeholder="${!currentNote ? 'type your note' : ''}" style="width:100%;min-height:60px;background:#232734;color:#bfc4d1;border:none;border-radius:0 0 12px 12px;font-size:15px;padding:16px 18px 18px 18px;resize:vertical;box-sizing:border-box;outline:none;margin-top:2px;">${currentNote ? currentNote : ''}</textarea>
+    <textarea class="note-editor-textarea" placeholder="${!currentNote ? 'type your note' : ''}" >${currentNote ? currentNote : ''}</textarea>
   `;
 
   // 定位
@@ -30,6 +34,7 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
   document.body.appendChild(editor);
 
   const textarea = editor.querySelector('.note-editor-textarea');
+  const tags = editor.querySelector('.note-editor-tags');
 
   // 失焦时保存内容
   textarea.onblur = () => {
@@ -38,13 +43,13 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
       if (note != '') {
         document.querySelectorAll('.html-note-highlight[data-group-id="' + groupId + '"]').forEach(span => {
           span.setAttribute('data-note', note);
-          span.title = note || '点击编辑笔记';
+          span.title = note ;
         });
       }
     } else {
       if (note != '') {
         highlightElement.setAttribute('data-note', note);
-        highlightElement.title = note || '点击编辑笔记';
+        highlightElement.title = note ;
       }
     }
     editor.remove();
@@ -65,5 +70,6 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
     textarea.selectionStart = currentNote.length;
     textarea.selectionEnd = currentNote.length;
   };
+  const tagsBar = editor.querySelector('.note-editor-header');
 
 }
