@@ -214,23 +214,7 @@ class HTMLNoteHighlighter {
     return highlightSpan;
   }
 
-  /**
-   * 创建高亮span元素（使用指定颜色）
-   * @param {string} color - 高亮颜色
-   * @param {string} groupId - 高亮组的ID，用于批量操作
-   * @returns {HTMLElement} 创建的高亮span元素
-   */
-  createHighlightSpanWithColor(color, groupId) {
-    const highlightSpan = document.createElement('span');
-    highlightSpan.className = 'html-note-highlight';
-    highlightSpan.setAttribute('data-note-id', `note-${++this.noteCounter}`);
-    highlightSpan.setAttribute('data-note', '');
-    highlightSpan.setAttribute('data-timestamp', Date.now().toString());
-    highlightSpan.style.backgroundColor = color;
-    highlightSpan.setAttribute('data-color', color);
-    if (groupId) highlightSpan.setAttribute('data-group-id', groupId);
-    return highlightSpan;
-  }
+
 
   wrapRangeWithSpan(range, highlightSpan) {
     try {
@@ -623,13 +607,17 @@ class HTMLNoteHighlighter {
         
         if (groupId) {
           // 如果有组ID，批量修改同组所有高亮元素的颜色
-          document.querySelectorAll('.html-note-highlight[data-group-id="'+groupId+'"]').forEach(span => {
-            // 使用!important来覆盖CSS规则
-            span.style.setProperty('background-color', color, 'important');
-            span.setAttribute('data-color', color);
-          });
+          console.log('批量修改同组所有高亮元素的颜色', groupId);
+          createHighlightSpanWithColor(color, groupId);
+          // document.querySelectorAll('.html-note-highlight[data-group-id="'+groupId+'"]').forEach(span => {
+          //   // 使用!important来覆盖CSS规则
+          //   span.style.setProperty('background-color', color, 'important');
+          //   span.setAttribute('data-color', color);
+          //   //FIXME: 这里没有办法更新background color
+          // });
         } else {
           // 只修改当前高亮元素的颜色
+          console.log('there is no groupId');
           highlightElement.style.setProperty('background-color', color, 'important');
           highlightElement.setAttribute('data-color', color);
         }
@@ -893,3 +881,21 @@ const highlighter = new HTMLNoteHighlighter();
 window.HTMLNoteHighlighter = highlighter;
 window.HTMLNoteHighlighter.showToolbarForHighlight = highlighter.showToolbarForHighlight.bind(highlighter); 
 window.HTMLNoteHighlighter.showNoteEditor = highlighter.showNoteEditor.bind(highlighter);
+/**
+ * 创建高亮span元素（使用指定颜色）
+ * @param {string} color - 高亮颜色
+ * @param {string} groupId - 高亮组的ID，用于批量操作
+ * @returns {HTMLElement} 创建的高亮span元素
+ */
+function createHighlightSpanWithColor(color, groupId) {
+  //TODO： 我尝试把这个加进去试试
+  const highlightSpan = document.createElement('span');
+  highlightSpan.className = 'html-note-highlight';
+  highlightSpan.setAttribute('data-note-id', `note-${++this.noteCounter}`);
+  highlightSpan.setAttribute('data-note', '');
+  highlightSpan.setAttribute('data-timestamp', Date.now().toString());
+  highlightSpan.style.backgroundColor = color;
+  highlightSpan.setAttribute('data-color', color);
+  if (groupId) highlightSpan.setAttribute('data-group-id', groupId);
+  return highlightSpan;
+}
