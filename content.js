@@ -76,6 +76,10 @@ class HTMLNoteHighlighter {
     }
   }
 
+  /**
+   * 处理文本选择，创建高亮
+   * 当用户选择文本时，检查是否已高亮，然后创建新的高亮元素
+   */
   handleTextSelection() {
     const selection = window.getSelection();
     if (!selection.rangeCount || selection.isCollapsed) return;
@@ -191,6 +195,11 @@ class HTMLNoteHighlighter {
     }
   }
 
+  /**
+   * 创建高亮span元素（使用默认颜色）
+   * @param {string} groupId - 高亮组的ID，用于批量操作
+   * @returns {HTMLElement} 创建的高亮span元素
+   */
   createHighlightSpan(groupId) {
     const highlightSpan = document.createElement('span');
     highlightSpan.className = 'html-note-highlight';
@@ -205,6 +214,12 @@ class HTMLNoteHighlighter {
     return highlightSpan;
   }
 
+  /**
+   * 创建高亮span元素（使用指定颜色）
+   * @param {string} color - 高亮颜色
+   * @param {string} groupId - 高亮组的ID，用于批量操作
+   * @returns {HTMLElement} 创建的高亮span元素
+   */
   createHighlightSpanWithColor(color, groupId) {
     const highlightSpan = document.createElement('span');
     highlightSpan.className = 'html-note-highlight';
@@ -486,16 +501,25 @@ class HTMLNoteHighlighter {
     return false;
   }
 
+  /**
+   * 为高亮元素显示工具栏
+   * @param {HTMLElement} highlightElement - 要高亮显示的元素
+   * @param {string} groupId - 高亮组的ID，用于批量操作同组高亮
+   */
   showToolbarForHighlight(highlightElement, groupId) {
-    // 移除已存在的工具栏和编辑框
+    // 移除已存在的工具栏、编辑框和颜色选择器
     document.querySelectorAll('.html-note-toolbar-float, .note-editor, .color-picker-float').forEach(el => el.remove());
+    
+    // 获取高亮元素的位置信息
     const rect = highlightElement.getBoundingClientRect();
-    // 工具栏
+    
+    // 创建工具栏容器
     const toolbar = document.createElement('div');
     toolbar.className = 'html-note-toolbar-float';
     toolbar.style.left = `${rect.left + rect.width/2 - 90}px`;
     toolbar.style.top = `${rect.top - 50}px`;
-    // 颜色按钮
+    
+    // 创建颜色按钮
     const colorBtn = document.createElement('button');
     colorBtn.className = 'toolbar-float-btn';
     colorBtn.title = '更改颜色';
@@ -504,7 +528,8 @@ class HTMLNoteHighlighter {
       ev.stopPropagation();
       this.showColorPickerForHighlight(highlightElement, toolbar);
     };
-    // 复制按钮
+    
+    // 创建复制按钮
     const copyBtn = document.createElement('button');
     copyBtn.className = 'toolbar-float-btn';
     copyBtn.title = '复制文本';
@@ -540,54 +565,92 @@ class HTMLNoteHighlighter {
     delBtn.onclick = (ev) => {
       ev.stopPropagation();
       if (groupId) {
+        // 删除同组所有高亮
         document.querySelectorAll('.html-note-highlight[data-group-id="'+groupId+'"]').forEach(span => {
           this.removeHighlight(span);
         });
       } else {
+        // 只删除当前高亮
         this.removeHighlight(highlightElement);
       }
       toolbar.remove();
       document.querySelectorAll('.note-editor').forEach(el => el.remove());
       this.showNotification('高亮已删除');
     };
+    
+    // 将所有按钮添加到工具栏
     toolbar.append(colorBtn, copyBtn, noteBtn, delBtn);
     document.body.appendChild(toolbar);
   }
 
+  /**
+   * 显示颜色选择器浮窗
+   * @param {HTMLElement} highlightElement - 要高亮显示的元素
+   * @param {HTMLElement} toolbar - 工具栏元素，用于定位颜色选择器
+   */
   showColorPickerForHighlight(highlightElement, toolbar) {
+    // 移除已存在的颜色选择器浮窗
     document.querySelectorAll('.color-picker-float').forEach(el => el.remove());
+    
+    // 创建颜色选择器容器
     const picker = document.createElement('div');
     picker.className = 'color-picker-float';
+    
+    // 设置颜色选择器位置（相对于工具栏）
     picker.style.left = toolbar.style.left;
     picker.style.top = `${parseInt(toolbar.style.top) - 56}px`;
+    
+    // 定义可选择的颜色数组
     const colors = ['#f7c2d6','#ffeb3b','#b2f7ef','#ffd6e0','#c2e9fb','#fff9c4'];
+    
+    // 获取当前高亮元素的组ID（用于批量修改同组高亮）
     const groupId = highlightElement.getAttribute('data-group-id');
+    
+    // 为每个颜色创建色块
     colors.forEach(color => {
       const swatch = document.createElement('div');
       swatch.className = 'color-swatch-float';
       swatch.style.background = color;
+      
+      // 如果当前高亮元素使用的是这个颜色，添加选中状态
       if (highlightElement.getAttribute('data-color') === color) {
         swatch.style.outline = '2px solid #333';
       }
+      
+      // 点击色块时的处理逻辑
       swatch.onclick = (ev) => {
-        ev.stopPropagation();
+        ev.stopPropagation(); // 阻止事件冒泡
+        
         if (groupId) {
+          // 如果有组ID，批量修改同组所有高亮元素的颜色
           document.querySelectorAll('.html-note-highlight[data-group-id="'+groupId+'"]').forEach(span => {
-            span.style.backgroundColor = color;
+            // 使用!important来覆盖CSS规则
+            span.style.setProperty('background-color', color, 'important');
             span.setAttribute('data-color', color);
           });
         } else {
-          highlightElement.style.backgroundColor = color;
+          // 只修改当前高亮元素的颜色
+          highlightElement.style.setProperty('background-color', color, 'important');
           highlightElement.setAttribute('data-color', color);
         }
+        
+        // 移除颜色选择器
         picker.remove();
         // 更新toolbar颜色icon
         const colorBtnSvg = toolbar.querySelector('button.toolbar-float-btn:first-child svg rect');
-        if (colorBtnSvg) colorBtnSvg.setAttribute('fill', color);
+        if (colorBtnSvg) {
+          colorBtnSvg.setAttribute('fill', color);
+        }
       };
+      
+      // 将色块添加到颜色选择器中
       picker.appendChild(swatch);
     });
+    
+    // 将颜色选择器添加到页面
     document.body.appendChild(picker);
+    
+    // 添加点击外部关闭颜色选择器的功能
     setTimeout(() => {
       document.addEventListener('mousedown', function closePicker(ev) {
         if (!picker.contains(ev.target)) {
