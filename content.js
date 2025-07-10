@@ -793,49 +793,49 @@ class HTMLNoteHighlighter {
     });
   }
 
-  createToolbar() {
-    // 移除已存在的工具栏
-    const existingToolbar = document.querySelector('.html-note-toolbar');
-    if (existingToolbar) {
-      existingToolbar.remove();
-    }
+  // createToolbar() {
+  //   // 移除已存在的工具栏
+  //   const existingToolbar = document.querySelector('.html-note-toolbar');
+  //   if (existingToolbar) {
+  //     existingToolbar.remove();
+  //   }
 
-    const toolbar = document.createElement('div');
-    toolbar.className = 'html-note-toolbar';
-    toolbar.innerHTML = `
-      <button class="toolbar-btn toggle-btn" title="切换高亮模式 (Ctrl+Shift+H)">
-        <span class="toolbar-icon">✏️</span>
-        <span class="toolbar-text">高亮模式</span>
-      </button>
-      <button class="toolbar-btn save-btn" title="保存页面 (Ctrl+Shift+S)">
-        <span class="toolbar-icon">💾</span>
-        <span class="toolbar-text">保存页面</span>
-      </button>
-      <button class="toolbar-btn stats-btn" title="查看统计">
-        <span class="toolbar-icon">📊</span>
-        <span class="toolbar-text">统计</span>
-      </button>
-    `;
+  //   const toolbar = document.createElement('div');
+  //   toolbar.className = 'html-note-toolbar';
+  //   toolbar.innerHTML = `
+  //     <button class="toolbar-btn toggle-btn" title="切换高亮模式 (Ctrl+Shift+H)">
+  //       <span class="toolbar-icon">✏️</span>
+  //       <span class="toolbar-text">高亮模式</span>
+  //     </button>
+  //     <button class="toolbar-btn save-btn" title="保存页面 (Ctrl+Shift+S)">
+  //       <span class="toolbar-icon">💾</span>
+  //       <span class="toolbar-text">保存页面</span>
+  //     </button>
+  //     <button class="toolbar-btn stats-btn" title="查看统计">
+  //       <span class="toolbar-icon">📊</span>
+  //       <span class="toolbar-text">统计</span>
+  //     </button>
+  //   `;
 
-    document.body.appendChild(toolbar);
+  //   document.body.appendChild(toolbar);
 
-    // 绑定工具栏事件
-    const toggleBtn = toolbar.querySelector('.toggle-btn');
-    const saveBtn = toolbar.querySelector('.save-btn');
-    const statsBtn = toolbar.querySelector('.stats-btn');
+  //   // 绑定工具栏事件
+  //   const toggleBtn = toolbar.querySelector('.toggle-btn');
+  //   const saveBtn = toolbar.querySelector('.save-btn');
+  //   const statsBtn = toolbar.querySelector('.stats-btn');
 
-    toggleBtn.addEventListener('click', () => {
-      this.toggleHighlightMode();
-    });
+  //   toggleBtn.addEventListener('click', () => {
+  //     this.toggleHighlightMode();
+  //   });
 
-    saveBtn.addEventListener('click', () => {
-      this.savePage();
-    });
+  //   saveBtn.addEventListener('click', () => {
+  //     this.savePage();
+  //   });
 
-    statsBtn.addEventListener('click', () => {
-      this.showStats();
-    });
-  }
+  //   statsBtn.addEventListener('click', () => {
+  //     this.showStats();
+  //   });
+  // }
 
   updateToolbarStatus() {
     const toggleBtn = document.querySelector('.toggle-btn');
