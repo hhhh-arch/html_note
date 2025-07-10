@@ -30,7 +30,7 @@ class HTMLNoteHighlighter {
     // 恢复已保存的高亮和笔记
     this.restoreHighlights();
     // 创建工具栏
-    this.createToolbar();
+    //this.createToolbar();
   }
 
   setupEventListeners() {
