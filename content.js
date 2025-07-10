@@ -56,6 +56,7 @@ class HTMLNoteHighlighter {
           // 传第一个span和groupId给工具栏
           this.showToolbarForHighlight(allSpans[0], groupId);
           this.showNoteEditor(allSpans[0], groupId, e);
+          //TODO: 这里点击编辑框出不来
         } else {
           this.showToolbarForHighlight(e.target);
           this.showNoteEditor(e.target, undefined, e);
@@ -659,6 +660,7 @@ class HTMLNoteHighlighter {
   }
 
   showNoteEditor(highlightElement, groupId, mouseEvent) {
+    //TODO： 这里加入editor的颜色
     document.querySelectorAll('.note-editor').forEach(el => el.remove());
     // 取同组第一个的 data-note
     let currentNote = highlightElement.getAttribute('data-note') || '';
@@ -668,13 +670,19 @@ class HTMLNoteHighlighter {
     }
     const editor = document.createElement('div');
     editor.className = 'note-editor';
-    editor.innerHTML = `
-      <div class="note-editor-header">
-        <span>Tags</span>
-        <button class="note-editor-close">&times;</button>
-      </div>
-      <textarea class="note-editor-textarea" placeholder="Take a note ...">${currentNote}</textarea>
-    `;
+    // editor.innerHTML = `
+    //   <div class="note-editor-header">
+    //     <span>Tags</span>
+    //     <button class="note-editor-close">&times;</button>
+    //   </div>
+    //   <textarea class="note-editor-textarea" placeholder="Take a note ...">${currentNote}</textarea>
+    // `;
+    editor.innerHTML = {'src': 'template/note-editor.html', 'data': {
+      'currentNote': currentNote,
+      'groupId': groupId,
+      'highlightElement': highlightElement,
+      'mouseEvent': mouseEvent
+    }};
     // 定位：优先用鼠标事件，否则用高亮元素
     if (mouseEvent) {
       editor.style.left = `${mouseEvent.clientX}px`;
@@ -897,7 +905,7 @@ window.HTMLNoteHighlighter.showNoteEditor = highlighter.showNoteEditor.bind(high
  * @returns {HTMLElement} 创建的高亮span元素
  */
 function createHighlightSpanWithColor(color, groupId, noteCounter) {
-  //TODO： 我尝试把这个加进去试试
+
   const highlightSpan = document.createElement('span');
   highlightSpan.className = 'html-note-highlight';
   highlightSpan.setAttribute('data-note-id', `note-${noteCounter}`);
