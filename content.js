@@ -140,8 +140,8 @@ class HTMLNoteHighlighter {
     highlightSpan.setAttribute('data-note', '');
     highlightSpan.setAttribute('data-timestamp', Date.now().toString());
     // 默认色
-    const color = '#f7c2d6';
-    highlightSpan.style.backgroundColor = color;//FIXME: 这里已经设置好了default color
+    const color = '#ffeb3b';
+    highlightSpan.style.backgroundColor = color;
     highlightSpan.setAttribute('data-color', color);
     if (groupId) highlightSpan.setAttribute('data-group-id', groupId);
     return highlightSpan;
@@ -154,7 +154,7 @@ class HTMLNoteHighlighter {
       // 检查是否是跨块级元素的选区
       const groupId = highlightSpan.getAttribute('data-group-id');
       if (this.isCrossBlockSelection(range)) {
-        const color = highlightSpan.getAttribute('data-color') || '#f7c2d6';
+        const color = highlightSpan.getAttribute('data-color') || '#ffeb3b';
         this.wrapCrossBlockSelection(range, color, groupId);
       } else {
         // 对于简单的选区，使用原来的方法
@@ -233,7 +233,7 @@ class HTMLNoteHighlighter {
     return null;
   }
 
-  wrapCrossBlockSelection(range, color = '#f7c2d6', groupId) {
+  wrapCrossBlockSelection(range, color = '#ffeb3b', groupId) {
     try {
       const textNodes = this.getTextNodesInRange(range);
       if (textNodes.length === 0) {
