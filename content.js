@@ -141,7 +141,7 @@ class HTMLNoteHighlighter {
     highlightSpan.setAttribute('data-timestamp', Date.now().toString());
     // 默认色
     const color = '#f7c2d6';
-    highlightSpan.style.backgroundColor = color;
+    highlightSpan.style.backgroundColor = color;//FIXME: 这里已经设置好了default color
     highlightSpan.setAttribute('data-color', color);
     if (groupId) highlightSpan.setAttribute('data-group-id', groupId);
     return highlightSpan;
@@ -440,7 +440,7 @@ class HTMLNoteHighlighter {
     const colorBtn = document.createElement('button');
     colorBtn.className = 'toolbar-float-btn';
     colorBtn.title = '更改颜色';
-    colorBtn.innerHTML = '<svg width="22" height="22" viewBox="0 0 22 22"><rect x="3" y="3" width="16" height="16" rx="5" fill="'+(highlightElement.getAttribute('data-color')||'#f7c2d6')+'"/></svg>';
+    colorBtn.innerHTML = '<svg width="22" height="22" viewBox="0 0 22 22"><rect x="3" y="3" width="16" height="16" rx="5" fill="'+(highlightElement.getAttribute('data-color')||'#ffeb3b')+'"/></svg>';
     colorBtn.onclick = (ev) => {
       ev.stopPropagation();
       this.showColorPickerForHighlight(highlightElement, toolbar);
