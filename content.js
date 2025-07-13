@@ -36,12 +36,14 @@ class HTMLNoteHighlighter {
   setupEventListeners() {
     // 监听选区变化，弹出高亮按钮
     document.addEventListener('selectionchange', () => {
+
       this.showHighlightButtonForSelection();
     });
 
     // 监听鼠标选择文本
     document.addEventListener('mouseup', (e) => {
       if (this.isActive) {
+        //console.log('handleTextSelection')
         this.handleTextSelection();
       }
     });
@@ -64,19 +66,8 @@ class HTMLNoteHighlighter {
       }
     });
 
-    // 监听键盘快捷键
-    document.addEventListener('keydown', (e) => {
-      // Ctrl+Shift+H 切换高亮模式
-      if (e.ctrlKey && e.shiftKey && e.key === 'H') {
-        e.preventDefault();
-        this.toggleHighlightMode();
-      }
-      // Ctrl+Shift+S 保存页面
-      if (e.ctrlKey && e.shiftKey && e.key === 'S') {
-        e.preventDefault();
-        this.savePage();
-      }
-    });
+
+
   }
 
   toggleHighlightMode() {
@@ -97,6 +88,7 @@ class HTMLNoteHighlighter {
    * 当用户选择文本时，检查是否已高亮，然后创建新的高亮元素
    */
   handleTextSelection() {
+    console.log('handleTextSelection')
     const selection = window.getSelection();
     if (!selection.rangeCount || selection.isCollapsed) return;
 
@@ -111,11 +103,11 @@ class HTMLNoteHighlighter {
       selection.removeAllRanges();
       return;
     }
-
+    //FIXME: 这里没有办法获取到当前的color， 或者说之前选的color并没有全局set好
     // 读取当前颜色并创建高亮元素
     chrome.storage && chrome.storage.sync && chrome.storage.sync.get('highlightColor', ({ highlightColor }) => {
       const color = highlightColor || '#ffeb3b';
-
+      console.log('test if is here')
       try {
         // 使用更健壮的方法来处理复杂选区
 
@@ -123,9 +115,11 @@ class HTMLNoteHighlighter {
  
         this.wrapRangeWithSpan(range, highlightSpan);
         selection.removeAllRanges();
+        //FIXME: 这里会莫名其妙的弹出tool bar
         // 自动弹出笔记编辑器
         setTimeout(() => {
-          showNoteEditor(highlightSpan, this._currentHighlightGroupId);
+          console.log('test if is here')
+           showNoteEditor(highlightSpan, this._currentHighlightGroupId);// here is the issue : the highl
         }, 100);
       } catch (error) {
         console.error('高亮文本时出错:', error);
@@ -201,6 +195,7 @@ class HTMLNoteHighlighter {
       this.wrapRangeWithSpan(range, this.createHighlightSpan(groupId));
   
       selection.removeAllRanges();
+      //FIXME: 可能是这里莫名其妙的弹出tool bar 
       setTimeout(() => {
         if (typeof this.showToolbarForHighlight === 'function') {
           // 传递 groupId，显示工具栏时可用
@@ -896,4 +891,3 @@ function changeColorbyGroupId(color, groupId) {
     // ...
   }
 
-  
