@@ -36,14 +36,15 @@ class HTMLNoteHighlighter {
   setupEventListeners() {
     // 监听选区变化，弹出高亮按钮
     document.addEventListener('selectionchange', () => {
-
+      console.log('showHighlightButtonForSelection')
       this.showHighlightButtonForSelection();
     });
+    
 
     // 监听鼠标选择文本
     document.addEventListener('mouseup', (e) => {
       if (this.isActive) {
-        //console.log('handleTextSelection')
+        
         this.handleTextSelection();
       }
     });
@@ -70,25 +71,13 @@ class HTMLNoteHighlighter {
 
   }
 
-  toggleHighlightMode() {
-    this.isActive = !this.isActive;
-    this.updateToolbarStatus();
-    
-    if (this.isActive) {
-
-      this.showNotification('高亮模式已开启 - 选择文本进行高亮');
-    } else {
-      document.body.style.cursor = 'default';
-      this.showNotification('高亮模式已关闭');
-    }
-  }
 
   /**
    * 处理文本选择，创建高亮
    * 当用户选择文本时，检查是否已高亮，然后创建新的高亮元素
    */
   handleTextSelection() {
-    console.log('handleTextSelection')
+    //console.log('handleTextSelection')
     const selection = window.getSelection();
     if (!selection.rangeCount || selection.isCollapsed) return;
 
@@ -105,7 +94,9 @@ class HTMLNoteHighlighter {
     }
     //FIXME: 这里没有办法获取到当前的color， 或者说之前选的color并没有全局set好
     // 读取当前颜色并创建高亮元素
-    chrome.storage && chrome.storage.sync && chrome.storage.sync.get('highlightColor', ({ highlightColor }) => {
+    console.log('highlight color ')
+    
+    chrome.storage && chrome.storage.sync && chrome.storage.sync.get('highlightColor', ({ highlightColor }) => {// FIXME: 这里根本进不去
       const color = highlightColor || '#ffeb3b';
       console.log('test if is here')
       try {
@@ -140,27 +131,8 @@ class HTMLNoteHighlighter {
     const rect = range.getBoundingClientRect();
     if (rect.width === 0 && rect.height === 0) return;
     // 创建按钮
-    const btn = document.createElement('button');
-    btn.className = 'html-note-highlight-btn';
-    btn.title = '高亮所选文本';
-    btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 20 20"><rect x="3" y="14" width="14" height="3" rx="1.5" fill="#f7c2d6"/><rect x="6" y="3" width="8" height="10" rx="2" fill="#333"/></svg>';
-    btn.style.position = 'fixed';
-    btn.style.left = `${rect.left + rect.width/2 - 16}px`;
-    btn.style.top = `${rect.top - 36}px`;
-    btn.style.zIndex = 10010;
-    btn.style.background = '#fff';
-    btn.style.border = '1px solid #eee';
-    btn.style.borderRadius = '6px';
-    btn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
-    btn.style.padding = '4px';
-    btn.style.cursor = 'pointer';
-    btn.style.display = 'flex';
-    btn.style.alignItems = 'center';
-    btn.style.justifyContent = 'center';
-    btn.style.transition = 'box-shadow 0.2s';
-    btn.onmouseenter = () => btn.style.boxShadow = '0 4px 16px rgba(0,0,0,0.18)';
-    btn.onmouseleave = () => btn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
-    document.body.appendChild(btn);
+    const btn = createhighlightBotton(rect);
+   
     this.highlightButton = btn;
     btn.onclick = () => {
       this.highlightSelectionWithDefaultColor();
@@ -710,30 +682,7 @@ class HTMLNoteHighlighter {
     }
   }
 
-  savePage() {
-    try {
-      // 获取当前页面的HTML
-      const html = document.documentElement.outerHTML;
-      
-      // 创建下载链接
-      const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `笔记版-${document.title}-${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.html`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      
-      URL.revokeObjectURL(url);
-      this.showNotification('页面已保存为HTML文件');
-      
-    } catch (error) {
-      console.error('保存页面时出错:', error);
-      this.showNotification('保存失败，请重试');
-    }
-  }
+
 
   restoreHighlights() {
     // 恢复已保存的高亮样式和事件
@@ -891,3 +840,27 @@ function changeColorbyGroupId(color, groupId) {
     // ...
   }
 
+function createhighlightBotton(rect) {
+  const btn = document.createElement('button');
+  btn.className = 'html-note-highlight-btn';
+  btn.title = '高亮所选文本';
+  btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 20 20"><rect x="3" y="14" width="14" height="3" rx="1.5" fill="#f7c2d6"/><rect x="6" y="3" width="8" height="10" rx="2" fill="#333"/></svg>';
+  btn.style.position = 'fixed';
+  btn.style.left = `${rect.left + rect.width/2 - 16}px`;
+  btn.style.top = `${rect.top - 36}px`;
+  btn.style.zIndex = 10010;
+  btn.style.background = '#fff';
+  btn.style.border = '1px solid #eee';
+  btn.style.borderRadius = '6px';
+  btn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
+  btn.style.padding = '4px';
+  btn.style.cursor = 'pointer';
+  btn.style.display = 'flex';
+  btn.style.alignItems = 'center';
+  btn.style.justifyContent = 'center';
+  btn.style.transition = 'box-shadow 0.2s';
+  btn.onmouseenter = () => btn.style.boxShadow = '0 4px 16px rgba(0,0,0,0.18)';
+  btn.onmouseleave = () => btn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
+  document.body.appendChild(btn);
+  return btn;
+}
