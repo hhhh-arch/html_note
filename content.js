@@ -24,6 +24,7 @@ class HTMLNoteHighlighter {
     this.init();
   }
 
+
   init() {
     // 初始化事件监听
     this.setupEventListeners();
@@ -140,9 +141,6 @@ class HTMLNoteHighlighter {
     highlightSpan.setAttribute('data-note', '');
     highlightSpan.setAttribute('data-timestamp', Date.now().toString());
     // 默认色
-    const color = '#ffeb3b';
-    highlightSpan.style.backgroundColor = color;
-    highlightSpan.setAttribute('data-color', color);
     if (groupId) highlightSpan.setAttribute('data-group-id', groupId);
     return highlightSpan;
   }
@@ -154,8 +152,10 @@ class HTMLNoteHighlighter {
       // 检查是否是跨块级元素的选区
       const groupId = highlightSpan.getAttribute('data-group-id');
       if (this.isCrossBlockSelection(range)) {
-        const color = highlightSpan.getAttribute('data-color') || '#ffeb3b';
-        this.wrapCrossBlockSelection(range, color, groupId);
+        getHighlightColor((color) => {
+          this.wrapCrossBlockSelection(range, color, groupId);
+        });
+
       } else {
         // 对于简单的选区，使用原来的方法
         const contents = range.extractContents();
@@ -233,7 +233,7 @@ class HTMLNoteHighlighter {
     return null;
   }
 
-  wrapCrossBlockSelection(range, color = '#ffeb3b', groupId) {
+  wrapCrossBlockSelection(range, color, groupId) {
     try {
       const textNodes = this.getTextNodesInRange(range);
       if (textNodes.length === 0) {
@@ -553,6 +553,7 @@ class HTMLNoteHighlighter {
         const colorBtnSvg = toolbar.querySelector('button.toolbar-float-btn:first-child svg rect');
         if (colorBtnSvg) {
           colorBtnSvg.setAttribute('fill', color);
+          setHighlightColor(color);
         }
       };
       
@@ -811,4 +812,14 @@ function createhighlightBotton(rect) {
   btn.onmouseleave = () => btn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
   document.body.appendChild(btn);
   return btn;
+}
+function setHighlightColor(color) {
+  chrome.storage.local.set({ highlightColor: color });
+  console.log('setHighlightColor', color)
+}
+
+function getHighlightColor(callback) {
+  chrome.storage.local.get(['highlightColor'], (result) => {
+    callback(result.highlightColor || '#ffeb3b');
+  });
 }
