@@ -162,18 +162,18 @@ class HTMLNoteHighlighter {
       // 生成本次高亮的 group id
       const groupId = 'note-group-' + Date.now() + '-' + Math.floor(Math.random() * 10000);
       this._currentHighlightGroupId = groupId;
-      console.log(`groupId: ${groupId}`)
+     
       // 👇 使用 extract + insert 替代 surround，绕过 DOMException
       this.wrapRangeWithSpan(range, this.createHighlightSpan(groupId));
   
       selection.removeAllRanges();
       //FIXME: 可能是这里莫名其妙的弹出tool bar 
-      setTimeout(() => {
-        if (typeof this.showToolbarForHighlight === 'function') {
-          // 传递 groupId，显示工具栏时可用
-          this.showToolbarForHighlight(document.querySelector('.html-note-highlight[data-group-id="' + groupId + '"]'), groupId);
-        }
-      }, 100);
+      // setTimeout(() => {
+      //   if (typeof this.showToolbarForHighlight === 'function') {
+      //     // 传递 groupId，显示工具栏时可用
+      //     this.showToolbarForHighlight(document.querySelector('.html-note-highlight[data-group-id="' + groupId + '"]'), groupId);
+      //   }
+      // }, 100);
     } catch (error) {
       console.error('高亮文本时出错:', error);
       this.showNotification('高亮失败（可能选中内容结构复杂）');
