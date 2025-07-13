@@ -36,7 +36,7 @@ class HTMLNoteHighlighter {
   setupEventListeners() {
     // 监听选区变化，弹出高亮按钮
     document.addEventListener('selectionchange', () => {
-      console.log('showHighlightButtonForSelection')
+      //console.log('showHighlightButtonForSelection')
       this.showHighlightButtonForSelection();
     });
     
@@ -162,7 +162,7 @@ class HTMLNoteHighlighter {
       // 生成本次高亮的 group id
       const groupId = 'note-group-' + Date.now() + '-' + Math.floor(Math.random() * 10000);
       this._currentHighlightGroupId = groupId;
-  
+      console.log(`groupId: ${groupId}`)
       // 👇 使用 extract + insert 替代 surround，绕过 DOMException
       this.wrapRangeWithSpan(range, this.createHighlightSpan(groupId));
   
