@@ -41,13 +41,6 @@ class HTMLNoteHighlighter {
     });
     
 
-    // 监听鼠标选择文本
-    document.addEventListener('mouseup', (e) => {
-      if (this.isActive) {
-        
-        this.handleTextSelection();
-      }
-    });
 
     // 监听点击高亮区域，弹出工具栏和编辑框
     document.addEventListener('click', (e) => {
@@ -72,52 +65,7 @@ class HTMLNoteHighlighter {
   }
 
 
-  /**
-   * 处理文本选择，创建高亮
-   * 当用户选择文本时，检查是否已高亮，然后创建新的高亮元素
-   */
-  handleTextSelection() {
-    //console.log('handleTextSelection')
-    const selection = window.getSelection();
-    if (!selection.rangeCount || selection.isCollapsed) return;
 
-    const range = selection.getRangeAt(0);
-    const selectedText = selection.toString().trim();
-    
-    if (selectedText.length === 0) return;
-
-    // 检查是否已经高亮
-    if (this.isAlreadyHighlighted(range)) {
-      this.showNotification('该文本已经高亮过了');
-      selection.removeAllRanges();
-      return;
-    }
-    //FIXME: 这里没有办法获取到当前的color， 或者说之前选的color并没有全局set好
-    // 读取当前颜色并创建高亮元素
-    console.log('highlight color ')
-    
-    chrome.storage && chrome.storage.sync && chrome.storage.sync.get('highlightColor', ({ highlightColor }) => {// FIXME: 这里根本进不去
-      const color = highlightColor || '#ffeb3b';
-      console.log('test if is here')
-      try {
-        // 使用更健壮的方法来处理复杂选区
-
-        const highlightSpan = createHighlightSpanWithColor(color, this._currentHighlightGroupId, ++this.noteCounter);
- 
-        this.wrapRangeWithSpan(range, highlightSpan);
-        selection.removeAllRanges();
-        //FIXME: 这里会莫名其妙的弹出tool bar
-        // 自动弹出笔记编辑器
-        setTimeout(() => {
-          console.log('test if is here')
-           showNoteEditor(highlightSpan, this._currentHighlightGroupId);// here is the issue : the highl
-        }, 100);
-      } catch (error) {
-        console.error('高亮文本时出错:', error);
-        this.showNotification('高亮失败，请重试');
-      }
-    });
-  }
 
   showHighlightButtonForSelection() {
     // 移除已有按钮
@@ -167,7 +115,7 @@ class HTMLNoteHighlighter {
       this.wrapRangeWithSpan(range, this.createHighlightSpan(groupId));
   
       selection.removeAllRanges();
-      //FIXME: 可能是这里莫名其妙的弹出tool bar 
+
       // setTimeout(() => {
       //   if (typeof this.showToolbarForHighlight === 'function') {
       //     // 传递 groupId，显示工具栏时可用

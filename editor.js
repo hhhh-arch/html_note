@@ -15,10 +15,10 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
   const editor = document.createElement('div');
   editor.className = 'note-editor';
   editor.innerHTML = `
-    <div class="note-editor-header">
-      <input type="text" class="note-editor-tags" placeholder="Tags" />
+    <div class="note-editor-header" style="background:#232734;padding:14px 18px 0 18px;display:flex;align-items:center;font-size:15px;font-weight:500;color:#bfc4d1;border-radius:12px 12px 0 0;">
+      <input type="text" class="note-editor-tags" placeholder="Tags" style="background:#232734;color:#bfc4d1;border:1px solid #35394a;border-radius:6px;font-size:14px;padding:2px 8px;outline:none;width:120px;height:28px;" />
     </div>
-    <textarea class="note-editor-textarea" placeholder="${!currentNote ? 'type your note' : ''}" >${currentNote ? currentNote : ''}</textarea>
+    <textarea class="note-editor-textarea" placeholder="${!currentNote ? 'type your note' : ''}" style="width:100%;min-height:60px;background:#232734;color:#bfc4d1;border:none;border-radius:0 0 12px 12px;font-size:15px;padding:16px 18px 18px 18px;resize:vertical;box-sizing:border-box;outline:none;margin-top:2px;">${currentNote ? currentNote : ''}</textarea>
   `;
 
   // 定位
@@ -71,5 +71,5 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
     textarea.selectionEnd = currentNote.length;
   };
   const tagsBar = editor.querySelector('.note-editor-header');
-
+  // TODO： 这里加入tags的编辑功能
 }
