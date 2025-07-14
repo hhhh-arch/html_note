@@ -2,7 +2,7 @@
 
 /* 高亮样式 */
 .html-note-highlight {
-  background-color: #ffeb3b !important;
+  background-color: #ffeb3b;
   color: #000 !important;
   padding: 2px 4px !important;
   border-radius: 3px !important;

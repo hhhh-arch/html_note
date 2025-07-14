@@ -159,6 +159,7 @@ class HTMLNoteHighlighter {
     highlightSpan.setAttribute('data-timestamp', Date.now().toString());
     // 每次都重新获取最新的默认颜色
     const color = this.getDefaultColor();
+    console.log('[debug] createHighlightSpan 用的 color:', color);
     highlightSpan.style.backgroundColor = color;
     highlightSpan.setAttribute('data-color', color);
     if (groupId) highlightSpan.setAttribute('data-group-id', groupId);
@@ -173,6 +174,7 @@ class HTMLNoteHighlighter {
       const groupId = highlightSpan.getAttribute('data-group-id');
       if (this.isCrossBlockSelection(range)) {
         const color = highlightSpan.getAttribute('data-color') || this.getDefaultColor();
+        console.log('[debug] wrapRangeWithSpan 传入 wrapCrossBlockSelection 的 color:', color);
         this.wrapCrossBlockSelection(range, color, groupId);
       } else {
         // 对于简单的选区，使用原来的方法
@@ -252,10 +254,10 @@ class HTMLNoteHighlighter {
   }
 
   wrapCrossBlockSelection(range, color = null, groupId) {
-    // 如果没有指定颜色，使用默认颜色
     if (!color) {
       color = this.getDefaultColor();
     }
+    console.log('[debug] wrapCrossBlockSelection 用的 color:', color);
     try {
       const textNodes = this.getTextNodesInRange(range);
       if (textNodes.length === 0) {
@@ -784,11 +786,10 @@ window.HTMLNoteHighlighter.showToolbarForHighlight = highlighter.showToolbarForH
  * @returns {HTMLElement} 创建的高亮span元素
  */
 function createHighlightSpanWithColor(color, groupId, noteCounter) {
-  // 如果没有指定颜色，使用默认颜色
   if (!color) {
     color = highlighter.getDefaultColor();
   }
-
+  console.log('[debug] createHighlightSpanWithColor 用的 color:', color);
   const highlightSpan = document.createElement('span');
   highlightSpan.className = 'html-note-highlight';
   highlightSpan.setAttribute('data-note-id', `note-${noteCounter}`);
