@@ -20,6 +20,7 @@ class HTMLNoteHighlighter {
     this.isActive = false;
     this.noteCounter = 0;
     this.highlightButton = null; // 悬浮高亮按钮
+    this.defaultColor = this.getDefaultColor(); // 获取存储的默认颜色
     this.init();
   }
 
@@ -30,6 +31,24 @@ class HTMLNoteHighlighter {
     this.restoreHighlights();
     // 创建工具栏
     //this.createToolbar();
+  }
+
+  /**
+   * 获取存储的默认颜色，如果没有则返回默认值
+   * @returns {string} 默认颜色
+   */
+  getDefaultColor() {
+    const storedColor = localStorage.getItem('html-note-default-color');
+    return storedColor || '#ffeb3b';
+  }
+
+  /**
+   * 设置默认颜色并保存到localStorage
+   * @param {string} color - 要设置的默认颜色
+   */
+  setDefaultColor(color) {
+    this.defaultColor = color;
+    localStorage.setItem('html-note-default-color', color);
   }
 
   setupEventListeners() {
@@ -138,8 +157,8 @@ class HTMLNoteHighlighter {
     highlightSpan.setAttribute('data-note-id', `note-${++this.noteCounter}`);
     highlightSpan.setAttribute('data-note', '');
     highlightSpan.setAttribute('data-timestamp', Date.now().toString());
-    // 默认色
-    const color = '#ffeb3b';
+    // 每次都重新获取最新的默认颜色
+    const color = this.getDefaultColor();
     highlightSpan.style.backgroundColor = color;
     highlightSpan.setAttribute('data-color', color);
     if (groupId) highlightSpan.setAttribute('data-group-id', groupId);
@@ -153,7 +172,7 @@ class HTMLNoteHighlighter {
       // 检查是否是跨块级元素的选区
       const groupId = highlightSpan.getAttribute('data-group-id');
       if (this.isCrossBlockSelection(range)) {
-        const color = highlightSpan.getAttribute('data-color') || '#ffeb3b';
+        const color = highlightSpan.getAttribute('data-color') || this.getDefaultColor();
         this.wrapCrossBlockSelection(range, color, groupId);
       } else {
         // 对于简单的选区，使用原来的方法
@@ -232,7 +251,11 @@ class HTMLNoteHighlighter {
     return null;
   }
 
-  wrapCrossBlockSelection(range, color = '#ffeb3b', groupId) {
+  wrapCrossBlockSelection(range, color = null, groupId) {
+    // 如果没有指定颜色，使用默认颜色
+    if (!color) {
+      color = this.getDefaultColor();
+    }
     try {
       const textNodes = this.getTextNodesInRange(range);
       if (textNodes.length === 0) {
@@ -331,6 +354,11 @@ class HTMLNoteHighlighter {
     // 备用方法：只高亮文本内容，不改变HTML结构
     const selectedText = range.toString();
     if (!selectedText.trim()) return;
+    
+    // 如果没有指定颜色，使用默认颜色
+    if (!color) {
+      color = this.getDefaultColor();
+    }
     
     // 创建一个文本节点来替换选区
     const textNode = document.createTextNode(selectedText);
@@ -439,7 +467,7 @@ class HTMLNoteHighlighter {
     const colorBtn = document.createElement('button');
     colorBtn.className = 'toolbar-float-btn';
     colorBtn.title = '更改颜色';
-    colorBtn.innerHTML = '<svg width="22" height="22" viewBox="0 0 22 22"><rect x="3" y="3" width="16" height="16" rx="5" fill="'+(highlightElement.getAttribute('data-color')||'#ffeb3b')+'"/></svg>';
+    colorBtn.innerHTML = '<svg width="22" height="22" viewBox="0 0 22 22"><rect x="3" y="3" width="16" height="16" rx="5" fill="'+(highlightElement.getAttribute('data-color')||this.defaultColor)+'"/></svg>';
     colorBtn.onclick = (ev) => {
       ev.stopPropagation();
       this.showColorPickerForHighlight(highlightElement, toolbar);
@@ -539,6 +567,27 @@ class HTMLNoteHighlighter {
         swatch.style.outline = '2px solid #333';
       }
       
+      // 如果这个颜色是默认颜色，添加勾选标记
+      if (color === this.defaultColor) {
+        const checkmark = document.createElement('div');
+        checkmark.style.position = 'absolute';
+        checkmark.style.top = '2px';
+        checkmark.style.right = '2px';
+        checkmark.style.width = '8px';
+        checkmark.style.height = '8px';
+        checkmark.style.background = '#333';
+        checkmark.style.borderRadius = '50%';
+        checkmark.style.display = 'flex';
+        checkmark.style.alignItems = 'center';
+        checkmark.style.justifyContent = 'center';
+        checkmark.innerHTML = '✓';
+        checkmark.style.color = '#fff';
+        checkmark.style.fontSize = '6px';
+        checkmark.style.fontWeight = 'bold';
+        swatch.style.position = 'relative';
+        swatch.appendChild(checkmark);
+      }
+      
       // 点击色块时的处理逻辑
       swatch.onclick = (ev) => {
         ev.stopPropagation(); // 阻止事件冒泡
@@ -564,6 +613,30 @@ class HTMLNoteHighlighter {
       // 将色块添加到颜色选择器中
       picker.appendChild(swatch);
     });
+    
+    // 添加"设为默认"按钮
+    const setDefaultBtn = document.createElement('div');
+    setDefaultBtn.className = 'set-default-btn';
+    setDefaultBtn.style.marginTop = '8px';
+    setDefaultBtn.style.padding = '6px 8px';
+    setDefaultBtn.style.background = '#f5f5f5';
+    setDefaultBtn.style.border = '1px solid #ddd';
+    setDefaultBtn.style.borderRadius = '4px';
+    setDefaultBtn.style.fontSize = '12px';
+    setDefaultBtn.style.cursor = 'pointer';
+    setDefaultBtn.style.textAlign = 'center';
+    setDefaultBtn.style.color = '#666';
+    setDefaultBtn.textContent = '设为默认颜色';
+    
+    setDefaultBtn.onclick = (ev) => {
+      ev.stopPropagation();
+      const currentColor = highlightElement.getAttribute('data-color');
+      this.setDefaultColor(currentColor);
+      this.showNotification('已设为默认颜色');
+      picker.remove();
+    };
+    
+    picker.appendChild(setDefaultBtn);
     
     // 将颜色选择器添加到页面
     document.body.appendChild(picker);
@@ -707,9 +780,14 @@ window.HTMLNoteHighlighter.showToolbarForHighlight = highlighter.showToolbarForH
  * 创建高亮span元素（使用指定颜色）
  * @param {string} color - 高亮颜色
  * @param {string} groupId - 高亮组的ID，用于批量操作
+ * @param {number} noteCounter - 笔记计数器
  * @returns {HTMLElement} 创建的高亮span元素
  */
 function createHighlightSpanWithColor(color, groupId, noteCounter) {
+  // 如果没有指定颜色，使用默认颜色
+  if (!color) {
+    color = highlighter.getDefaultColor();
+  }
 
   const highlightSpan = document.createElement('span');
   highlightSpan.className = 'html-note-highlight';
