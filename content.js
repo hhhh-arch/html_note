@@ -15,7 +15,6 @@
 // - 响应式设计，适配不同屏幕尺寸
 // - 深色模式支持
 // - 打印时隐藏高亮元素
-
 class HTMLNoteHighlighter {
   constructor() {
     this.isActive = false;
@@ -498,6 +497,12 @@ class HTMLNoteHighlighter {
     // 将所有按钮添加到工具栏
     toolbar.append(colorBtn, copyBtn, noteBtn, delBtn);
     document.body.appendChild(toolbar);
+    // if color picker is not show and click anywhere outside the toolbar  
+    document.addEventListener('mousedown', (ev) => {
+      if (!toolbar.contains(ev.target)) {
+        toolbar.remove();
+      }
+    });
   }
 
   /**
