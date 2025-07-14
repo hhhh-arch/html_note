@@ -19,82 +19,12 @@
   transform: translateY(-1px) !important;
 }
 
-.html-note-highlight::after {
-  content: '📝';
-  position: absolute;
-  top: -8px;
-  right: -8px;
-  font-size: 10px;
-  background: #fff;
-  border-radius: 50%;
-  width: 16px;
-  height: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-  opacity: 0;
-  transition: opacity 0.2s ease;
-}
 
-.html-note-highlight:hover::after {
-  opacity: 1;
-}
 
-/* 工具栏样式 */
-.html-note-toolbar {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  padding: 8px;
-  z-index: 10001;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 120px;
-  border: 1px solid #e0e0e0;
-}
 
-.toolbar-btn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  border: none;
-  background: #f8f9fa;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-size: 12px;
-  color: #333;
-  text-decoration: none;
-  white-space: nowrap;
-}
 
-.toolbar-btn:hover {
-  background: #e9ecef;
-  transform: translateY(-1px);
-}
 
-.toolbar-btn.active {
-  background: #007bff;
-  color: #fff;
-}
 
-.toolbar-btn.active:hover {
-  background: #0056b3;
-}
-
-.toolbar-icon {
-  font-size: 14px;
-}
-
-.toolbar-text {
-  font-weight: 500;
-}
 
 /* 笔记编辑器样式 */
 .note-editor {
