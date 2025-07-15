@@ -532,9 +532,11 @@ class HTMLNoteHighlighter {
     // 将所有按钮添加到工具栏
     toolbar.append(colorBtn, copyBtn, noteBtn, delBtn);
     document.body.appendChild(toolbar);
-    // if color picker is not show and click anywhere outside the toolbar  
+    // if color picker is not show and click anywhere outside the toolbar
+    //FIXME: 这里把tool bar remove了
+    // if mouse click anywhere outside the toolbar or editor, remove the toolbar
     document.addEventListener('mousedown', (ev) => {
-      if (!toolbar.contains(ev.target)) {
+      if (!toolbar.contains(ev.target) && !document.querySelector('.note-editor')) {
         toolbar.remove();
       }
     });
