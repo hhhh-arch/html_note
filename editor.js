@@ -1,3 +1,4 @@
+
 function showNoteEditor(highlightElement, groupId, mouseEvent) {
   document.querySelectorAll('.note-editor').forEach(el => el.remove());
   // 取同组第一个的 data-note
@@ -25,6 +26,7 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
   else {
     editor.innerHTML = `
       <div class="note-editor-header" >
+        <div class = "tag-bubble"></div>
         <input type="text" class="note-editor-tags" placeholder="Tags" />
       </div>
       <textarea class="note-editor-textarea" placeholder="${!currentNote ? 'type your note' : ''}" >${currentNote ? currentNote : ''}</textarea>
@@ -51,22 +53,32 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
     ev.stopPropagation(); // 阻止事件冒泡
   });
   
-  tags.addEventListener('click', (ev) => {
-    ev.stopPropagation(); // 阻止事件冒泡
-  });
-  
   // 加载已保存的tags到输入框
   const currentPageUrl = window.location.href;
-  loadTagsFromStorage(currentPageUrl, (savedTags) => {
-    if (savedTags.length > 0) {
-      // 合并已有的tags和保存的tags，去重
-      const allTags = [...new Set([...tagsArr, ...savedTags])];
-      tags.value = allTags.join(', ');
-    } else if (tagsArr.length > 0) {
-      // 如果没有保存的tags，但有当前元素的tags，显示当前tags
-      tags.value = tagsArr.join(', ');
-    }
+  
+  tags.addEventListener('click', (ev) => {
+    const tagsBar = editor.querySelector('.note-editor-header');
+    const tagsInput = tagsBar.querySelector('.note-editor-tags'); 
+    tagsInput.focus();
+    console.log('[debug] addTags');
+    tagsInput.addEventListener('keydown', (ev) => {
+      if (ev.key === 'Enter') {
+        const tagsValue = tagsInput.value.trim();
+        // make tagsValue into a tag bubble
+        if (tagsValue) {
+        const tagBubble = document.createElement('div');
+        tagBubble.className = 'tag-bubble';
+        tagBubble.innerHTML = tagsValue;
+        tagsBar.insertBefore(tagBubble, tagsBar.firstChild);
+
+        saveTagsToStorage(currentPageUrl, tagsValue);
+        // clear the tag input box
+        tagsInput.value = '';
+        }
+      }
+    });
   });
+
   textarea.addEventListener('input', () => {
     textarea.style.height = 'auto'; // 先清空高度
     textarea.style.height = textarea.scrollHeight + 'px'; // 根据内容撑开
@@ -164,8 +176,7 @@ function saveTagsToStorage(pageUrl, tags) {
       console.log('tags已保存到本地存储:', tags);
     }
   });
-}
-
+  
 /**
  * 从Chrome本地存储读取tags
  * @param {string} pageUrl - 当前页面URL，用作存储键的一部分
@@ -197,4 +208,34 @@ function loadTagsFromStorage(pageUrl, callback) {
     }
   });
 }
+
+/**
+ * 添加tags功能 - 读取tag输入框的内容，当用户按Enter时保存到本地存储
+ * @param {string} currentPageUrl - 当前页面URL
+ * @param {HTMLElement} editor - 编辑器元素
+ */
+function addTags(currentPageUrl, editor) {
+
+}
+}
+
+
+/*
+使用示例：
+
+// 保存tags
+const pageUrl = window.location.href;
+const tags = ['重要', '待复习', '技术'];
+saveTagsToStorage(pageUrl, tags);
+
+// 读取tags
+loadTagsFromStorage(pageUrl, (savedTags) => {
+  console.log('读取到的tags:', savedTags);
+  // 在这里处理读取到的tags
+});
+
+// 在编辑器中使用
+// 编辑器会自动加载已保存的tags并显示在tag输入框中
+// 当用户编辑完成后，tags会自动保存到本地存储
+*/
 
