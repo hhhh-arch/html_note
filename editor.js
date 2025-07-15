@@ -45,6 +45,15 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
 
   const textarea = editor.querySelector('.note-editor-textarea');
   const tags = editor.querySelector('.note-editor-tags');
+  
+  // 为tag输入框添加事件处理，防止编辑器意外关闭
+  tags.addEventListener('mousedown', (ev) => {
+    ev.stopPropagation(); // 阻止事件冒泡
+  });
+  
+  tags.addEventListener('click', (ev) => {
+    ev.stopPropagation(); // 阻止事件冒泡
+  });
   textarea.addEventListener('input', () => {
     textarea.style.height = 'auto'; // 先清空高度
     textarea.style.height = textarea.scrollHeight + 'px'; // 根据内容撑开
@@ -57,26 +66,41 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
   }
   // 失焦时保存内容
   textarea.onblur = () => {
-    const note = textarea.value.trim();
-    if (groupId) {
-      if (note != ''||currentNote!='') {
-        document.querySelectorAll('.html-note-highlight[data-group-id="' + groupId + '"]').forEach(span => {
-          span.setAttribute('data-note', note);
-          span.title = note ;
-        });
+    // 使用setTimeout延迟检查，确保事件处理的正确性
+    setTimeout(() => {
+      // 检查是否是因为点击了tag输入框而导致的失焦
+      const activeElement = document.activeElement;
+      if (activeElement && activeElement.classList.contains('note-editor-tags')) {
+        return; // 如果焦点转移到了tag输入框，不关闭编辑器
       }
-    } else {
-      if (note != ''||currentNote!='') {
-        highlightElement.setAttribute('data-note', note);
-        highlightElement.title = note ;
+      
+      const note = textarea.value.trim();
+      if (groupId) {
+        if (note != ''||currentNote!='') {
+          document.querySelectorAll('.html-note-highlight[data-group-id="' + groupId + '"]').forEach(span => {
+            span.setAttribute('data-note', note);
+            span.title = note ;
+          });
+        }
+      } else {
+        if (note != ''||currentNote!='') {
+          highlightElement.setAttribute('data-note', note);
+          highlightElement.title = note ;
+        }
       }
-    }
-    editor.remove();
-    document.removeEventListener('mousedown', onDocMouseDown);
+      editor.remove();
+      document.removeEventListener('mousedown', onDocMouseDown);
+    }, 10); // 延迟10ms检查
   };
 
   // 点击外部关闭编辑器
   function onDocMouseDown(ev) {
+    // 检查点击的目标是否在editor内，包括tag输入框
+    // 如果点击的是tag输入框，不要关闭编辑器
+    if (ev.target.classList.contains('note-editor-tags')) {
+      return; // 如果点击的是tag输入框，不关闭编辑器
+    }
+    
     if (!editor.contains(ev.target)) {
       textarea.blur();
     }
@@ -90,5 +114,6 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
     textarea.selectionEnd = currentNote.length;
   };
   const tagsBar = editor.querySelector('.note-editor-header');
-  // TODO： 这里加入tags的编辑功能
+  //TODO: 这里加入tags的编辑功能
+  
 }
