@@ -611,19 +611,38 @@ class HTMLNoteHighlighter {
           colorBtnSvg.setAttribute('fill', color);
         }
       };
-      const setDefaultBtn = document.createElement('div');  
-      setDefaultBtn.className = 'set-default-btn';
-      setDefaultBtn.innerHTML ='✓';
-      swatch.onmouseover = (ev) => {
-        swatch.appendChild(setDefaultBtn);
-        // if the mouse is move to another color swatch, remove the setDefaultBtn
-      };
-      swatch.addEventListener('mouseleave', () => {
-        if (swatch.contains(setDefaultBtn)) {
-          swatch.removeChild(setDefaultBtn);
-        }
-      });
+      let hoverTimer;
 
+      const setDefaultBtn = document.createElement('div');
+      setDefaultBtn.className = 'set-default-btn';
+      setDefaultBtn.innerHTML = '✓';
+      
+      setDefaultBtn.addEventListener('mouseenter', () => {
+        clearTimeout(hoverTimer);  // 鼠标进入按钮，取消隐藏
+      });
+      
+      setDefaultBtn.addEventListener('mouseleave', () => {
+        hoverTimer = setTimeout(() => {
+          if (swatch.contains(setDefaultBtn)) {
+            swatch.removeChild(setDefaultBtn);
+          }
+        }, 100);
+      });
+      
+      swatch.addEventListener('mouseenter', () => {
+        if (!swatch.contains(setDefaultBtn)) {
+          swatch.appendChild(setDefaultBtn);
+        }
+        clearTimeout(hoverTimer); // 鼠标进入 swatch，取消隐藏
+      });
+      
+      swatch.addEventListener('mouseleave', () => {
+        hoverTimer = setTimeout(() => {
+          if (swatch.contains(setDefaultBtn)) {
+            swatch.removeChild(setDefaultBtn);
+          }
+        }, 100);  // 稍微延迟一下，给用户鼠标移动时间
+      });
       setDefaultBtn.onclick = (ev) => {
         console.log('[debug] setDefaultBtn.onclick');
         ev.stopPropagation();
