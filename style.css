@@ -48,25 +48,7 @@
   color: #bfc4d1;
 }
 
-.note-editor-close {
-  background: none;
-  border: none;
-  color: #bfc4d1;
-  font-size: 22px;
-  cursor: pointer;
-  border-radius: 4px;
-  width: 28px;
-  height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.18s;
-}
 
-.note-editor-close:hover {
-  background: #35394a;
-  color: #fff;
-}
 
 .note-editor-textarea {
   width: 100%;
