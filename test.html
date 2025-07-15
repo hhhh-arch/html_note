@@ -6,204 +6,143 @@
     <title>HTML Note Highlighter 测试页面</title>
     <style>
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            line-height: 1.6;
+            font-family: Arial, sans-serif;
             max-width: 800px;
             margin: 0 auto;
             padding: 20px;
-            background: #f8f9fa;
+            line-height: 1.6;
         }
-        
-        .container {
-            background: white;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-        
-        h1 {
-            color: #333;
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        
-        h2 {
-            color: #555;
-            border-bottom: 2px solid #667eea;
-            padding-bottom: 8px;
-            margin-top: 30px;
-        }
-        
-        p {
-            color: #666;
-            margin-bottom: 16px;
-        }
-        
-        .highlight-demo {
-            background: #fff3cd;
-            border: 1px solid #ffeaa7;
-            padding: 20px;
-            border-radius: 8px;
-            margin: 20px 0;
-        }
-        
-        .feature-list {
-            list-style: none;
-            padding: 0;
-        }
-        
-        .feature-list li {
-            padding: 8px 0;
-            border-bottom: 1px solid #eee;
-        }
-        
-        .feature-list li:before {
-            content: "✓";
-            color: #28a745;
-            font-weight: bold;
-            margin-right: 8px;
-        }
-        
         .test-section {
-            background: #f8f9fa;
+            margin: 30px 0;
             padding: 20px;
+            border: 1px solid #ddd;
             border-radius: 8px;
-            margin: 20px 0;
-            border-left: 4px solid #667eea;
         }
-        
-        .code-block {
-            background: #2d3748;
-            color: #e2e8f0;
-            padding: 16px;
-            border-radius: 6px;
-            font-family: 'Courier New', monospace;
-            overflow-x: auto;
+        .test-section h2 {
+            color: #333;
+            margin-top: 0;
         }
-        
-        .tip {
-            background: #d1ecf1;
-            border: 1px solid #bee5eb;
-            color: #0c5460;
-            padding: 12px;
-            border-radius: 6px;
-            margin: 16px 0;
+        .highlight-instructions {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
         }
-        
-        .warning {
-            background: #f8d7da;
-            border: 1px solid #f5c6cb;
-            color: #721c24;
-            padding: 12px;
-            border-radius: 6px;
-            margin: 16px 0;
+        .color-picker-float {
+            position: fixed;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 10000;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            max-width: 200px;
+        }
+        .color-swatch-float {
+            width: 30px;
+            height: 30px;
+            border-radius: 4px;
+            cursor: pointer;
+            border: 1px solid #ddd;
+            transition: transform 0.2s;
+        }
+        .color-swatch-float:hover {
+            transform: scale(1.1);
+        }
+        .html-note-toolbar-float {
+            position: fixed;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 10000;
+            display: flex;
+            gap: 5px;
+        }
+        .toolbar-float-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s;
+        }
+        .toolbar-float-btn:hover {
+            background-color: #f5f5f5;
+        }
+        .html-note-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #4CAF50;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 4px;
+            z-index: 10001;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        .html-note-highlight {
+            border-radius: 2px;
+            padding: 1px 2px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>📝 HTML Note Highlighter 测试页面</h1>
-        
-        <div class="highlight-demo">
-            <h2>🎯 测试区域</h2>
-            <p>这是一个测试页面，用于验证HTML Note Highlighter插件的功能。你可以选择下面的任意文本进行高亮测试。</p>
-        </div>
-        
-        <h2>✨ 主要功能</h2>
-        <ul class="feature-list">
-            <li>智能文本高亮：选择任意文本进行高亮</li>
-            <li>笔记功能：为高亮内容添加详细笔记</li>
-            <li>本地保存：将高亮和笔记保存为HTML文件</li>
-            <li>持久化：保存的HTML文件重新打开时高亮和笔记依然存在</li>
-            <li>快捷键支持：快速切换高亮模式和保存页面</li>
-            <li>响应式设计：支持桌面和移动设备</li>
-            <li>深色模式：自动适配系统深色模式</li>
-        </ul>
-        
-        <div class="test-section">
-            <h2>🧪 测试步骤</h2>
-            <p>请按照以下步骤测试插件功能：</p>
+    <h1>HTML Note Highlighter 默认颜色功能测试</h1>
+    
+    <div class="test-section">
+        <h2>测试说明</h2>
+        <div class="highlight-instructions">
+            <p><strong>测试步骤：</strong></p>
             <ol>
-                <li>点击浏览器工具栏中的插件图标</li>
-                <li>点击"切换高亮模式"按钮开启高亮功能</li>
-                <li>选择下面的任意文本进行高亮测试</li>
-                <li>在弹出的笔记编辑器中输入测试笔记</li>
-                <li>点击"保存页面"按钮下载HTML文件</li>
-                <li>打开下载的HTML文件验证高亮和笔记是否保留</li>
+                <li>选择下面的文本进行高亮</li>
+                <li>点击高亮元素，在弹出的工具栏中点击颜色按钮</li>
+                <li>在颜色选择器中点击"设为默认颜色"按钮</li>
+                <li>选择新的文本进行高亮，应该使用新的默认颜色</li>
+                <li>刷新页面后，新创建的高亮应该仍然使用设置的默认颜色</li>
             </ol>
-        </div>
-        
-        <h2>📖 测试文本</h2>
-        <p>这是一段用于测试高亮功能的文本。你可以选择这段文字中的任意部分进行高亮，并添加相应的笔记内容。插件会将高亮和笔记信息嵌入到HTML结构中，确保在保存后重新打开时依然可见。</p>
-        
-        <p>Chrome扩展开发是一个很有趣的过程，它允许我们为浏览器添加自定义功能。HTML Note Highlighter就是一个很好的例子，它展示了如何使用现代Web技术来增强用户的浏览体验。通过使用Manifest V3、Content Scripts和DOM操作，我们可以创建功能强大且用户友好的浏览器扩展。</p>
-        
-        <div class="test-section">
-            <h2>💻 技术实现</h2>
-            <p>这个插件使用了以下核心技术：</p>
-            <ul>
-                <li><strong>Chrome Extension Manifest V3</strong>：使用最新的扩展API</li>
-                <li><strong>Content Scripts</strong>：注入到网页中实现高亮功能</li>
-                <li><strong>DOM操作</strong>：动态修改页面元素</li>
-                <li><strong>Blob API</strong>：生成可下载的HTML文件</li>
-            </ul>
-        </div>
-        
-        <h2>🔧 快捷键</h2>
-        <div class="code-block">
-Ctrl+Shift+H  # 切换高亮模式
-Ctrl+Shift+S  # 保存页面
-        </div>
-        
-        <div class="tip">
-            <strong>💡 提示：</strong> 你可以使用快捷键来快速切换高亮模式和保存页面，这样可以提高使用效率。
-        </div>
-        
-        <div class="warning">
-            <strong>⚠️ 注意：</strong> 这是一个本地使用的Chrome扩展，不会上传到Chrome商店。所有数据都保存在本地，保护您的隐私。
-        </div>
-        
-        <h2>🎨 界面说明</h2>
-        <p>插件提供了多个界面元素来方便使用：</p>
-        <ul>
-            <li><strong>工具栏</strong>：位于网页右上角的浮动工具栏，包含高亮模式、保存页面、统计等功能按钮</li>
-            <li><strong>弹出界面</strong>：点击浏览器工具栏中的插件图标打开，显示当前状态、快速操作按钮和使用说明</li>
-            <li><strong>笔记编辑器</strong>：点击高亮文本时弹出，支持多行文本输入，包含保存和删除功能</li>
-        </ul>
-        
-        <h2>📊 数据存储</h2>
-        <p>插件使用以下方式存储数据：</p>
-        <ul>
-            <li>高亮和笔记直接嵌入在HTML的DOM结构中</li>
-            <li>使用 <code>data-*</code> 属性存储笔记内容</li>
-            <li>保存的HTML文件包含完整的高亮和笔记信息</li>
-        </ul>
-        
-        <div class="test-section">
-            <h2>🔄 持久化测试</h2>
-            <p>这是一个重要的测试：</p>
-            <ol>
-                <li>在当前页面进行一些高亮和笔记操作</li>
-                <li>保存页面为HTML文件</li>
-                <li>关闭当前页面</li>
-                <li>重新打开保存的HTML文件</li>
-                <li>验证高亮和笔记是否完整保留</li>
-            </ol>
-            <p>如果测试成功，说明插件的持久化功能正常工作。</p>
-        </div>
-        
-        <h2>🎯 高级功能</h2>
-        <p>除了基本的高亮和笔记功能，插件还提供了以下高级功能：</p>
-        <ul>
-            <li><strong>编辑笔记</strong>：点击任何高亮文本可以重新编辑笔记</li>
-            <li><strong>删除高亮</strong>：在笔记编辑器中点击"删除高亮"按钮</li>
-            <li><strong>清除所有</strong>：在插件弹出界面中点击"清除所有高亮"</li>
-            <li><strong>查看统计</strong>：在网页右上角工具栏中点击"统计"按钮</li>
-        </ul>
-        
-        <div class="tip">
-            <strong>🎉 恭喜！</strong> 如果你能看到这个页面并且插件正常工作，说明HTML Note Highlighter已经成功安装并运行。现在你可以开始使用这个强大的网页高亮和笔记工具了！
         </div>
     </div>
+
+    <div class="test-section">
+        <h2>测试文本 1</h2>
+        <p>这是一段测试文本，你可以选择其中的文字进行高亮。选择文字后会出现高亮按钮，点击按钮即可高亮选中的文字。</p>
+        <p>高亮后，你可以点击高亮元素来显示工具栏，然后点击颜色按钮来更改颜色或设置默认颜色。</p>
+    </div>
+
+    <div class="test-section">
+        <h2>测试文本 2</h2>
+        <p>这是另一段测试文本，用于验证默认颜色功能。当你设置了新的默认颜色后，新创建的高亮应该使用这个颜色。</p>
+        <p>你可以尝试选择不同的文字进行高亮，看看是否使用了你设置的默认颜色。</p>
+    </div>
+
+    <div class="test-section">
+        <h2>跨段落测试</h2>
+        <p>这是第一个段落，包含一些文字。</p>
+        <p>这是第二个段落，你可以选择从第一个段落到第二个段落的文字来测试跨段落高亮功能。</p>
+        <p>这是第三个段落，用于测试更复杂的选区。</p>
+    </div>
+
+    <div class="test-section">
+        <h2>功能验证</h2>
+        <ul>
+            <li>✅ 选择文本后显示高亮按钮</li>
+            <li>✅ 点击高亮元素显示工具栏</li>
+            <li>✅ 颜色选择器显示当前默认颜色（带勾选标记）</li>
+            <li>✅ 可以设置新的默认颜色</li>
+            <li>✅ 新创建的高亮使用设置的默认颜色</li>
+            <li>✅ 刷新页面后默认颜色保持不变</li>
+        </ul>
+    </div>
+
+    <script src="content.js"></script>
 </body>
 </html> 

@@ -1,0 +1,162 @@
+/* HTML Note Highlighter 样式 */
+
+/* 高亮样式 */
+.html-note-highlight {
+  background-color: #ffeb3b;
+
+  padding: 2px 4px !important;
+  border-radius: 3px !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  position: relative !important;
+  display: inline !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
+}
+
+.html-note-highlight:hover {
+  background-color: #ffc107 !important;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2) !important;
+  transform: translateY(-1px) !important;
+}
+
+
+
+
+
+
+
+
+/* 笔记编辑器样式 */
+.note-editor {
+  position: fixed;
+  min-width: 340px;
+  background: #232734;
+  color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.22);
+  z-index: 10022;
+  border: 1px solid #35394a;
+  padding: 0;
+}
+
+.note-editor-header {
+  display: flex;
+  align-items: center;
+  padding: 14px 18px 0 18px;
+  font-size: 15px;
+  font-weight: 500;
+  color: #bfc4d1;
+}
+
+
+
+.note-editor-textarea {
+  width: 100%;
+  min-height: 60px;
+  background: #232734;
+  color: #fff;
+  border: none;
+  border-radius: 0 0 12px 12px;
+  font-size: 15px;
+  padding: 16px 18px 18px 18px;
+  resize: vertical;
+  box-sizing: border-box;
+  outline: none;
+}
+
+.note-editor-textarea::placeholder {
+  color: #bfc4d1;
+  opacity: 0.8;
+}
+
+/* 通知样式 */
+.html-note-notification {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #333;
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  z-index: 10003;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  animation: slideInDown 0.3s ease;
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* 浮动工具栏样式 */
+.html-note-toolbar-float {
+  position: fixed;
+  display: flex;
+  align-items: center;
+  background: #232734;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.22);
+  padding: 6px 14px;
+  gap: 8px;
+  z-index: 10020;
+  min-width: 120px;
+}
+.toolbar-float-btn {
+  background: none;
+  border: none;
+  outline: none;
+  border-radius: 6px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.18s, box-shadow 0.18s;
+  color: #fff;
+  font-size: 18px;
+  margin: 0 2px;
+}
+.toolbar-float-btn:hover {
+  background: #35394a;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+}
+
+/* 颜色选择面板浮窗 */
+.color-picker-float {
+  position: fixed;
+  display: flex;
+  gap: 8px;
+  background: #232734;
+  border-radius: 10px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.22);
+  padding: 10px 14px;
+  z-index: 10021;
+}
+
+
+/* tag 气泡样式 */
+.tag-bubble {
+  background: #232734;
+  border: 1px solid #35394a;
+  color: #bfc4d1;
+  border-radius: 6px;
+  padding: 2px 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  margin-right: 4px;
+}
+.tag-bubble .tag-remove:hover {
+  color: #ff6b6b;
+}
