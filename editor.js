@@ -54,6 +54,19 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
   tags.addEventListener('click', (ev) => {
     ev.stopPropagation(); // 阻止事件冒泡
   });
+  
+  // 加载已保存的tags到输入框
+  const currentPageUrl = window.location.href;
+  loadTagsFromStorage(currentPageUrl, (savedTags) => {
+    if (savedTags.length > 0) {
+      // 合并已有的tags和保存的tags，去重
+      const allTags = [...new Set([...tagsArr, ...savedTags])];
+      tags.value = allTags.join(', ');
+    } else if (tagsArr.length > 0) {
+      // 如果没有保存的tags，但有当前元素的tags，显示当前tags
+      tags.value = tagsArr.join(', ');
+    }
+  });
   textarea.addEventListener('input', () => {
     textarea.style.height = 'auto'; // 先清空高度
     textarea.style.height = textarea.scrollHeight + 'px'; // 根据内容撑开
@@ -75,6 +88,14 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
       }
       
       const note = textarea.value.trim();
+      const tagsValue = tags.value.trim();
+      
+      // 保存tags到本地存储
+      if (tagsValue) {
+        const tagsArray = tagsValue.split(',').map(tag => tag.trim()).filter(Boolean);
+        saveTagsToStorage(currentPageUrl, tagsArray);
+      }
+      
       if (groupId) {
         if (note != ''||currentNote!='') {
           document.querySelectorAll('.html-note-highlight[data-group-id="' + groupId + '"]').forEach(span => {
@@ -117,3 +138,63 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
   //TODO: 这里加入tags的编辑功能
   
 }
+
+/**
+ * 保存tags到Chrome本地存储
+ * @param {string} pageUrl - 当前页面URL，用作存储键的一部分
+ * @param {Array} tags - 要保存的tags数组
+ */
+function saveTagsToStorage(pageUrl, tags) {
+  if (!pageUrl || !tags || !Array.isArray(tags)) {
+    console.error('saveTagsToStorage: 参数无效');
+    return;
+  }
+  
+  const storageKey = `html_note_tags_${pageUrl}`;
+  const tagsData = {
+    url: pageUrl,
+    tags: tags,
+    timestamp: Date.now()
+  };
+  
+  chrome.storage.local.set({ [storageKey]: tagsData }, () => {
+    if (chrome.runtime.lastError) {
+      console.error('保存tags失败:', chrome.runtime.lastError);
+    } else {
+      console.log('tags已保存到本地存储:', tags);
+    }
+  });
+}
+
+/**
+ * 从Chrome本地存储读取tags
+ * @param {string} pageUrl - 当前页面URL，用作存储键的一部分
+ * @param {Function} callback - 回调函数，参数为读取到的tags数组
+ */
+function loadTagsFromStorage(pageUrl, callback) {
+  if (!pageUrl || typeof callback !== 'function') {
+    console.error('loadTagsFromStorage: 参数无效');
+    callback([]);
+    return;
+  }
+  
+  const storageKey = `html_note_tags_${pageUrl}`;
+  
+  chrome.storage.local.get([storageKey], (result) => {
+    if (chrome.runtime.lastError) {
+      console.error('读取tags失败:', chrome.runtime.lastError);
+      callback([]);
+      return;
+    }
+    
+    const tagsData = result[storageKey];
+    if (tagsData && tagsData.tags && Array.isArray(tagsData.tags)) {
+      console.log('从本地存储读取到tags:', tagsData.tags);
+      callback(tagsData.tags);
+    } else {
+      console.log('未找到保存的tags');
+      callback([]);
+    }
+  });
+}
+
