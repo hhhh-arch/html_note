@@ -547,7 +547,7 @@ class HTMLNoteHighlighter {
     // 创建颜色选择器容器
     const picker = document.createElement('div');
     picker.className = 'color-picker-float';
-    
+    console.log('[debug] showColorPickerForHighlight 用的 toolbar:');
     // 设置颜色选择器位置（相对于工具栏）
     picker.style.left = toolbar.style.left;
     picker.style.top = `${parseInt(toolbar.style.top) - 56}px`;

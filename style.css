@@ -142,6 +142,17 @@
   padding: 10px 14px;
   z-index: 10021;
 }
+.color-swatch-float {
+  width: 30px;
+  height: 30px;
+  border-radius: 4px;
+  cursor: pointer;
+  border: 1px solid #ddd;
+  transition: transform 0.2s;
+}
+.color-swatch-float:hover {
+  transform: scale(1.1);
+}
 
 
 /* tag 气泡样式 */
