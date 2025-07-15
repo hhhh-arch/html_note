@@ -35,7 +35,10 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
 
   const textarea = editor.querySelector('.note-editor-textarea');
   const tags = editor.querySelector('.note-editor-tags');
-
+  textarea.addEventListener('input', () => {
+    textarea.style.height = 'auto'; // 先清空高度
+    textarea.style.height = textarea.scrollHeight + 'px'; // 根据内容撑开
+  });
   // 失焦时保存内容
   textarea.onblur = () => {
     const note = textarea.value.trim();
