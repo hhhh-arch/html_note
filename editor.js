@@ -18,7 +18,7 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
     <div class="note-editor-header" >
       <input type="text" class="note-editor-tags" placeholder="Tags" />
     </div>
-    <textarea class="note-editor-textarea" placeholder="${!currentNote ? 'type your note' : ''}" >${currentNote ? currentNote : ''}</textarea>
+    <textarea class="note-editor-textarea" rows="1" placeholder="${!currentNote ? 'type your note' : ''}" >${currentNote ? currentNote : ''}</textarea>
   `;
 
   // 定位
