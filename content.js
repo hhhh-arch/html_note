@@ -611,34 +611,44 @@ class HTMLNoteHighlighter {
           colorBtnSvg.setAttribute('fill', color);
         }
       };
-      
+      swatch.onmouseover = (ev) => {
+        console.log('[debug] swatch mouseover');
+        const setDefaultBtn = document.createElement('div');
+        setDefaultBtn.className = 'set-default-btn';
+        setDefaultBtn.innerHTML ='✓';
+        swatch.appendChild(setDefaultBtn);
+        setDefaultBtn.onclick = (ev) => {
+          ev.stopPropagation();
+          this.setDefaultColor(color);
+          this.showNotification('已设为默认颜色');
+          picker.remove();
+          swatch.removeChild(setDefaultBtn);
+        };
+      };
+     
       // 将色块添加到颜色选择器中
       picker.appendChild(swatch);
     });
-    
+    //TODO: 更改默认颜色的设置
+    // if mouse is over the color swatch, show the set default button
+
     // 添加"设为默认"按钮
-    const setDefaultBtn = document.createElement('div');
-    setDefaultBtn.className = 'set-default-btn';
-    setDefaultBtn.style.marginTop = '8px';
-    setDefaultBtn.style.padding = '6px 8px';
-    setDefaultBtn.style.background = '#f5f5f5';
-    setDefaultBtn.style.border = '1px solid #ddd';
-    setDefaultBtn.style.borderRadius = '4px';
-    setDefaultBtn.style.fontSize = '12px';
-    setDefaultBtn.style.cursor = 'pointer';
-    setDefaultBtn.style.textAlign = 'center';
-    setDefaultBtn.style.color = '#666';
-    setDefaultBtn.textContent = '设为默认颜色';
+    // const setDefaultBtn = document.createElement('div');
+    // setDefaultBtn.className = 'set-default-btn';
+    // setDefaultBtn.style.marginTop = '8px';
+    // setDefaultBtn.style.padding = '6px 8px';
+    // setDefaultBtn.style.background = '#f5f5f5';
+    // setDefaultBtn.style.border = '1px solid #ddd';
+    // setDefaultBtn.style.borderRadius = '4px';
+    // setDefaultBtn.style.fontSize = '12px';
+    // setDefaultBtn.style.cursor = 'pointer';
+    // setDefaultBtn.style.textAlign = 'center';
+    // setDefaultBtn.style.color = '#666';
+    // setDefaultBtn.textContent = '设为默认颜色';
     
-    setDefaultBtn.onclick = (ev) => {
-      ev.stopPropagation();
-      const currentColor = highlightElement.getAttribute('data-color');
-      this.setDefaultColor(currentColor);
-      this.showNotification('已设为默认颜色');
-      picker.remove();
-    };
+
     
-    picker.appendChild(setDefaultBtn);
+
     
     // 将颜色选择器添加到页面
     document.body.appendChild(picker);

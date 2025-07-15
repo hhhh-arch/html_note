@@ -153,7 +153,14 @@
 .color-swatch-float:hover {
   transform: scale(1.1);
 }
+.set-default-btn {
+  position: fixed;
+  display: flex;
 
+  gap:8px;
+  color: #fff;
+
+}
 
 /* tag 气泡样式 */
 .tag-bubble {
