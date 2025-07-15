@@ -64,14 +64,19 @@ class HTMLNoteHighlighter {
     document.addEventListener('click', (e) => {
       if (e.target.classList.contains('html-note-highlight')) {
         const groupId = e.target.getAttribute('data-group-id');
+        console.log('[debug] click event');
+
         if (groupId) {
           // 选中所有同组的高亮
+          console.log('[debug] click event if');
           const allSpans = document.querySelectorAll('.html-note-highlight[data-group-id="' + groupId + '"]');
           // 传第一个span和groupId给工具栏
           this.showToolbarForHighlight(allSpans[0], groupId);
+          console.log('[debug] showToolbarForHighlight');
           showNoteEditor(allSpans[0], groupId, e);
           //TODO: 这里点击编辑框出不来
         } else {
+          console.log('[debug] showToolbarForHighlight else');
           this.showToolbarForHighlight(e.target);
           showNoteEditor(e.target, undefined, e);
         }
