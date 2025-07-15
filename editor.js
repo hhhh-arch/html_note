@@ -14,13 +14,22 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
 
   const editor = document.createElement('div');
   editor.className = 'note-editor';
-  editor.innerHTML = `
-    <div class="note-editor-header" >
-      <input type="text" class="note-editor-tags" placeholder="Tags" />
-    </div>
-    <textarea class="note-editor-textarea" rows="1" placeholder="${!currentNote ? 'type your note' : ''}" >${currentNote ? currentNote : ''}</textarea>
-  `;
-
+  if (currentNote=='') {
+    editor.innerHTML = `
+      <div class="note-editor-header" >
+        <input type="text" class="note-editor-tags" placeholder="Tags" />
+      </div>
+      <textarea class="note-editor-textarea" rows="1" placeholder="type your note" ></textarea>
+    `;
+  }
+  else {
+    editor.innerHTML = `
+      <div class="note-editor-header" >
+        <input type="text" class="note-editor-tags" placeholder="Tags" />
+      </div>
+      <textarea class="note-editor-textarea" placeholder="${!currentNote ? 'type your note' : ''}" >${currentNote ? currentNote : ''}</textarea>
+    `;
+  }
   // 定位
   if (mouseEvent) {
     editor.style.left = `${mouseEvent.clientX}px`;
@@ -38,19 +47,20 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
   textarea.addEventListener('input', () => {
     textarea.style.height = 'auto'; // 先清空高度
     textarea.style.height = textarea.scrollHeight + 'px'; // 根据内容撑开
+
   });
   // 失焦时保存内容
   textarea.onblur = () => {
     const note = textarea.value.trim();
     if (groupId) {
-      if (note != '') {
+      if (note != ''||currentNote!='') {
         document.querySelectorAll('.html-note-highlight[data-group-id="' + groupId + '"]').forEach(span => {
           span.setAttribute('data-note', note);
           span.title = note ;
         });
       }
     } else {
-      if (note != '') {
+      if (note != ''||currentNote!='') {
         highlightElement.setAttribute('data-note', note);
         highlightElement.title = note ;
       }
