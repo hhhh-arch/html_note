@@ -143,6 +143,7 @@
   z-index: 10021;
 }
 .color-swatch-float {
+  position: relative;
   width: 30px;
   height: 30px;
   border-radius: 4px;
@@ -154,12 +155,26 @@
   transform: scale(1.1);
 }
 .set-default-btn {
-  position: fixed;
+  position: absolute;
   display: flex;
-
+  align-items: center;
+  justify-content: center;
+  top: -56px;
+  left: 0;
   gap:8px;
   color: #fff;
+  background: #232734;
+  width: 30px;
+  height:30px;
+  border-radius: 4px;
+  cursor: pointer;
+  border: 1px solid #ddd;
+  transition: transform 0.2s;
 
+
+}
+.set-default-btn:hover {
+  color: #232734;
 }
 
 /* tag 气泡样式 */

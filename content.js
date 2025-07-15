@@ -611,20 +611,24 @@ class HTMLNoteHighlighter {
           colorBtnSvg.setAttribute('fill', color);
         }
       };
+      const setDefaultBtn = document.createElement('div');  
+      setDefaultBtn.className = 'set-default-btn';
+      setDefaultBtn.innerHTML ='✓';
       swatch.onmouseover = (ev) => {
-        console.log('[debug] swatch mouseover');
-        const setDefaultBtn = document.createElement('div');
-        setDefaultBtn.className = 'set-default-btn';
-        setDefaultBtn.innerHTML ='✓';
+
+
         swatch.appendChild(setDefaultBtn);
-        setDefaultBtn.onclick = (ev) => {
-          ev.stopPropagation();
-          this.setDefaultColor(color);
-          this.showNotification('已设为默认颜色');
-          picker.remove();
-          swatch.removeChild(setDefaultBtn);
-        };
       };
+      setDefaultBtn.onclick = (ev) => {
+        console.log('[debug] setDefaultBtn.onclick');
+        ev.stopPropagation();
+        this.setDefaultColor(color);
+
+        this.showNotification('已设为默认颜色');
+        picker.remove();
+        swatch.removeChild(setDefaultBtn);
+      };
+
      
       // 将色块添加到颜色选择器中
       picker.appendChild(swatch);
