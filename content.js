@@ -615,10 +615,15 @@ class HTMLNoteHighlighter {
       setDefaultBtn.className = 'set-default-btn';
       setDefaultBtn.innerHTML ='✓';
       swatch.onmouseover = (ev) => {
-
-
         swatch.appendChild(setDefaultBtn);
+        // if the mouse is move to another color swatch, remove the setDefaultBtn
       };
+      swatch.addEventListener('mouseleave', () => {
+        if (swatch.contains(setDefaultBtn)) {
+          swatch.removeChild(setDefaultBtn);
+        }
+      });
+
       setDefaultBtn.onclick = (ev) => {
         console.log('[debug] setDefaultBtn.onclick');
         ev.stopPropagation();
