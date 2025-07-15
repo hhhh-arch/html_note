@@ -29,6 +29,7 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
       </div>
       <textarea class="note-editor-textarea" placeholder="${!currentNote ? 'type your note' : ''}" >${currentNote ? currentNote : ''}</textarea>
     `;
+    
   }
   // 定位
   if (mouseEvent) {
@@ -49,6 +50,11 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
     textarea.style.height = textarea.scrollHeight + 'px'; // 根据内容撑开
 
   });
+  //如果textarea有内容，则自动展开
+  if (currentNote!='') {
+    textarea.style.height = 'auto'; // 先清空高度
+    textarea.style.height = textarea.scrollHeight + 'px'; // 根据内容撑开
+  }
   // 失焦时保存内容
   textarea.onblur = () => {
     const note = textarea.value.trim();
