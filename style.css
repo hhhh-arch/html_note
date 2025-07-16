@@ -55,18 +55,7 @@
   max-width:340px !important;
 
 }
-.note-editor-tags {
-  position:relative;
-  background:#232734;
-  color:#bfc4d1;
-  border:1px solid #35394a;
-  border-radius:6px;
-  font-size:14px;
-  padding:2px 8px;
-  outline:none;
-  width:120px;
-  height:28px;
-}
+
 
 
 .note-editor-textarea {
@@ -212,7 +201,20 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  font-size: 13px;
+  font-size: 14px;
   margin-right: 4px;
+  height:28px;
 }
 
+.note-editor-tags {
+  position:relative;
+  background:#232734;
+  color:#bfc4d1;
+  border:1px solid #35394a;
+  border-radius:6px;
+  font-size:14px;
+  padding:2px 8px;
+  outline:none;
+  width:120px;
+  height:28px;
+}
