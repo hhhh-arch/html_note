@@ -205,6 +205,10 @@
   position: relative; /* 添加相对定位以便放置删除按钮 */
   overflow: visible; /* 确保删除按钮可以显示在外部 */
 }
+.tag-bubble:hover {
+  background: #35394a;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+}
 
 /* 删除按钮样式 */
 .tag-delete-btn {
