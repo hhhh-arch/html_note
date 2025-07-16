@@ -150,8 +150,16 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
         const tagsValue = tagsInput.value.trim();
         // make tagsValue into a tag bubble
         if (tagsValue) {
-        const tagBubble = createTagBubble(tagsValue, tagsBar, highlightElement, groupId);
-        tagsBar.insertBefore(tagBubble, tagsBar.firstChild);
+        if(tagsString == '') {
+          const tagBubble = createTagBubble(tagsValue, tagsBar, highlightElement, groupId);
+          tagsBar.insertBefore(tagBubble, tagsBar.firstChild);
+        }
+        else {
+          const previousTag = tagsBar.querySelector('.tag-bubble');
+          const tagBubble = createTagBubble(tagsValue, tagsBar, highlightElement, groupId);
+          // place tagbubble after previousTag
+          tagsBar.insertBefore(tagBubble, previousTag.nextSibling);
+        }
         // 更新 tagsString，确保格式正确
         const currentTags = tagsString ? tagsString.split(',').filter(tag => tag.trim() !== '') : [];
         currentTags.push(tagsValue);
