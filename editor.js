@@ -117,15 +117,15 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
     });
     }
   }
-  // 定位
+  const rect = highlightElement.getBoundingClientRect();
   if (mouseEvent) {
-    editor.style.left = `${mouseEvent.clientX}px`;
-    editor.style.top = `${mouseEvent.clientY + 10}px`;
-  } else {
-    const rect = highlightElement.getBoundingClientRect();
-    editor.style.left = `${rect.left}px`;
-    editor.style.top = `${rect.bottom + 10}px`;
+    editor.style.left = `${mouseEvent.clientX-170}px`;
+    editor.style.top = `${mouseEvent.clientY+15}px`;
   }
+ else {
+  editor.style.left = `${rect.left}px`;
+  editor.style.top = `${rect.bottom + 10}px`;
+  }  
   editor.style.position = 'fixed'; // 别忘了加定位
   document.body.appendChild(editor);
 

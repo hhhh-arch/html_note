@@ -471,7 +471,7 @@ class HTMLNoteHighlighter {
     if (mouseEvent) {
       // 鼠标点击点的正上方，center对齐
       left = mouseEvent.clientX - 90; // 90 = toolbar宽度一半
-      top = rect.top - 50;
+      top = mouseEvent.clientY - 50;
     } else {
       const rect = highlightElement.getBoundingClientRect();
       left = rect.left + rect.width / 2 - 90;
