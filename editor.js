@@ -26,7 +26,6 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
     else {
       editor.innerHTML = `
       <div class="note-editor-header" >
-      <div class = "tag-bubble"></div>
         <input type="text" class="note-editor-tags" placeholder="Tags" />
       </div>
       <textarea class="note-editor-textarea" rows="1" placeholder="type your note" ></textarea>
@@ -47,7 +46,6 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
     if (tagsString=='') {
     editor.innerHTML = `
       <div class="note-editor-header" >
-        <div class = "tag-bubble"></div>
         <input type="text" class="note-editor-tags" placeholder="Tags" />
       </div>
       <textarea class="note-editor-textarea" placeholder="${!currentNote ? 'type your note' : ''}" >${currentNote ? currentNote : ''}</textarea>
@@ -56,7 +54,6 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
     else {
       editor.innerHTML = `
       <div class="note-editor-header" >
-      <div class = "tag-bubble"></div>
         <input type="text" class="note-editor-tags" placeholder="Tags" />
       </div>
       <textarea class="note-editor-textarea" placeholder="${!currentNote ? 'type your note' : ''}" >${currentNote ? currentNote : ''}</textarea>
