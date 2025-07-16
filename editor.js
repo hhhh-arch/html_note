@@ -34,11 +34,11 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
     const tagsBar = editor.querySelector('.note-editor-header');
     console.log('[debug] display tagsString:', tagsString);
     tagsString.split(',').forEach(tag => {
-      if (tag!='') {
-      const tagBubble = document.createElement('div');
-      tagBubble.className = 'tag-bubble';
-      tagBubble.innerHTML = tag;
-      tagsBar.insertBefore(tagBubble, tagsBar.firstChild);
+      if (tag.trim() !== '') {
+        const tagBubble = document.createElement('div');
+        tagBubble.className = 'tag-bubble';
+        tagBubble.innerHTML = tag.trim();
+        tagsBar.insertBefore(tagBubble, tagsBar.firstChild);
       }
     });
     }
@@ -63,11 +63,11 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
     `;
     const tagsBar = editor.querySelector('.note-editor-header');
     tagsString.split(',').forEach(tag => {
-      if (tag!='') {
-      const tagBubble = document.createElement('div');
-      tagBubble.className = 'tag-bubble';
-      tagBubble.innerHTML = tag;
-      tagsBar.insertBefore(tagBubble, tagsBar.firstChild);
+      if (tag.trim() !== '') {
+        const tagBubble = document.createElement('div');
+        tagBubble.className = 'tag-bubble';
+        tagBubble.innerHTML = tag.trim();
+        tagsBar.insertBefore(tagBubble, tagsBar.firstChild);
       }
     });
     }
@@ -109,7 +109,10 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
         tagBubble.className = 'tag-bubble';
         tagBubble.innerHTML = tagsValue;
         tagsBar.insertBefore(tagBubble, tagsBar.firstChild);
-        tagsString += tagsValue + ',';
+        // 更新 tagsString，确保格式正确
+        const currentTags = tagsString ? tagsString.split(',').filter(tag => tag.trim() !== '') : [];
+        currentTags.push(tagsValue);
+        tagsString = currentTags.join(',');
         console.log('[debug] tagsString:', tagsString);
         saveTagsToStorage(currentPageUrl, tagsValue);
         // clear the tag input box
