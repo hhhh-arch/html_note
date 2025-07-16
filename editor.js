@@ -11,6 +11,58 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
 
   }
 
+  // 创建tag bubble的辅助函数
+  function createTagBubble(tagText, tagsBar, highlightElement, groupId) {
+    const tagBubble = document.createElement('div');
+    tagBubble.className = 'tag-bubble';
+    tagBubble.innerHTML = tagText;
+    
+    // 创建删除按钮
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'tag-delete-btn';
+    deleteBtn.title = '删除标签';
+    
+    // 添加删除功能
+    deleteBtn.addEventListener('click', (e) => {
+      e.stopPropagation(); // 阻止事件冒泡
+      
+      // 从DOM中移除tag bubble
+      tagBubble.remove();
+      
+      // 更新tagsString
+      const currentPageUrl = window.location.href;
+      const currentTags = tagsString ? tagsString.split(',').filter(tag => tag.trim() !== '') : [];
+      const tagIndex = currentTags.indexOf(tagText);
+      if (tagIndex > -1) {
+        currentTags.splice(tagIndex, 1);
+        tagsString = currentTags.join(',');
+        
+        // 更新highlight element的data-tags属性
+        if (groupId) {
+          document.querySelectorAll('.html-note-highlight[data-group-id="' + groupId + '"]').forEach(span => {
+            span.setAttribute('data-tags', tagsString);
+          });
+        } else {
+          highlightElement.setAttribute('data-tags', tagsString);
+        }
+        
+        // 保存到存储
+        if (currentTags.length > 0) {
+          saveTagsToStorage(currentPageUrl, currentTags);
+        } else {
+          // 如果没有tags了，清除存储
+          const storageKey = `html_note_tags_${currentPageUrl}`;
+          chrome.storage.local.remove([storageKey]);
+        }
+        
+        console.log('[debug] 删除tag后，tagsString:', tagsString);
+      }
+    });
+    
+    tagBubble.appendChild(deleteBtn);
+    return tagBubble;
+  }
+
   const editor = document.createElement('div');
   editor.className = 'note-editor';
   if (currentNote=='') {
@@ -34,9 +86,7 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
     console.log('[debug] display tagsString:', tagsString);
     tagsString.split(',').forEach(tag => {
       if (tag.trim() !== '') {
-        const tagBubble = document.createElement('div');
-        tagBubble.className = 'tag-bubble';
-        tagBubble.innerHTML = tag.trim();
+        const tagBubble = createTagBubble(tag.trim(), tagsBar, highlightElement, groupId);
         tagsBar.insertBefore(tagBubble, tagsBar.firstChild);
       }
     });
@@ -61,9 +111,7 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
     const tagsBar = editor.querySelector('.note-editor-header');
     tagsString.split(',').forEach(tag => {
       if (tag.trim() !== '') {
-        const tagBubble = document.createElement('div');
-        tagBubble.className = 'tag-bubble';
-        tagBubble.innerHTML = tag.trim();
+        const tagBubble = createTagBubble(tag.trim(), tagsBar, highlightElement, groupId);
         tagsBar.insertBefore(tagBubble, tagsBar.firstChild);
       }
     });
@@ -102,9 +150,7 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
         const tagsValue = tagsInput.value.trim();
         // make tagsValue into a tag bubble
         if (tagsValue) {
-        const tagBubble = document.createElement('div');
-        tagBubble.className = 'tag-bubble';
-        tagBubble.innerHTML = tagsValue;
+        const tagBubble = createTagBubble(tagsValue, tagsBar, highlightElement, groupId);
         tagsBar.insertBefore(tagBubble, tagsBar.firstChild);
         // 更新 tagsString，确保格式正确
         const currentTags = tagsString ? tagsString.split(',').filter(tag => tag.trim() !== '') : [];
@@ -170,10 +216,10 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
 
   // 点击外部关闭编辑器
   function onDocMouseDown(ev) {
-    // 检查点击的目标是否在editor内，包括tag输入框
-    // 如果点击的是tag输入框，不要关闭编辑器
-    if (ev.target.classList.contains('note-editor-tags')) {
-      return; // 如果点击的是tag输入框，不关闭编辑器
+    // 检查点击的目标是否在editor内，包括tag输入框和删除按钮
+    // 如果点击的是tag输入框或删除按钮，不要关闭编辑器
+    if (ev.target.classList.contains('note-editor-tags') || ev.target.classList.contains('tag-delete-btn')) {
+      return; // 如果点击的是tag输入框或删除按钮，不关闭编辑器
     }
     
     if (!editor.contains(ev.target)) {
