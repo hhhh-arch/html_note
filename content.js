@@ -71,13 +71,13 @@ class HTMLNoteHighlighter {
           console.log('[debug] click event if');
           const allSpans = document.querySelectorAll('.html-note-highlight[data-group-id="' + groupId + '"]');
           // 传第一个span和groupId给工具栏
-          this.showToolbarForHighlight(allSpans[0], groupId);
+          this.showToolbarForHighlight(allSpans[0], groupId,e);
           console.log('[debug] showToolbarForHighlight');
           showNoteEditor(allSpans[0], groupId, e);
           //TODO: 这里点击编辑框出不来
         } else {
           console.log('[debug] showToolbarForHighlight else');
-          this.showToolbarForHighlight(e.target);
+          this.showToolbarForHighlight(e.target, undefined, e);
           showNoteEditor(e.target, undefined, e);
         }
       }
@@ -457,7 +457,7 @@ class HTMLNoteHighlighter {
    * @param {HTMLElement} highlightElement - 要高亮显示的元素
    * @param {string} groupId - 高亮组的ID，用于批量操作同组高亮
    */
-  showToolbarForHighlight(highlightElement, groupId) {
+  showToolbarForHighlight(highlightElement, groupId,mouseEvent) {
     // 移除已存在的工具栏、编辑框和颜色选择器
     document.querySelectorAll('.html-note-toolbar-float, .note-editor, .color-picker-float').forEach(el => el.remove());
     
@@ -467,8 +467,18 @@ class HTMLNoteHighlighter {
     // 创建工具栏容器
     const toolbar = document.createElement('div');
     toolbar.className = 'html-note-toolbar-float';
-    toolbar.style.left = `${rect.left + rect.width/2 - 90}px`;
-    toolbar.style.top = `${rect.top - 50}px`;
+    let left, top;
+    if (mouseEvent) {
+      // 鼠标点击点的正上方，center对齐
+      left = mouseEvent.clientX - 90; // 90 = toolbar宽度一半
+      top = rect.top - 50;
+    } else {
+      const rect = highlightElement.getBoundingClientRect();
+      left = rect.left + rect.width / 2 - 90;
+      top = rect.top - 50;
+    }
+    toolbar.style.left = `${left}px`;
+    toolbar.style.top = `${top}px`;
     
     // 创建颜色按钮
     const colorBtn = document.createElement('button');
