@@ -534,22 +534,50 @@ class HTMLNoteHighlighter {
         // 只删除当前高亮
         this.removeHighlight(highlightElement);
       }
+      // 清理所有相关元素
       toolbar.remove();
       document.querySelectorAll('.note-editor').forEach(el => el.remove());
+      document.querySelectorAll('.color-picker-float').forEach(el => el.remove());
+      // 清理事件监听器
+      if (this._toolbarCloseHandler) {
+        document.removeEventListener('mousedown', this._toolbarCloseHandler);
+        this._toolbarCloseHandler = null;
+      }
       this.showNotification('高亮已删除');
     };
     
     // 将所有按钮添加到工具栏
     toolbar.append(colorBtn, copyBtn, noteBtn, delBtn);
     document.body.appendChild(toolbar);
-    // if color picker is not show and click anywhere outside the toolbar
-
-    // if mouse click anywhere outside the toolbar or editor, remove the toolbar
-    document.addEventListener('mousedown', (ev) => {
-      if (!toolbar.contains(ev.target) && !document.querySelector('.note-editor')) {
+    
+    // 移除已存在的工具栏关闭事件监听器
+    if (this._toolbarCloseHandler) {
+      document.removeEventListener('mousedown', this._toolbarCloseHandler);
+    }
+    
+    // 创建新的工具栏关闭事件处理函数
+    this._toolbarCloseHandler = (ev) => {
+      console.log('[debug] mousedown');
+      // 检查点击的目标是否在工具栏或编辑器中
+      const isInToolbar = toolbar.contains(ev.target);
+      const isInEditor = ev.target.closest('.note-editor');
+      const isInColorPicker = ev.target.closest('.color-picker-float');
+      
+      if (!isInToolbar && !isInEditor && !isInColorPicker) {
+        console.log('[debug] mousedown remove toolbar');
         toolbar.remove();
+        // 同时移除编辑器
+        document.querySelectorAll('.note-editor').forEach(el => el.remove());
+        // 移除颜色选择器
+        document.querySelectorAll('.color-picker-float').forEach(el => el.remove());
+        // 移除事件监听器
+        document.removeEventListener('mousedown', this._toolbarCloseHandler);
+        this._toolbarCloseHandler = null;
       }
-    });
+    };
+    
+    // 添加事件监听器
+    document.addEventListener('mousedown', this._toolbarCloseHandler);
   }
 
   /**
@@ -701,7 +729,12 @@ class HTMLNoteHighlighter {
     // 添加点击外部关闭颜色选择器的功能
     setTimeout(() => {
       document.addEventListener('mousedown', function closePicker(ev) {
-        if (!picker.contains(ev.target)) {
+        // 检查点击的目标是否在颜色选择器、工具栏或编辑器中
+        const isInPicker = picker.contains(ev.target);
+        const isInToolbar = ev.target.closest('.html-note-toolbar-float');
+        const isInEditor = ev.target.closest('.note-editor');
+        
+        if (!isInPicker && !isInToolbar && !isInEditor) {
           picker.remove();
           document.removeEventListener('mousedown', closePicker);
         }
@@ -733,6 +766,12 @@ class HTMLNoteHighlighter {
     
     // 合并相邻的文本节点
     this.normalizeTextNodes(parent);
+    
+    // 清理相关的事件监听器
+    if (this._toolbarCloseHandler) {
+      document.removeEventListener('mousedown', this._toolbarCloseHandler);
+      this._toolbarCloseHandler = null;
+    }
   }
 
   normalizeTextNodes(element) {

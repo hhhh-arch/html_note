@@ -230,7 +230,11 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
       return; // 如果点击的是tag输入框或删除按钮，不关闭编辑器
     }
     
-    if (!editor.contains(ev.target)) {
+    // 检查是否点击了工具栏或颜色选择器
+    const isInToolbar = ev.target.closest('.html-note-toolbar-float');
+    const isInColorPicker = ev.target.closest('.color-picker-float');
+    
+    if (!editor.contains(ev.target) && !isInToolbar && !isInColorPicker) {
       textarea.blur();
     }
   }
