@@ -117,15 +117,31 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
     });
     }
   }
+  // 获取高亮元素相对于视口的位置，并加上滚动偏移
   const rect = highlightElement.getBoundingClientRect();
+  const scrollX = window.pageXOffset || document.documentElement.scrollLeft;
+  const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+  
   if (mouseEvent) {
-    editor.style.left = `${mouseEvent.clientX-170}px`;
-    editor.style.top = `${mouseEvent.clientY+15}px`;
+    // 使用鼠标点击位置，但需要加上滚动偏移
+    editor.style.left = `${mouseEvent.clientX + scrollX - 170}px`;
+    editor.style.top = `${mouseEvent.clientY + scrollY + 15}px`;
+  } else {
+    // 使用高亮元素位置
+    editor.style.left = `${rect.left + scrollX}px`;
+    editor.style.top = `${rect.bottom + scrollY + 10}px`;
   }
- else {
-  editor.style.left = `${rect.left}px`;
-  editor.style.top = `${rect.bottom + 10}px`;
-  }  
+  
+  // 添加调试信息
+  console.log('[debug] 编辑器位置计算:', {
+    rect: { left: rect.left, top: rect.top, bottom: rect.bottom },
+    scroll: { x: scrollX, y: scrollY },
+    mouseEvent: mouseEvent ? { clientX: mouseEvent.clientX, clientY: mouseEvent.clientY } : null,
+    calculated: { 
+      left: mouseEvent ? mouseEvent.clientX + scrollX - 170 : rect.left + scrollX, 
+      top: mouseEvent ? mouseEvent.clientY + scrollY + 15 : rect.bottom + scrollY + 10 
+    }
+  });  
   editor.style.position = 'absolute'; // 别忘了加定位
   document.body.appendChild(editor);
 

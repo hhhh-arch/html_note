@@ -147,7 +147,7 @@
 
 /* 颜色选择面板浮窗 */
 .color-picker-float {
-  position: fixed;
+  position: absolute;
   display: flex;
   gap: 8px;
   background: #232734;

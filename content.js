@@ -62,24 +62,31 @@ class HTMLNoteHighlighter {
 
     // 监听点击高亮区域，弹出工具栏和编辑框
     document.addEventListener('click', (e) => {
+      console.log('[debug] 点击事件触发，目标元素:', e.target);
+      console.log('[debug] 目标元素类名:', e.target.className);
+      
       if (e.target.classList.contains('html-note-highlight')) {
         const groupId = e.target.getAttribute('data-group-id');
-        console.log('[debug] click event');
+        console.log('[debug] 点击了高亮元素，groupId:', groupId);
 
         if (groupId) {
           // 选中所有同组的高亮
-          console.log('[debug] click event if');
+          console.log('[debug] 有groupId，查找同组元素');
           const allSpans = document.querySelectorAll('.html-note-highlight[data-group-id="' + groupId + '"]');
+          console.log('[debug] 找到同组元素数量:', allSpans.length);
           // 传第一个span和groupId给工具栏
           this.showToolbarForHighlight(allSpans[0], groupId,e);
-          console.log('[debug] showToolbarForHighlight');
+          console.log('[debug] showToolbarForHighlight 调用完成');
           showNoteEditor(allSpans[0], groupId, e);
+          console.log('[debug] showNoteEditor 调用完成');
           //TODO: 这里点击编辑框出不来
         } else {
-          console.log('[debug] showToolbarForHighlight else');
+          console.log('[debug] 没有groupId，直接处理单个元素');
           this.showToolbarForHighlight(e.target, undefined, e);
           showNoteEditor(e.target, undefined, e);
         }
+      } else {
+        console.log('[debug] 点击的不是高亮元素');
       }
     });
 
@@ -461,22 +468,32 @@ class HTMLNoteHighlighter {
     // 移除已存在的工具栏、编辑框和颜色选择器
     document.querySelectorAll('.html-note-toolbar-float, .note-editor, .color-picker-float').forEach(el => el.remove());
     
-    // 获取高亮元素的位置信息
-    const rect = highlightElement.getBoundingClientRect();
-    
     // 创建工具栏容器
     const toolbar = document.createElement('div');
     toolbar.className = 'html-note-toolbar-float';
     let left, top;
+    // 获取高亮元素相对于视口的位置，并加上滚动偏移
+    const rect = highlightElement.getBoundingClientRect();
+    const scrollX = window.pageXOffset || document.documentElement.scrollLeft;
+    const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+    
     if (mouseEvent) {
-      // 鼠标点击点的正上方，center对齐
-      left = mouseEvent.clientX - 90; // 90 = toolbar宽度一半
-      top = mouseEvent.clientY - 50;
+      // 使用鼠标点击位置，但需要加上滚动偏移
+      left = mouseEvent.clientX + scrollX - 90; // 90 = toolbar宽度一半
+      top = mouseEvent.clientY + scrollY - 50;
     } else {
-      const rect = highlightElement.getBoundingClientRect();
-      left = rect.left + rect.width / 2 - 90;
-      top = rect.top - 50;
+      // 使用高亮元素位置
+      left = rect.left + scrollX + rect.width / 2 - 90;
+      top = rect.top + scrollY - 50;
     }
+    
+    // 添加调试信息
+    console.log('[debug] 工具栏位置计算:', {
+      rect: { left: rect.left, top: rect.top, width: rect.width },
+      scroll: { x: scrollX, y: scrollY },
+      mouseEvent: mouseEvent ? { clientX: mouseEvent.clientX, clientY: mouseEvent.clientY } : null,
+      calculated: { left, top }
+    });
     toolbar.style.left = `${left}px`;
     toolbar.style.top = `${top}px`;
     
