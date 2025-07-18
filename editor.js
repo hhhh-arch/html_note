@@ -126,7 +126,7 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
   editor.style.left = `${rect.left}px`;
   editor.style.top = `${rect.bottom + 10}px`;
   }  
-  editor.style.position = 'fixed'; // 别忘了加定位
+  editor.style.position = 'absolute'; // 别忘了加定位
   document.body.appendChild(editor);
 
   const textarea = editor.querySelector('.note-editor-textarea');

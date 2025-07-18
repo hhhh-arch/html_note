@@ -28,7 +28,7 @@
 
 /* 笔记编辑器样式 */
 .note-editor {
-  position: fixed;
+  position: absolute;
   min-width: 340px;
   background: #232734;
   color: #fff;
@@ -113,7 +113,7 @@
 
 /* 浮动工具栏样式 */
 .html-note-toolbar-float {
-  position: fixed;
+  position: absolute;
   display: flex;
   align-items: center;
   background: #232734;
