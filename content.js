@@ -62,31 +62,31 @@ class HTMLNoteHighlighter {
 
     // 监听点击高亮区域，弹出工具栏和编辑框
     document.addEventListener('click', (e) => {
-      console.log('[debug] 点击事件触发，目标元素:', e.target);
-      console.log('[debug] 目标元素类名:', e.target.className);
+//       console.log('[debug] 点击事件触发，目标元素:', e.target);
+//       console.log('[debug] 目标元素类名:', e.target.className);
       
       if (e.target.classList.contains('html-note-highlight')) {
         const groupId = e.target.getAttribute('data-group-id');
-        console.log('[debug] 点击了高亮元素，groupId:', groupId);
+//         console.log('[debug] 点击了高亮元素，groupId:', groupId);
 
         if (groupId) {
           // 选中所有同组的高亮
-          console.log('[debug] 有groupId，查找同组元素');
+//           console.log('[debug] 有groupId，查找同组元素');
           const allSpans = document.querySelectorAll('.html-note-highlight[data-group-id="' + groupId + '"]');
-          console.log('[debug] 找到同组元素数量:', allSpans.length);
+//           console.log('[debug] 找到同组元素数量:', allSpans.length);
           // 传第一个span和groupId给工具栏
           this.showToolbarForHighlight(allSpans[0], groupId,e);
-          console.log('[debug] showToolbarForHighlight 调用完成');
+//           console.log('[debug] showToolbarForHighlight 调用完成');
           showNoteEditor(allSpans[0], groupId, e);
-          console.log('[debug] showNoteEditor 调用完成');
+//           console.log('[debug] showNoteEditor 调用完成');
           //TODO: 这里点击编辑框出不来
         } else {
-          console.log('[debug] 没有groupId，直接处理单个元素');
+//           console.log('[debug] 没有groupId，直接处理单个元素');
           this.showToolbarForHighlight(e.target, undefined, e);
           showNoteEditor(e.target, undefined, e);
         }
       } else {
-        console.log('[debug] 点击的不是高亮元素');
+//         console.log('[debug] 点击的不是高亮元素');
       }
     });
 
@@ -171,7 +171,7 @@ class HTMLNoteHighlighter {
     highlightSpan.setAttribute('data-timestamp', Date.now().toString());
     // 每次都重新获取最新的默认颜色
     const color = this.getDefaultColor();
-    console.log('[debug] createHighlightSpan 用的 color:', color);
+    // console.log('[debug] createHighlightSpan 用的 color:', color);
     highlightSpan.style.backgroundColor = color;
     highlightSpan.setAttribute('data-color', color);
     if (groupId) highlightSpan.setAttribute('data-group-id', groupId);
@@ -186,7 +186,7 @@ class HTMLNoteHighlighter {
       const groupId = highlightSpan.getAttribute('data-group-id');
       if (this.isCrossBlockSelection(range)) {
         const color = highlightSpan.getAttribute('data-color') || this.getDefaultColor();
-        console.log('[debug] wrapRangeWithSpan 传入 wrapCrossBlockSelection 的 color:', color);
+        //console.log('[debug] wrapRangeWithSpan 传入 wrapCrossBlockSelection 的 color:', color);
         this.wrapCrossBlockSelection(range, color, groupId);
       } else {
         // 对于简单的选区，使用原来的方法
@@ -584,14 +584,14 @@ class HTMLNoteHighlighter {
     
     // 创建新的工具栏关闭事件处理函数
     this._toolbarCloseHandler = (ev) => {
-      console.log('[debug] mousedown');
+//       console.log('[debug] mousedown');
       // 检查点击的目标是否在工具栏或编辑器中
       const isInToolbar = toolbar.contains(ev.target);
       const isInEditor = ev.target.closest('.note-editor');
       const isInColorPicker = ev.target.closest('.color-picker-float');
       
       if (!isInToolbar && !isInEditor && !isInColorPicker) {
-        console.log('[debug] mousedown remove toolbar');
+//         console.log('[debug] mousedown remove toolbar');
         toolbar.remove();
         // 同时移除编辑器
         document.querySelectorAll('.note-editor').forEach(el => el.remove());
@@ -716,7 +716,7 @@ class HTMLNoteHighlighter {
         }, 100);  // 稍微延迟一下，给用户鼠标移动时间
       });
       setDefaultBtn.onclick = (ev) => {
-        console.log('[debug] setDefaultBtn.onclick');
+//         console.log('[debug] setDefaultBtn.onclick');
         ev.stopPropagation();
         this.setDefaultColor(color);
 
@@ -910,7 +910,7 @@ function createHighlightSpanWithColor(color, groupId, noteCounter) {
   if (!color) {
     color = highlighter.getDefaultColor();
   }
-  console.log('[debug] createHighlightSpanWithColor 用的 color:', color);
+//   console.log('[debug] createHighlightSpanWithColor 用的 color:', color);
   const highlightSpan = document.createElement('span');
   highlightSpan.className = 'html-note-highlight';
   highlightSpan.setAttribute('data-note-id', `note-${noteCounter}`);
