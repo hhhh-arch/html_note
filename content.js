@@ -472,21 +472,23 @@ class HTMLNoteHighlighter {
     const toolbar = document.createElement('div');
     toolbar.className = 'html-note-toolbar-float';
     let left, top;
+    
     // 获取高亮元素相对于视口的位置，并加上滚动偏移
     const rect = highlightElement.getBoundingClientRect();
     const scrollX = window.pageXOffset || document.documentElement.scrollLeft;
     const scrollY = window.pageYOffset || document.documentElement.scrollTop;
     
+    // 计算工具栏的最终位置
     if (mouseEvent) {
-      // 使用鼠标点击位置，但需要加上滚动偏移
+      // 使用鼠标点击位置，工具栏中心对准点击位置
       left = mouseEvent.clientX + scrollX - 90; // 90 = toolbar宽度一半
       top = mouseEvent.clientY + scrollY - 50;
     } else {
-      // 使用高亮元素位置
+      // 使用高亮元素位置，工具栏中心对准高亮元素中心
       left = rect.left + scrollX + rect.width / 2 - 90;
       top = rect.top + scrollY - 50;
     }
-    
+
     // 添加调试信息
     console.log('[debug] 工具栏位置计算:', {
       rect: { left: rect.left, top: rect.top, width: rect.width },
@@ -494,9 +496,17 @@ class HTMLNoteHighlighter {
       mouseEvent: mouseEvent ? { clientX: mouseEvent.clientX, clientY: mouseEvent.clientY } : null,
       calculated: { left, top }
     });
+    
+    // 设置工具栏初始位置（向上偏移，准备滑动）
     toolbar.style.left = `${left}px`;
     toolbar.style.top = `${top}px`;
+    document.body.appendChild(toolbar);
     
+    // 使用 requestAnimationFrame 确保DOM已渲染，然后添加滑动特效
+    requestAnimationFrame(() => {
+      toolbar.classList.add('show');
+    });
+
     // 创建颜色按钮
     const colorBtn = document.createElement('button');
     colorBtn.className = 'toolbar-float-btn';
@@ -565,7 +575,7 @@ class HTMLNoteHighlighter {
     
     // 将所有按钮添加到工具栏
     toolbar.append(colorBtn, copyBtn, noteBtn, delBtn);
-    document.body.appendChild(toolbar);
+    //document.body.appendChild(toolbar);
     
     // 移除已存在的工具栏关闭事件监听器
     if (this._toolbarCloseHandler) {

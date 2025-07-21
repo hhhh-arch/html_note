@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工具栏动画测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 50px;
+            background: #f5f5f5;
+        }
+        
+        .test-highlight {
+            background: #ffeb3b;
+            padding: 10px;
+            margin: 20px 0;
+            border-radius: 4px;
+            cursor: pointer;
+            display: inline-block;
+        }
+        
+        /* 浮动工具栏样式 */
+        .html-note-toolbar-float {
+            position: absolute;
+            display: flex;
+            align-items: center;
+            background: #232734;
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.22);
+            padding: 6px 14px;
+            gap: 8px;
+            z-index: 10020;
+            /* 初始状态：向上偏移，准备向下滑动 */
+            transform: translate(0, -120%);
+            transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.3s ease;
+            opacity: 0;
+        }
+        
+        .html-note-toolbar-float.show {
+            transform: translate(0, 0);
+            opacity: 1;
+            /* 添加轻微的弹性效果 */
+            transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.3s ease;
+        }
+        
+        .toolbar-float-btn {
+            background: none;
+            border: none;
+            outline: none;
+            border-radius: 6px;
+            width: 32px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.18s, box-shadow 0.18s;
+            color: #fff;
+            font-size: 18px;
+            margin: 0 2px;
+        }
+        
+        .toolbar-float-btn:hover {
+            background: #35394a;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+        }
+    </style>
+</head>
+<body>
+    <h1>工具栏滑动动画测试</h1>
+    <p>点击下面的高亮文本，查看工具栏的滑动动画效果：</p>
+    
+    <div class="test-highlight" onclick="showToolbar(this, event)">
+        这是一个测试高亮文本，点击我查看工具栏动画效果
+    </div>
+    
+    <div class="test-highlight" onclick="showToolbar(this, event)">
+        另一个测试高亮文本，工具栏会从上方滑下来
+    </div>
+    
+    <script>
+        function showToolbar(highlightElement, mouseEvent) {
+            // 移除已存在的工具栏
+            document.querySelectorAll('.html-note-toolbar-float').forEach(el => el.remove());
+            
+            // 创建工具栏容器
+            const toolbar = document.createElement('div');
+            toolbar.className = 'html-note-toolbar-float';
+            
+            // 计算工具栏位置
+            const rect = highlightElement.getBoundingClientRect();
+            const scrollX = window.pageXOffset || document.documentElement.scrollLeft;
+            const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+            
+            // 工具栏中心对准点击位置
+            const left = mouseEvent.clientX + scrollX - 90; // 90 = toolbar宽度一半
+            const top = mouseEvent.clientY + scrollY - 50;
+            
+            // 设置工具栏位置
+            toolbar.style.left = `${left}px`;
+            toolbar.style.top = `${top}px`;
+            
+            // 创建按钮
+            const colorBtn = document.createElement('button');
+            colorBtn.className = 'toolbar-float-btn';
+            colorBtn.innerHTML = '🎨';
+            colorBtn.title = '更改颜色';
+            
+            const copyBtn = document.createElement('button');
+            copyBtn.className = 'toolbar-float-btn';
+            copyBtn.innerHTML = '📋';
+            copyBtn.title = '复制文本';
+            
+            const noteBtn = document.createElement('button');
+            noteBtn.className = 'toolbar-float-btn';
+            noteBtn.innerHTML = '📝';
+            noteBtn.title = '添加笔记';
+            
+            const delBtn = document.createElement('button');
+            delBtn.className = 'toolbar-float-btn';
+            delBtn.innerHTML = '🗑️';
+            delBtn.title = '删除高亮';
+            
+            // 添加按钮到工具栏
+            toolbar.append(colorBtn, copyBtn, noteBtn, delBtn);
+            document.body.appendChild(toolbar);
+            
+            // 使用 requestAnimationFrame 确保DOM已渲染，然后添加滑动特效
+            requestAnimationFrame(() => {
+                toolbar.classList.add('show');
+            });
+            
+            // 点击外部关闭工具栏
+            setTimeout(() => {
+                document.addEventListener('mousedown', function closeToolbar(ev) {
+                    if (!toolbar.contains(ev.target) && !highlightElement.contains(ev.target)) {
+                        toolbar.remove();
+                        document.removeEventListener('mousedown', closeToolbar);
+                    }
+                });
+            }, 10);
+        }
+    </script>
+</body>
+</html> 
