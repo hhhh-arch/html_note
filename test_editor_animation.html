@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>编辑器动画测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 50px;
+            background: #f5f5f5;
+            line-height: 1.6;
+        }
+        
+        .test-highlight {
+            background: #ffeb3b;
+            padding: 10px;
+            margin: 20px 0;
+            border-radius: 4px;
+            cursor: pointer;
+            display: inline-block;
+        }
+        
+        /* 笔记编辑器样式 */
+        .note-editor {
+            position: absolute;
+            min-width: 340px;
+            background: #232734;
+            color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.22);
+            z-index: 10022;
+            border: 1px solid #35394a;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            /* 初始状态：向下偏移，准备向上滑动 */
+            transform: translate(0, 120%);
+            transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.3s ease;
+            opacity: 0;
+        }
+
+        .note-editor.show {
+            transform: translate(0, 0);
+            opacity: 1;
+            /* 添加轻微的弹性效果 */
+            transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.3s ease;
+        }
+
+        .note-editor-header {
+            background:#232734;
+            padding:14px 18px 0 18px;
+            display:flex;
+            align-items:center;
+            font-size:15px;
+            font-weight:500;
+            color:#bfc4d1;
+            border-radius:12px 12px 0 0;
+            flex-wrap: wrap;
+            gap: 4px;
+            max-width:340px !important;
+        }
+
+        .note-editor-textarea {
+            width: 100%;
+            background: #232734;
+            color: #bfc4d1;
+            border: none;
+            border-radius: 0 0 12px 12px;
+            font-size: 15px;
+            padding: 16px 18px 18px 18px;
+            resize: none;
+            overflow: hidden;
+            box-sizing: border-box;
+            outline: none;
+            margin-top: 2px;
+            line-height: 1.5;
+            height:auto;
+            min-height: 56px;
+        }
+
+        .note-editor-textarea::placeholder {
+            color: #bfc4d1;
+            opacity: 0.8;
+        }
+
+        .note-editor-tags {
+            position:relative;
+            background:#232734;
+            color:#bfc4d1;
+            border:1px solid #35394a;
+            border-radius:6px;
+            font-size:14px;
+            padding:2px 8px;
+            outline:none;
+            width:120px;
+            height:28px;
+        }
+    </style>
+</head>
+<body>
+    <h1>编辑器滑动动画测试</h1>
+    <p>点击下面的高亮文本，查看编辑器的滑动动画效果：</p>
+    
+    <div class="test-highlight" onclick="showEditor(this, event)">
+        这是一个测试高亮文本，点击我查看编辑器动画效果
+    </div>
+    
+    <div class="test-highlight" onclick="showEditor(this, event)">
+        另一个测试高亮文本，编辑器会从下方滑上来
+    </div>
+    
+    <div class="test-highlight" onclick="showEditor(this, event)">
+        第三个测试文本，编辑器会出现在点击位置下方
+    </div>
+    
+    <script>
+        function showEditor(highlightElement, mouseEvent) {
+            // 移除已存在的编辑器
+            document.querySelectorAll('.note-editor').forEach(el => el.remove());
+            
+            // 创建编辑器容器
+            const editor = document.createElement('div');
+            editor.className = 'note-editor';
+            
+            // 创建编辑器内容
+            editor.innerHTML = `
+                <div class="note-editor-header">
+                    <input type="text" class="note-editor-tags" placeholder="Tags" />
+                </div>
+                <textarea class="note-editor-textarea" rows="1" placeholder="type your note"></textarea>
+            `;
+            
+            // 计算编辑器位置
+            const rect = highlightElement.getBoundingClientRect();
+            const scrollX = window.pageXOffset || document.documentElement.scrollLeft;
+            const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+            
+            // 编辑器中心对准点击位置
+            const left = mouseEvent.clientX + scrollX - 170; // 170 = editor宽度一半
+            const top = mouseEvent.clientY + scrollY + 15;
+            
+            // 设置编辑器位置
+            editor.style.left = `${left}px`;
+            editor.style.top = `${top}px`;
+            editor.style.position = 'absolute';
+            document.body.appendChild(editor);
+            
+            // 使用 requestAnimationFrame 确保DOM已渲染，然后添加滑动特效
+            requestAnimationFrame(() => {
+                editor.classList.add('show');
+            });
+            
+            // 点击外部关闭编辑器
+            setTimeout(() => {
+                document.addEventListener('mousedown', function closeEditor(ev) {
+                    if (!editor.contains(ev.target) && !highlightElement.contains(ev.target)) {
+                        editor.remove();
+                        document.removeEventListener('mousedown', closeEditor);
+                    }
+                });
+            }, 10);
+            
+            // 自动聚焦到文本框
+            const textarea = editor.querySelector('.note-editor-textarea');
+            textarea.focus();
+        }
+    </script>
+</body>
+</html> 

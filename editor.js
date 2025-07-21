@@ -122,28 +122,36 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
   const scrollX = window.pageXOffset || document.documentElement.scrollLeft;
   const scrollY = window.pageYOffset || document.documentElement.scrollTop;
   
+  // 计算编辑器的最终位置
+  let left, top;
   if (mouseEvent) {
-    // 使用鼠标点击位置，但需要加上滚动偏移
-    editor.style.left = `${mouseEvent.clientX + scrollX - 170}px`;
-    editor.style.top = `${mouseEvent.clientY + scrollY + 15}px`;
+    // 使用鼠标点击位置，编辑器中心对准点击位置
+    left = mouseEvent.clientX + scrollX - 170; // 170 = editor宽度一半
+    top = mouseEvent.clientY + scrollY + 15;
   } else {
-    // 使用高亮元素位置
-    editor.style.left = `${rect.left + scrollX}px`;
-    editor.style.top = `${rect.bottom + scrollY + 10}px`;
+    // 使用高亮元素位置，编辑器中心对准高亮元素中心
+    left = rect.left + scrollX + rect.width / 2 - 170;
+    top = rect.bottom + scrollY + 10;
   }
   
   // 添加调试信息
   console.log('[debug] 编辑器位置计算:', {
-    rect: { left: rect.left, top: rect.top, bottom: rect.bottom },
+    rect: { left: rect.left, top: rect.top, bottom: rect.bottom, width: rect.width },
     scroll: { x: scrollX, y: scrollY },
     mouseEvent: mouseEvent ? { clientX: mouseEvent.clientX, clientY: mouseEvent.clientY } : null,
-    calculated: { 
-      left: mouseEvent ? mouseEvent.clientX + scrollX - 170 : rect.left + scrollX, 
-      top: mouseEvent ? mouseEvent.clientY + scrollY + 15 : rect.bottom + scrollY + 10 
-    }
+    calculated: { left, top }
   });  
-  editor.style.position = 'absolute'; // 别忘了加定位
+  
+  // 设置编辑器初始位置（向下偏移，准备滑动）
+  editor.style.left = `${left}px`;
+  editor.style.top = `${top}px`;
+  editor.style.position = 'absolute';
   document.body.appendChild(editor);
+  
+  // 使用 requestAnimationFrame 确保DOM已渲染，然后添加滑动特效
+  requestAnimationFrame(() => {
+    editor.classList.add('show');
+  });
 
   const textarea = editor.querySelector('.note-editor-textarea');
   const tags = editor.querySelector('.note-editor-tags');

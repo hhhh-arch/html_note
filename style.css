@@ -39,6 +39,17 @@
   padding: 0;
   display: flex;
   flex-direction: column;
+  /* 初始状态：向下偏移，准备向上滑动 */
+  transform: translate(0, 120%);
+  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.3s ease;
+  opacity: 0;
+}
+
+.note-editor.show {
+  transform: translate(0, 0);
+  opacity: 1;
+  /* 添加轻微的弹性效果 */
+  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.3s ease;
 }
 
 .note-editor-header {
