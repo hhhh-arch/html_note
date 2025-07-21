@@ -11,7 +11,10 @@
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["content.js", "editor.js"],
+      "js": ["libs/marked.min.js",
+      "script/markdownSupport.js",
+      "content.js", 
+      "editor.js"],
       "css": ["style.css"]
     }
   ],
