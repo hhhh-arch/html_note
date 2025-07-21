@@ -128,6 +128,8 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
     // 使用鼠标点击位置，编辑器中心对准点击位置
     left = mouseEvent.clientX + scrollX - 170; // 170 = editor宽度一半
     top = mouseEvent.clientY + scrollY + 15;
+    // text = renderMarkdown(currentNote);
+    // console.log("text",text);
   } else {
     // 使用高亮元素位置，编辑器中心对准高亮元素中心
     left = rect.left + scrollX + rect.width / 2 - 170;
@@ -274,7 +276,7 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
   //TODO: 这里加入tags的编辑功能
   
 }
-
+}
 /**
  * 保存tags到Chrome本地存储
  * @param {string} pageUrl - 当前页面URL，用作存储键的一部分
@@ -300,7 +302,7 @@ function saveTagsToStorage(pageUrl, tags) {
       console.log('tags已保存到本地存储:', tags);
     }
   });
-  
+}
 /**
  * 从Chrome本地存储读取tags
  * @param {string} pageUrl - 当前页面URL，用作存储键的一部分
@@ -333,14 +335,14 @@ function loadTagsFromStorage(pageUrl, callback) {
   });
 }
 
-/**
- * 添加tags功能 - 读取tag输入框的内容，当用户按Enter时保存到本地存储
- * @param {string} currentPageUrl - 当前页面URL
- * @param {HTMLElement} editor - 编辑器元素
- */
-function addTags(currentPageUrl, editor) {
+// /**
+//  * 添加tags功能 - 读取tag输入框的内容，当用户按Enter时保存到本地存储
+//  * @param {string} currentPageUrl - 当前页面URL
+//  * @param {HTMLElement} editor - 编辑器元素
+//  */
+// function addTags(currentPageUrl, editor) {
 
-}
-}
-
+// }
+function rendeMarkdown(text) {
+  // 使用marked.js渲染markdown
 }

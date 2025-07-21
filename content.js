@@ -62,31 +62,31 @@ class HTMLNoteHighlighter {
 
     // 监听点击高亮区域，弹出工具栏和编辑框
     document.addEventListener('click', (e) => {
-      console.log('[debug] 点击事件触发，目标元素:', e.target);
-      console.log('[debug] 目标元素类名:', e.target.className);
+//       console.log('[debug] 点击事件触发，目标元素:', e.target);
+//       console.log('[debug] 目标元素类名:', e.target.className);
       
       if (e.target.classList.contains('html-note-highlight')) {
         const groupId = e.target.getAttribute('data-group-id');
-        console.log('[debug] 点击了高亮元素，groupId:', groupId);
+//         console.log('[debug] 点击了高亮元素，groupId:', groupId);
 
         if (groupId) {
           // 选中所有同组的高亮
-          console.log('[debug] 有groupId，查找同组元素');
+//           console.log('[debug] 有groupId，查找同组元素');
           const allSpans = document.querySelectorAll('.html-note-highlight[data-group-id="' + groupId + '"]');
-          console.log('[debug] 找到同组元素数量:', allSpans.length);
+//           console.log('[debug] 找到同组元素数量:', allSpans.length);
           // 传第一个span和groupId给工具栏
           this.showToolbarForHighlight(allSpans[0], groupId,e);
-          console.log('[debug] showToolbarForHighlight 调用完成');
+//           console.log('[debug] showToolbarForHighlight 调用完成');
           showNoteEditor(allSpans[0], groupId, e);
-          console.log('[debug] showNoteEditor 调用完成');
+//           console.log('[debug] showNoteEditor 调用完成');
           //TODO: 这里点击编辑框出不来
         } else {
-          console.log('[debug] 没有groupId，直接处理单个元素');
+//           console.log('[debug] 没有groupId，直接处理单个元素');
           this.showToolbarForHighlight(e.target, undefined, e);
           showNoteEditor(e.target, undefined, e);
         }
       } else {
-        console.log('[debug] 点击的不是高亮元素');
+//         console.log('[debug] 点击的不是高亮元素');
       }
     });
 
