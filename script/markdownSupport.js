@@ -34,7 +34,7 @@ function renderMarkdown(textArea) {
                         return;
                         }
                         
-                        if (lineNode && lineNode.innerText && lineNode.innerText.trim()) {
+                        if (lineNode && lineNode.innerText) {
                             const markdown = lineNode.innerText;
                             console.log("Processing markdown:", markdown);
                             

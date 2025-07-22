@@ -14,9 +14,10 @@
       "js": [
         "libs/purify.min.js",
       "libs/marked.min.js",
-      "script/markdownSupport.js",
+      
       "content.js", 
-      "editor.js"],
+      "editor.js",
+      "script/markdownSupport.js"],
       "css": ["style.css"]
     }
   ],

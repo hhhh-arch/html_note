@@ -155,23 +155,23 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
   const textArea = editor.querySelector('.note-editor-textarea');
   const tags = editor.querySelector('.note-editor-tags');
   
-  // 自定义placeholder功能
-  function updatePlaceholder() {
-    if (textArea.textContent.trim() === '') {
-      textArea.classList.add('placeholder-active');
+  // // 自定义placeholder功能
+  // function updatePlaceholder() {
+  //   if (textArea.textContent.trim() === '') {
+  //     textArea.classList.add('placeholder-active');
       
-    } else {
-      textArea.classList.remove('placeholder-active');
-    }
-  }
+  //   } else {
+  //     textArea.classList.remove('placeholder-active');
+  //   }
+  // }
   
 
-  updatePlaceholder();
+  // updatePlaceholder();
   
-  // 监听输入事件来更新placeholder
-  textArea.addEventListener('input', updatePlaceholder);
-  textArea.addEventListener('focus', updatePlaceholder);
-  textArea.addEventListener('blur', updatePlaceholder);
+  // // 监听输入事件来更新placeholder
+  // textArea.addEventListener('input', updatePlaceholder);
+  // textArea.addEventListener('focus', updatePlaceholder);
+  // textArea.addEventListener('blur', updatePlaceholder);
 
   // 初始化placeholder状态
   // 为tag输入框添加事件处理，防止编辑器意外关闭
@@ -217,23 +217,25 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
     });
   });
   tags.onblur = () => {
-  textArea.addEventListener('input', () => {
-    //renderMarkdown(textArea)
-    textArea.style.height = 'auto'; // 先清空高度
-    textArea.style.height = textArea.scrollHeight + 'px'; // 根据内容撑开
- 
-  });
+    textArea.addEventListener('input', () => {
+      //renderMarkdown(textArea)
+      textArea.style.height = 'auto'; // 先清空高度
+      textArea.style.height = textArea.scrollHeight + 'px'; // 根据内容撑开
+  
+    });
 
 
-  //如果textarea有内容，则自动展开
-  if (currentNote!='') {
-    textArea.style.height = 'auto'; // 先清空高度
-    textArea.style.height = textArea.scrollHeight + 'px'; // 根据内容撑开
+    //如果textarea有内容，则自动展开
+    if (currentNote!='') {
+      textArea.style.height = 'auto'; // 先清空高度
+      textArea.style.height = textArea.scrollHeight + 'px'; // 根据内容撑开
+    }
+
+
+    // 失焦时保存内容
+    // 初始化markdown渲染
   }
-  // 失焦时保存内容
-  // 初始化markdown渲染
-  }
-  renderMarkdown(textArea);
+  
   textArea.onblur = () => {
     // 使用setTimeout延迟检查，确保事件处理的正确性
     setTimeout(() => {
@@ -243,7 +245,8 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
         return; // 如果焦点转移到了tag输入框，不关闭编辑器
       }
       
-      const note = textArea.textContent.trim();
+      const note = textArea.innerHTML;
+      //console.log("note",note);
       const tagsValue = tags.value.trim();
       
       // 保存tags到本地存储
@@ -286,7 +289,7 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
     }
   }
   document.addEventListener('mousedown', onDocMouseDown);
-
+  //renderMarkdown(textArea);
   textArea.focus();
   //textarea.selectionStart = textarea.selectionEnd = textarea.value.length;
   textArea.onfocus = () => {
@@ -294,7 +297,7 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
     textArea.selectionEnd = currentNote.length;
   };
   const tagsBar = editor.querySelector('.note-editor-header');
-  //TODO: 这里加入tags的编辑功能
+
   
 }
 
