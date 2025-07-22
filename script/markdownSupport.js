@@ -11,7 +11,7 @@ function renderMarkdown(textArea) {
         }
         
         textArea.addEventListener("keydown", (e) => {
-            console.log("e.key", e.key);
+            //console.log("e.key", e.key);
             if (e.key === 'Enter') {
                 // 延迟一帧等待 DOM 插入新行
                 setTimeout(() => {
@@ -35,6 +35,7 @@ function renderMarkdown(textArea) {
                         }
                         
                         if (lineNode && lineNode.innerText) {
+                            //FIXME: 这里markdown 无论如何都是空的
                             const markdown = lineNode.innerText;
                             console.log("Processing markdown:", markdown);
                             
