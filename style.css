@@ -94,6 +94,17 @@
   opacity: 0.8;
 }
 
+/* 自定义placeholder样式 */
+.note-editor-textarea[data-placeholder].placeholder-active:before {
+  content: attr(data-placeholder);
+  color: #bfc4d1;
+  opacity: 0.8;
+  pointer-events: none;
+  position: absolute;
+  top: 16px;
+  left: 18px;
+}
+
 /* 通知样式 */
 .html-note-notification {
   position: fixed;

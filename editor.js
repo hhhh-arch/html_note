@@ -69,10 +69,9 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
     if (tagsString=='') {
     editor.innerHTML = `
       <div class="note-editor-header" >
-
         <input type="text" class="note-editor-tags" placeholder="Tags" />
       </div>
-      <div class="note-editor-textarea" contenteditable="true" rows="1" placeholder="type your note" ></div>
+      <div class="note-editor-textarea" contenteditable="true" data-placeholder="type your note"></div>
     `;
     }
     else {
@@ -80,7 +79,7 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
       <div class="note-editor-header" >
         <input type="text" class="note-editor-tags" placeholder="Tags" />
       </div>
-      <div class="note-editor-textarea" contenteditable="true" rows="1" placeholder="type your note" ></div>
+      <div class="note-editor-textarea" contenteditable="true" data-placeholder="type your note"></div>
     `;
     const tagsBar = editor.querySelector('.note-editor-header');
     console.log('[debug] display tagsString:', tagsString);
@@ -98,7 +97,7 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
       <div class="note-editor-header" >
         <input type="text" class="note-editor-tags" placeholder="Tags" />
       </div>
-      <div class="note-editor-textarea" contenteditable="true" placeholder="${!currentNote ? 'type your note' : ''}" >${currentNote ? currentNote : ''}</div>
+      <div class="note-editor-textarea" contenteditable="true" data-placeholder="${!currentNote ? 'type your note' : ''}">${currentNote ? currentNote : ''}</div>
     `;
     }
     else {
@@ -106,7 +105,7 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
       <div class="note-editor-header" >
         <input type="text" class="note-editor-tags" placeholder="Tags" />
       </div>
-      <div class="note-editor-textarea" contenteditable="true" placeholder="${!currentNote ? 'type your note' : ''}" >${currentNote ? currentNote : ''}</div>
+      <div class="note-editor-textarea" contenteditable="true" data-placeholder="${!currentNote ? 'type your note' : ''}">${currentNote ? currentNote : ''}</div>
     `;
     const tagsBar = editor.querySelector('.note-editor-header');
     tagsString.split(',').forEach(tag => {
@@ -158,6 +157,23 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
   const textArea = editor.querySelector('.note-editor-textarea');
   const tags = editor.querySelector('.note-editor-tags');
   
+  // 自定义placeholder功能
+  function updatePlaceholder() {
+    if (textArea.textContent.trim() === '') {
+      textArea.classList.add('placeholder-active');
+    } else {
+      textArea.classList.remove('placeholder-active');
+    }
+  }
+  
+  // 初始化placeholder状态
+  updatePlaceholder();
+  
+  // 监听输入事件来更新placeholder
+  textArea.addEventListener('input', updatePlaceholder);
+  textArea.addEventListener('focus', updatePlaceholder);
+  textArea.addEventListener('blur', updatePlaceholder);
+  
   // 为tag输入框添加事件处理，防止编辑器意外关闭
   tags.addEventListener('mousedown', (ev) => {
     ev.stopPropagation(); // 阻止事件冒泡
@@ -205,7 +221,6 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
     //renderMarkdown(textArea)
     textArea.style.height = 'auto'; // 先清空高度
     textArea.style.height = textArea.scrollHeight + 'px'; // 根据内容撑开
-
   });
   console.log("enter renderMarkdown");
   renderMarkdown(textArea)
@@ -215,6 +230,10 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
     textArea.style.height = textArea.scrollHeight + 'px'; // 根据内容撑开
   }
   // 失焦时保存内容
+  // 初始化markdown渲染
+  console.log("Initializing markdown support for textArea:", textArea);
+  renderMarkdown(textArea);
+  
   textArea.onblur = () => {
     // 使用setTimeout延迟检查，确保事件处理的正确性
     setTimeout(() => {
@@ -224,7 +243,7 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
         return; // 如果焦点转移到了tag输入框，不关闭编辑器
       }
       
-      const note = textArea.value.trim();
+      const note = textArea.textContent.trim();
       const tagsValue = tags.value.trim();
       
       // 保存tags到本地存储
@@ -250,7 +269,6 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
       document.removeEventListener('mousedown', onDocMouseDown);
     }, 10); // 延迟10ms检查
   };
-
   // 点击外部关闭编辑器
   function onDocMouseDown(ev) {
     // 检查点击的目标是否在editor内，包括tag输入框和删除按钮
