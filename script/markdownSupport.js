@@ -22,8 +22,14 @@ function renderMarkdown(textArea) {
                         
                         // 获取上一行内容（可能是 textNode 或 <div>）
                         let lineNode = container;
-                        while (lineNode && lineNode.nodeType !== 1 && lineNode.parentNode !== textArea) {
-                            lineNode = lineNode.parentNode;
+                        // 向上查找，直到 lineNode 是 textArea 的直接子节点
+                        while (lineNode && lineNode.parentNode !== textArea) {
+                        lineNode = lineNode.parentNode;
+                        }
+                        if (!lineNode || lineNode.parentNode !== textArea) {
+                            console.log("there is no lineNode")
+                        // 没找到合适的节点，直接返回
+                        return;
                         }
                         
                         if (lineNode && lineNode.innerText && lineNode.innerText.trim()) {
@@ -40,7 +46,7 @@ function renderMarkdown(textArea) {
                                 console.error("DOMPurify is not loaded");
                                 return;
                             }
-                            
+                            console.log("process markdown")
                             const html = DOMPurify.sanitize(marked.parse(markdown));
                             console.log("Generated HTML:", html);
                             

@@ -161,19 +161,21 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
   function updatePlaceholder() {
     if (textArea.textContent.trim() === '') {
       textArea.classList.add('placeholder-active');
+      
     } else {
       textArea.classList.remove('placeholder-active');
     }
   }
   
-  // 初始化placeholder状态
+
   updatePlaceholder();
   
   // 监听输入事件来更新placeholder
   textArea.addEventListener('input', updatePlaceholder);
   textArea.addEventListener('focus', updatePlaceholder);
   textArea.addEventListener('blur', updatePlaceholder);
-  
+
+  // 初始化placeholder状态
   // 为tag输入框添加事件处理，防止编辑器意外关闭
   tags.addEventListener('mousedown', (ev) => {
     ev.stopPropagation(); // 阻止事件冒泡
@@ -221,9 +223,10 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
     //renderMarkdown(textArea)
     textArea.style.height = 'auto'; // 先清空高度
     textArea.style.height = textArea.scrollHeight + 'px'; // 根据内容撑开
+ 
   });
-  console.log("enter renderMarkdown");
-  renderMarkdown(textArea)
+
+
   //如果textarea有内容，则自动展开
   if (currentNote!='') {
     textArea.style.height = 'auto'; // 先清空高度
@@ -232,7 +235,7 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
   // 失焦时保存内容
   // 初始化markdown渲染
   console.log("Initializing markdown support for textArea:", textArea);
-  renderMarkdown(textArea);
+  // renderMarkdown(textArea);
   
   textArea.onblur = () => {
     // 使用setTimeout延迟检查，确保事件处理的正确性
