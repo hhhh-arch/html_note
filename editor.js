@@ -72,7 +72,7 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
 
         <input type="text" class="note-editor-tags" placeholder="Tags" />
       </div>
-      <textarea class="note-editor-textarea" rows="1" placeholder="type your note" ></textarea>
+      <div class="note-editor-textarea" contenteditable="true" rows="1" placeholder="type your note" ></div>
     `;
     }
     else {
@@ -80,7 +80,7 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
       <div class="note-editor-header" >
         <input type="text" class="note-editor-tags" placeholder="Tags" />
       </div>
-      <textarea class="note-editor-textarea" rows="1" placeholder="type your note" ></textarea>
+      <div class="note-editor-textarea" contenteditable="true" rows="1" placeholder="type your note" ></div>
     `;
     const tagsBar = editor.querySelector('.note-editor-header');
     console.log('[debug] display tagsString:', tagsString);
@@ -98,7 +98,7 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
       <div class="note-editor-header" >
         <input type="text" class="note-editor-tags" placeholder="Tags" />
       </div>
-      <textarea class="note-editor-textarea" placeholder="${!currentNote ? 'type your note' : ''}" >${currentNote ? currentNote : ''}</textarea>
+      <div class="note-editor-textarea" contenteditable="true" placeholder="${!currentNote ? 'type your note' : ''}" >${currentNote ? currentNote : ''}</div>
     `;
     }
     else {
@@ -106,7 +106,7 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
       <div class="note-editor-header" >
         <input type="text" class="note-editor-tags" placeholder="Tags" />
       </div>
-      <textarea class="note-editor-textarea" placeholder="${!currentNote ? 'type your note' : ''}" >${currentNote ? currentNote : ''}</textarea>
+      <div class="note-editor-textarea" contenteditable="true" placeholder="${!currentNote ? 'type your note' : ''}" >${currentNote ? currentNote : ''}</div>
     `;
     const tagsBar = editor.querySelector('.note-editor-header');
     tagsString.split(',').forEach(tag => {
@@ -128,7 +128,7 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
     // 使用鼠标点击位置，编辑器中心对准点击位置
     left = mouseEvent.clientX + scrollX - 170; // 170 = editor宽度一半
     top = mouseEvent.clientY + scrollY + 15;
-    // text = renderMarkdown(currentNote);
+    // renderMarkdown(textArea);
     // console.log("text",text);
   } else {
     // 使用高亮元素位置，编辑器中心对准高亮元素中心
@@ -155,7 +155,7 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
     editor.classList.add('show');
   });
 
-  const textarea = editor.querySelector('.note-editor-textarea');
+  const textArea = editor.querySelector('.note-editor-textarea');
   const tags = editor.querySelector('.note-editor-tags');
   
   // 为tag输入框添加事件处理，防止编辑器意外关闭
@@ -201,18 +201,21 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
     });
   });
   tags.onblur = () => {
-  textarea.addEventListener('input', () => {
-    textarea.style.height = 'auto'; // 先清空高度
-    textarea.style.height = textarea.scrollHeight + 'px'; // 根据内容撑开
+  textArea.addEventListener('input', () => {
+    //renderMarkdown(textArea)
+    textArea.style.height = 'auto'; // 先清空高度
+    textArea.style.height = textArea.scrollHeight + 'px'; // 根据内容撑开
 
   });
+  console.log("enter renderMarkdown");
+  renderMarkdown(textArea)
   //如果textarea有内容，则自动展开
   if (currentNote!='') {
-    textarea.style.height = 'auto'; // 先清空高度
-    textarea.style.height = textarea.scrollHeight + 'px'; // 根据内容撑开
+    textArea.style.height = 'auto'; // 先清空高度
+    textArea.style.height = textArea.scrollHeight + 'px'; // 根据内容撑开
   }
   // 失焦时保存内容
-  textarea.onblur = () => {
+  textArea.onblur = () => {
     // 使用setTimeout延迟检查，确保事件处理的正确性
     setTimeout(() => {
       // 检查是否是因为点击了tag输入框而导致的失焦
@@ -221,7 +224,7 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
         return; // 如果焦点转移到了tag输入框，不关闭编辑器
       }
       
-      const note = textarea.value.trim();
+      const note = textArea.value.trim();
       const tagsValue = tags.value.trim();
       
       // 保存tags到本地存储
@@ -261,16 +264,16 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
     const isInColorPicker = ev.target.closest('.color-picker-float');
     
     if (!editor.contains(ev.target) && !isInToolbar && !isInColorPicker) {
-      textarea.blur();
+      textArea.blur();
     }
   }
   document.addEventListener('mousedown', onDocMouseDown);
 
-  textarea.focus();
+  textArea.focus();
   //textarea.selectionStart = textarea.selectionEnd = textarea.value.length;
-  textarea.onfocus = () => {
-    textarea.selectionStart = currentNote.length;
-    textarea.selectionEnd = currentNote.length;
+  textArea.onfocus = () => {
+    textArea.selectionStart = currentNote.length;
+    textArea.selectionEnd = currentNote.length;
   };
   const tagsBar = editor.querySelector('.note-editor-header');
   //TODO: 这里加入tags的编辑功能
