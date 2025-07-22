@@ -127,8 +127,6 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
     // 使用鼠标点击位置，编辑器中心对准点击位置
     left = mouseEvent.clientX + scrollX - 170; // 170 = editor宽度一半
     top = mouseEvent.clientY + scrollY + 15;
-    // renderMarkdown(textArea);
-    // console.log("text",text);
   } else {
     // 使用高亮元素位置，编辑器中心对准高亮元素中心
     left = rect.left + scrollX + rect.width / 2 - 170;
@@ -234,9 +232,8 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
   }
   // 失焦时保存内容
   // 初始化markdown渲染
-  console.log("Initializing markdown support for textArea:", textArea);
-  // renderMarkdown(textArea);
-  
+  }
+  renderMarkdown(textArea);
   textArea.onblur = () => {
     // 使用setTimeout延迟检查，确保事件处理的正确性
     setTimeout(() => {
@@ -300,7 +297,7 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
   //TODO: 这里加入tags的编辑功能
   
 }
-}
+
 /**
  * 保存tags到Chrome本地存储
  * @param {string} pageUrl - 当前页面URL，用作存储键的一部分
@@ -367,6 +364,6 @@ function loadTagsFromStorage(pageUrl, callback) {
 // function addTags(currentPageUrl, editor) {
 
 // }
-function rendeMarkdown(text) {
+function renderMarkdown(textArea) {
   // 使用marked.js渲染markdown
 }

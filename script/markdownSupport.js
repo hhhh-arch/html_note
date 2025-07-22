@@ -1,5 +1,7 @@
 // markdown.js
+
 function renderMarkdown(textArea) {
+    console.log("renderMarkdown");
     try {
         console.log("textArea", textArea);
         

@@ -54,7 +54,8 @@ class HTMLNoteHighlighter {
   setupEventListeners() {
     // 监听选区变化，弹出高亮按钮
     document.addEventListener('selectionchange', () => {
-      //console.log('showHighlightButtonForSelection')
+      //console.log('
+      // HighlightButtonForSelection')
       this.showHighlightButtonForSelection();
     });
     
