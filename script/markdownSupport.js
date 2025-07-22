@@ -33,10 +33,10 @@ function renderMarkdown(textArea) {
                         // 没找到合适的节点，直接返回
                         return;
                         }
-                        
-                        if (lineNode && lineNode.innerText) {
+                        let prevLineNode = lineNode.previousSibling;
+                        if (prevLineNode && prevLineNode.innerText) {
                             //FIXME: 这里markdown 无论如何都是空的
-                            const markdown = lineNode.innerText;
+                            const markdown = prevLineNode.innerText;
                             console.log("Processing markdown:", markdown);
                             
                             // 检查marked和DOMPurify是否可用
@@ -57,8 +57,8 @@ function renderMarkdown(textArea) {
                             temp.innerHTML = html;
                             
                             if (temp.firstChild) {
-                                textArea.insertBefore(temp.firstChild, lineNode);
-                                textArea.removeChild(lineNode);
+                                textArea.insertBefore(temp.firstChild, prevLineNode);
+                                textArea.removeChild(prevLineNode);
                             }
                         }
                     } catch (error) {

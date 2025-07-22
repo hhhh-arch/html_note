@@ -75,7 +75,7 @@
   color: #bfc4d1;
   border: none;
   border-radius: 0 0 12px 12px;
-  font-size: 15px;
+
   padding: 16px 18px 18px 18px;
   resize: none; /* ⛔ 禁止用户手动拉伸 */
   overflow: hidden; /* ✅ 防止滚动条出现 */
