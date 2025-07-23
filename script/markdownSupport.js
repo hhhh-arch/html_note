@@ -28,14 +28,31 @@ function renderMarkdown(textArea) {
                         while (lineNode && lineNode.parentNode !== textArea) {
                         lineNode = lineNode.parentNode;
                         }
+
                         if (!lineNode || lineNode.parentNode !== textArea) {
                             console.log("there is no lineNode")
                         // 没找到合适的节点，直接返回
                         return;
                         }
                         let prevLineNode = lineNode.previousSibling;
+                        console.log("lineNode.parentNode",lineNode.parentNode);
+                        console.log("prevLineNode",prevLineNode);
+                        console.log("lineNode",lineNode);
+                        // if (textArea.innerText != ''){
+                        //     // first line of textArea
+                        //     prevLineNode = document.createElement('div');
+                        //     prevLineNode.innerText = textArea.innerText;
+                        //     textArea.innerText = '';
+                        //     textArea.appendChild(prevLineNode);
+                        //     textArea.appendChild(lineNode);
+                        //     lineNode.previousSibling = prevLineNode;
+                        //     console.log("prevLineNode",prevLineNode);
+                        //     console.log("lineNode",lineNode);
+                        //     console.log("lineNode.parentNode",lineNode.parentNode);
+                        // }
                         if (prevLineNode && prevLineNode.innerText) {
                             //FIXME: 这里markdown 无论如何都是空的
+                            console.log("enter the prevLineNode")
                             let markdown = prevLineNode.innerText;
                             console.log("Processing markdown:", markdown);
                             
@@ -69,10 +86,60 @@ function renderMarkdown(textArea) {
                             const temp = document.createElement('div');
                             temp.innerHTML = html;
                             
+                             if (temp.firstChild) {
+                            //     if (prevLineNode.parentNode == textArea){
+                            //         textArea.insertBefore(temp.firstChild,lineNode);
+                            //         textArea.removeChild(prevLineNode);
+                            //     }
+                            //     else{
+                                    textArea.insertBefore(temp.firstChild, prevLineNode);
+                                    textArea.removeChild(prevLineNode);
+                                // }
+                                
+                            }
+                        }
+                        else if (prevLineNode.nodeType === Node.TEXT_NODE && lineNode){
+                            // first line of textArea
+                            console.log("enter the TEXT_NODE")
+                            const markdown = prevLineNode.textContent;
+                            console.log("Processing markdown:", markdown);
+                            
+                            // 检查marked和DOMPurify是否可用
+                            if (typeof marked === 'undefined') {
+                                console.error("marked.js is not loaded");
+                                return;
+                            }
+                            
+                            if (typeof DOMPurify === 'undefined') {
+                                console.error("DOMPurify is not loaded");
+                                return;
+                            }
+                            console.log("process markdown")
+                            const renderer={
+                                heading({ tokens, depth }) {
+                                    const text = this.parser.parseInline(tokens);
+                                    if (depth === 1) {
+                                        return `<div class="md-h1">${text}</div>`;
+                                    }
+                                
+                                    return `<h${depth}>${text}</h${depth}>`;
+                                  }
+                                };
+                            
+
+                            window.marked.use({ renderer });
+                            const html = window.marked.parse(markdown);
+                            console.log("Generated HTML:", html);
+                            
+                            const temp = document.createElement('div');
+                            temp.innerHTML = html;
                             if (temp.firstChild) {
-                                textArea.insertBefore(temp.firstChild, prevLineNode);
+                                textArea.insertBefore(temp.firstChild, lineNode);
                                 textArea.removeChild(prevLineNode);
                             }
+                        }
+                        else{
+                            console.log("enter the else")
                         }
                     } catch (error) {
                         console.error("Error processing markdown:", error);
