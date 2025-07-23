@@ -52,6 +52,7 @@ function renderMarkdown(textArea) {
                         // }
                         if (prevLineNode && prevLineNode.innerText) {
                             //FIXME: 这里markdown 无论如何都是空的
+                            console.log("enter the prevLineNode")
                             const markdown = prevLineNode.innerText;
                             console.log("Processing markdown:", markdown);
                             
@@ -97,9 +98,10 @@ function renderMarkdown(textArea) {
                                 
                             }
                         }
-                        else if (!prevLineNode && lineNode && lineNode.innerText){
+                        else if (prevLineNode.nodeType === Node.TEXT_NODE && lineNode){
                             // first line of textArea
-                            const markdown = lineNode.innerText;
+                            console.log("enter the TEXT_NODE")
+                            const markdown = prevLineNode.textContent;
                             console.log("Processing markdown:", markdown);
                             
                             // 检查marked和DOMPurify是否可用
@@ -133,8 +135,11 @@ function renderMarkdown(textArea) {
                             temp.innerHTML = html;
                             if (temp.firstChild) {
                                 textArea.insertBefore(temp.firstChild, lineNode);
-                                textArea.removeChild(lineNode);
+                                textArea.removeChild(prevLineNode);
                             }
+                        }
+                        else{
+                            console.log("enter the else")
                         }
                     } catch (error) {
                         console.error("Error processing markdown:", error);
