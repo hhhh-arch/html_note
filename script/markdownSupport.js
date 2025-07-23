@@ -58,8 +58,7 @@ function renderMarkdown(textArea) {
                                         return `<div class="md-h1">${text}</div>`;
                                     }
                                 
-                                    return `
-                                            <h${depth}>${text}</h${depth}>`;
+                                    return `<h${depth}>${text}</h${depth}>`;
                                   }
                                 };
                             
