@@ -36,17 +36,19 @@ function renderMarkdown(textArea) {
                         }
                         let prevLineNode = lineNode.previousSibling;
                         console.log("lineNode.parentNode",lineNode.parentNode);
-                        if (lineNode.parentNode == textArea){
-                            
-                            prevLineNode = document.createElement('div');
-                            prevLineNode.innerText = lineNode.parentNode.innerText;
-                            lineNode.parentNode.innerText = '';
-                            console.log("prevLineNode",prevLineNode);
-                            console.log("lineNode.parentNode",lineNode.parentNode);
-                            textArea.insertBefore(prevLineNode,lineNode);
 
-                        }
-
+                        // if (textArea.innerText != ''){
+                        //     // first line of textArea
+                        //     prevLineNode = document.createElement('div');
+                        //     prevLineNode.innerText = textArea.innerText;
+                        //     textArea.innerText = '';
+                        //     textArea.appendChild(prevLineNode);
+                        //     textArea.appendChild(lineNode);
+                        //     lineNode.previousSibling = prevLineNode;
+                        //     console.log("prevLineNode",prevLineNode);
+                        //     console.log("lineNode",lineNode);
+                        //     console.log("lineNode.parentNode",lineNode.parentNode);
+                        // }
                         if (prevLineNode && prevLineNode.innerText) {
                             //FIXME: 这里markdown 无论如何都是空的
                             const markdown = prevLineNode.innerText;
@@ -82,13 +84,17 @@ function renderMarkdown(textArea) {
                             const temp = document.createElement('div');
                             temp.innerHTML = html;
                             
-                            if (temp.firstChild) {
-
-
+                            // if (temp.firstChild) {
+                            //     if (prevLineNode.parentNode == textArea){
+                            //         textArea.insertBefore(temp.firstChild,lineNode);
+                            //         textArea.removeChild(prevLineNode);
+                            //     }
+                            //     else{
                                     textArea.insertBefore(temp.firstChild, prevLineNode);
                                     textArea.removeChild(prevLineNode);
+                                // }
                                 
-                            }
+                            //}
                         }
                     } catch (error) {
                         console.error("Error processing markdown:", error);
