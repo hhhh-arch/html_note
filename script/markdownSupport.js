@@ -50,7 +50,21 @@ function renderMarkdown(textArea) {
                                 return;
                             }
                             console.log("process markdown")
-                            const html = DOMPurify.sanitize(marked.parse(markdown));
+                            //const html = DOMPurify.sanitize(marked.parse(markdown));
+                            const renderer={
+                                heading({ tokens, depth }) {
+                                    const text = this.parser.parseInline(tokens);
+                                    if (depth === 1) {
+                                        return `<div class="md-h1">${text}</div>`;
+                                    }
+                                
+                                    return `
+                                            <h${depth}>${text}</h${depth}>`;
+                                  }
+                                };
+                            
+                            window.marked.use({ renderer });
+                            const html = window.marked.parse(markdown);
                             console.log("Generated HTML:", html);
                             
                             const temp = document.createElement('div');
