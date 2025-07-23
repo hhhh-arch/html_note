@@ -36,7 +36,7 @@ function renderMarkdown(textArea) {
                         let prevLineNode = lineNode.previousSibling;
                         if (prevLineNode && prevLineNode.innerText) {
                             //FIXME: 这里markdown 无论如何都是空的
-                            const markdown = prevLineNode.innerText;
+                            let markdown = prevLineNode.innerText;
                             console.log("Processing markdown:", markdown);
                             
                             // 检查marked和DOMPurify是否可用
@@ -50,6 +50,12 @@ function renderMarkdown(textArea) {
                                 return;
                             }
                             console.log("process markdown")
+                            if (markdown.includes('#')) {
+                                // remove the first #
+                                markdown = markdown.replace('#', '');
+                                // add md-h1 class
+                                markdown = `<div class="md-h1">${markdown}</div>`;
+                            }
                             const html = DOMPurify.sanitize(marked.parse(markdown));
                             console.log("Generated HTML:", html);
                             

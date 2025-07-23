@@ -104,6 +104,14 @@
   top: 16px;
   left: 18px;
 }
+.md-h1 {
+  font-size: 2em;
+  font-weight: bold;
+  margin: 1em 0;
+  color: #fff;
+}
+
+
 
 /* 通知样式 */
 .html-note-notification {
