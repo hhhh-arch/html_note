@@ -67,7 +67,12 @@
 
 }
 
-
+.md-h1 {
+  font-size: 2em !important;
+  font-weight: bold !important;
+  margin: 1em 0 !important;
+  color: #fff !important;
+}
 
 .note-editor-textarea {
   width: 100%;
