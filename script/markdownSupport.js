@@ -28,12 +28,19 @@ function renderMarkdown(textArea) {
                         while (lineNode && lineNode.parentNode !== textArea) {
                         lineNode = lineNode.parentNode;
                         }
+
                         if (!lineNode || lineNode.parentNode !== textArea) {
                             console.log("there is no lineNode")
                         // 没找到合适的节点，直接返回
                         return;
                         }
                         let prevLineNode = lineNode.previousSibling;
+                        console.log("lineNode.parentNode",lineNode.parentNode);
+                        if (lineNode.parentNode == textArea){
+                            prevLineNode = lineNode.parentNode;
+                            console.log("prevLineNode",prevLineNode);
+                        }
+
                         if (prevLineNode && prevLineNode.innerText) {
                             //FIXME: 这里markdown 无论如何都是空的
                             const markdown = prevLineNode.innerText;

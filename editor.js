@@ -289,7 +289,7 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
     }
   }
   document.addEventListener('mousedown', onDocMouseDown);
-  renderMarkdown(textArea);
+  renderMarkdown(textArea,currentNote);
   textArea.focus();
   //textarea.selectionStart = textarea.selectionEnd = textarea.value.length;
   textArea.onfocus = () => {
