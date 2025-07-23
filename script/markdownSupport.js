@@ -37,8 +37,14 @@ function renderMarkdown(textArea) {
                         let prevLineNode = lineNode.previousSibling;
                         console.log("lineNode.parentNode",lineNode.parentNode);
                         if (lineNode.parentNode == textArea){
-                            prevLineNode = lineNode.parentNode;
+                            
+                            prevLineNode = document.createElement('div');
+                            prevLineNode.innerText = lineNode.parentNode.innerText;
+                            lineNode.parentNode.innerText = '';
                             console.log("prevLineNode",prevLineNode);
+                            console.log("lineNode.parentNode",lineNode.parentNode);
+                            textArea.insertBefore(prevLineNode,lineNode);
+
                         }
 
                         if (prevLineNode && prevLineNode.innerText) {
@@ -77,8 +83,11 @@ function renderMarkdown(textArea) {
                             temp.innerHTML = html;
                             
                             if (temp.firstChild) {
-                                textArea.insertBefore(temp.firstChild, prevLineNode);
-                                textArea.removeChild(prevLineNode);
+
+
+                                    textArea.insertBefore(temp.firstChild, prevLineNode);
+                                    textArea.removeChild(prevLineNode);
+                                
                             }
                         }
                     } catch (error) {
