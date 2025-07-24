@@ -289,7 +289,10 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
     }
   }
   document.addEventListener('mousedown', onDocMouseDown);
-  renderMarkdown(textArea,currentNote);
+  renderMarkdown(textArea,temp=>{
+    console.log("temp",temp)
+    showOriginalMarkdown(temp);
+  });
   textArea.focus();
   //textarea.selectionStart = textarea.selectionEnd = textarea.value.length;
   textArea.onfocus = () => {
@@ -367,6 +370,9 @@ function loadTagsFromStorage(pageUrl, callback) {
 // function addTags(currentPageUrl, editor) {
 
 // }
-function renderMarkdown(textArea) {
+function renderMarkdown(textArea,onMarkdownChange) {
   // 使用marked.js渲染markdown
+}
+
+function showOriginalMarkdown(temp){
 }

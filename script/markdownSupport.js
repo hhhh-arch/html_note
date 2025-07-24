@@ -1,6 +1,6 @@
 // markdown.js
 
-function renderMarkdown(textArea) {
+function renderMarkdown(textArea,onMarkdownChange) {
     console.log("renderMarkdown");
     try {
         console.log("textArea", textArea);
@@ -95,7 +95,12 @@ function renderMarkdown(textArea) {
                                     textArea.insertBefore(temp.firstChild, prevLineNode);
                                     textArea.removeChild(prevLineNode);
                                 // }
-                                
+                                temp.setAttribute("mardown-data",markdown);
+                                console.log("temp",temp);
+                                console.log("temp.getAttribute('mardown-data')",temp.getAttribute('mardown-data'));
+                                if (onMarkdownChange){
+                                    onMarkdownChange(temp);
+                                }
                             }
                         }
                         else if (prevLineNode.nodeType === Node.TEXT_NODE && lineNode){
@@ -136,6 +141,12 @@ function renderMarkdown(textArea) {
                             if (temp.firstChild) {
                                 textArea.insertBefore(temp.firstChild, lineNode);
                                 textArea.removeChild(prevLineNode);
+                                temp.setAttribute("mardown-data",markdown);
+                                console.log("temp",temp);
+                                console.log("temp.getAttribute('mardown-data')",temp.getAttribute('mardown-data'));
+                                if (onMarkdownChange){
+                                    onMarkdownChange(temp);
+                                }
                             }
                         }
                         else{
@@ -150,5 +161,11 @@ function renderMarkdown(textArea) {
     } catch (e) {
         console.error("Markdown 渲染失败", e);
     }
+}
+
+function showOriginalMarkdown(temp){
+    console.log("showOriginalMarkdown");
+    console.log("temp",temp);
+    console.log("temp.getAttribute('mardown-data')",temp.getAttribute('mardown-data'));
 }
   
