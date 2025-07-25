@@ -289,9 +289,9 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
     }
   }
   document.addEventListener('mousedown', onDocMouseDown);
-  renderMarkdown(textArea,temp=>{
-    console.log("temp",temp)
-    showOriginalMarkdown(temp);
+  renderMarkdown(textArea,allTemps=>{
+    //console.log("temp",temp)
+    showOriginalMarkdown(allTemps,textArea);
   });
   textArea.focus();
   //textarea.selectionStart = textarea.selectionEnd = textarea.value.length;
