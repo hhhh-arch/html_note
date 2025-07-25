@@ -226,4 +226,38 @@ function monitorInsertIn(allTemps,textArea) {
         });
     });
 }
-  
+function loadAllMarkdown(textArea){
+    const allTemps = textArea.querySelectorAll(".markdown-temp");
+    let markdown = "";
+    allTemps.forEach((temp) => {
+        markdown += temp.getAttribute('mardown-data') + "\n";
+    });
+    return markdown;
+}
+function parseAllDataNote(currentNote,textArea){
+    // split currentNote by \n
+   
+    const lines = currentNote.split('\n');
+    lines.forEach((line) => {
+        // if line is not empty, parse it
+        const PurifiedNote = window.marked.parse(line);
+        console.log("PurifiedNote",PurifiedNote);
+        const temp = document.createElement('div');
+        temp.innerHTML = PurifiedNote;
+        if (temp.firstChild){
+            temp.firstChild.setAttribute("mardown-data",line);
+            temp.firstChild.tabIndex = 0;
+            temp.firstChild.contentEditable = true;
+            temp.firstChild.classList.add("markdown-temp");
+            console.log("temp",temp);
+            console.log("temp.firstChild",temp.firstChild);
+            console.log("temp.firstChild.innerHTML",temp.firstChild.innerHTML);
+        }
+
+        textArea.appendChild(temp.firstChild);
+        console.log("textArea",textArea);
+    });
+    const allTemps = textArea.querySelectorAll(".markdown-temp");
+    monitorInsertIn(allTemps,textArea);
+    return allTemps;
+}

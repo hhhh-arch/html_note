@@ -10,7 +10,12 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
     if (first) tagsString = first.getAttribute('data-tags') || '';
 
   }
-
+  // if (currentNote!=''){
+  //   const PurifiedNote = window.marked.parse(currentNote);
+  //   currentNote = PurifiedNote;
+  //   console.log("currentNote",currentNote);
+  //   parseAllDataNote(currentNote);
+  // }
   // 创建tag bubble的辅助函数
   function createTagBubble(tagText, tagsBar, highlightElement, groupId) {
     const tagBubble = document.createElement('div');
@@ -97,15 +102,17 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
       <div class="note-editor-header" >
         <input type="text" class="note-editor-tags" placeholder="Tags" />
       </div>
-      <div class="note-editor-textarea" contenteditable="true" data-placeholder="${!currentNote ? 'type your note' : ''}">${currentNote ? currentNote : ''}</div>
+      <div class="note-editor-textarea" contenteditable="true"></div>
     `;
+    const textArea = editor.querySelector('.note-editor-textarea');
+    parseAllDataNote(currentNote,textArea);
     }
     else {
       editor.innerHTML = `
       <div class="note-editor-header" >
         <input type="text" class="note-editor-tags" placeholder="Tags" />
       </div>
-      <div class="note-editor-textarea" contenteditable="true" data-placeholder="${!currentNote ? 'type your note' : ''}">${currentNote ? currentNote : ''}</div>
+      <div class="note-editor-textarea" contenteditable="true"></div>
     `;
     const tagsBar = editor.querySelector('.note-editor-header');
     tagsString.split(',').forEach(tag => {
@@ -114,6 +121,8 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
         tagsBar.insertBefore(tagBubble, tagsBar.firstChild);
       }
     });
+    const textArea = editor.querySelector('.note-editor-textarea');
+    parseAllDataNote(currentNote,textArea);
     }
   }
   // 获取高亮元素相对于视口的位置，并加上滚动偏移
@@ -152,7 +161,7 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
     editor.classList.add('show');
   });
 
-  const textArea = editor.querySelector('.note-editor-textarea');
+  //const textArea = editor.querySelector('.note-editor-textarea');
   const tags = editor.querySelector('.note-editor-tags');
   
   // // 自定义placeholder功能
@@ -235,7 +244,7 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
     // 失焦时保存内容
     // 初始化markdown渲染
   }
-  
+
   textArea.onblur = () => {
     // 使用setTimeout延迟检查，确保事件处理的正确性
     setTimeout(() => {
@@ -245,7 +254,7 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
         return; // 如果焦点转移到了tag输入框，不关闭编辑器
       }
       
-      const note = textArea.innerHTML;
+      const note = loadAllMarkdown(textArea);
       //console.log("note",note);
       const tagsValue = tags.value.trim();
       
@@ -258,14 +267,15 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
       if (groupId) {
         if (note != ''||currentNote!='') {
           document.querySelectorAll('.html-note-highlight[data-group-id="' + groupId + '"]').forEach(span => {
-            span.setAttribute('data-note', note);
-            span.title = note ;
+            span.setAttribute('data-note', loadAllMarkdown(textArea));
+            //span.title = note ;
           });
+
         }
       } else {
         if (note != ''||currentNote!='') {
-          highlightElement.setAttribute('data-note', note);
-          highlightElement.title = note ;
+          highlightElement.setAttribute('data-note', loadAllMarkdown(textArea));
+          //highlightElement.title = note ;
         }
       }
       editor.remove();
@@ -300,7 +310,7 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
     textArea.selectionEnd = currentNote.length;
   };
   const tagsBar = editor.querySelector('.note-editor-header');
-
+  //const textArea = editor.querySelector('.note-editor-textarea');
   
 }
 
@@ -375,4 +385,6 @@ function renderMarkdown(textArea,onMarkdownChange) {
 }
 
 function showOriginalMarkdown(temp){
+}
+function loadAllMarkdown(textArea){
 }
