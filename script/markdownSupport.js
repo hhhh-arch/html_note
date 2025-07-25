@@ -161,10 +161,10 @@ function renderMarkdown(textArea,onMarkdownChange) {
 //                                 console.log("textArea.firstChild",textArea.firstChild);
 //                                 console.log("textArea.firstChild.innerHTML",textArea.firstChild.innerHTML);
 //                                 console.log("textArea.innerHTML",textArea.innerHTML);
-                                console.log("textArea",textArea)
+//                                 console.log("textArea",textArea)
                                 const allTemps = textArea.querySelectorAll(".markdown-temp");
-                                console.log("from the first row")
-                                console.log("allTemps",allTemps);
+//                                 console.log("from the first row")
+//                                 console.log("allTemps",allTemps);
 //                                 console.log("temp",temp);
 //                                 console.log("temp.getAttribute('mardown-data')",temp.getAttribute('mardown-data'));
                                 if (onMarkdownChange){
@@ -173,7 +173,8 @@ function renderMarkdown(textArea,onMarkdownChange) {
                             }
                         }
                         else{
-                            console.log("enter the else")
+                            console.log("error on processing markdown");
+                            window.alert("error on processing markdown");
                         }
                     } catch (error) {
                         console.error("Error processing markdown:", error);
