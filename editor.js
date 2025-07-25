@@ -86,14 +86,16 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
       </div>
       <div class="note-editor-textarea" contenteditable="true" data-placeholder="type your note"></div>
     `;
-    const tagsBar = editor.querySelector('.note-editor-header');
-    console.log('[debug] display tagsString:', tagsString);
-    tagsString.split(',').forEach(tag => {
-      if (tag.trim() !== '') {
-        const tagBubble = createTagBubble(tag.trim(), tagsBar, highlightElement, groupId);
-        tagsBar.insertBefore(tagBubble, tagsBar.firstChild);
-      }
+      const tagsBar = editor.querySelector('.note-editor-header');
+      console.log('[debug] display tagsString:', tagsString);
+      tagsString.split(',').forEach(tag => {
+        if (tag.trim() !== '') {
+          const tagBubble = createTagBubble(tag.trim(), tagsBar, highlightElement, groupId);
+          tagsBar.insertBefore(tagBubble, tagsBar.firstChild);
+        }
     });
+    const textArea = editor.querySelector('.note-editor-textarea');
+
     }
   }
   else {
@@ -104,8 +106,7 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
       </div>
       <div class="note-editor-textarea" contenteditable="true"></div>
     `;
-    const textArea = editor.querySelector('.note-editor-textarea');
-    parseAllDataNote(currentNote,textArea);
+
     }
     else {
       editor.innerHTML = `
@@ -121,9 +122,10 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
         tagsBar.insertBefore(tagBubble, tagsBar.firstChild);
       }
     });
+
+    }
     const textArea = editor.querySelector('.note-editor-textarea');
     parseAllDataNote(currentNote,textArea);
-    }
   }
   // 获取高亮元素相对于视口的位置，并加上滚动偏移
   const rect = highlightElement.getBoundingClientRect();
@@ -281,7 +283,7 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
       editor.remove();
       document.removeEventListener('mousedown', onDocMouseDown);
     }, 10); // 延迟10ms检查
-  };
+  }
   // 点击外部关闭编辑器
   function onDocMouseDown(ev) {
     // 检查点击的目标是否在editor内，包括tag输入框和删除按钮
