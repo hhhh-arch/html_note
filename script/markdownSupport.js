@@ -136,14 +136,28 @@ function renderMarkdown(textArea,onMarkdownChange) {
                             const html = window.marked.parse(markdown);
                             console.log("Generated HTML:", html);
                             
-                            const temp = document.createElement('div');
+                            let temp = document.createElement('div');
                             temp.innerHTML = html;
+                            console.log("temp.innerHTML",temp.innerHTML);
+                            console.log("temp.firstChild",temp.firstChild);
+                            console.log("temp.firstChild.innerHTML",temp.firstChild.innerHTML);
+                            temp.setAttribute("mardown-data",markdown);
+                            // set up temp class name
+                            
+                            
                             if (temp.firstChild) {
+                                temp.firstChild.classList.add("markdown-temp");
+                                temp.firstChild.setAttribute("mardown-data",markdown);
                                 textArea.insertBefore(temp.firstChild, lineNode);
                                 textArea.removeChild(prevLineNode);
-                                temp.setAttribute("mardown-data",markdown);
-                                console.log("temp",temp);
-                                console.log("temp.getAttribute('mardown-data')",temp.getAttribute('mardown-data'));
+//                                 console.log("textArea.innerHTML",textArea.innerHTML);
+//                                 console.log("textArea.firstChild",textArea.firstChild);
+//                                 console.log("textArea.firstChild.innerHTML",textArea.firstChild.innerHTML);
+//                                 console.log("textArea.innerHTML",textArea.innerHTML);
+//                                 console.log("textArea",textArea)
+                                temp = textArea.querySelector(".markdown-temp");
+//                                 console.log("temp",temp);
+//                                 console.log("temp.getAttribute('mardown-data')",temp.getAttribute('mardown-data'));
                                 if (onMarkdownChange){
                                     onMarkdownChange(temp);
                                 }
@@ -167,5 +181,24 @@ function showOriginalMarkdown(temp){
     console.log("showOriginalMarkdown");
     console.log("temp",temp);
     console.log("temp.getAttribute('mardown-data')",temp.getAttribute('mardown-data'));
+    temp.tabIndex = 0; // 👈 使 div 可聚焦
+    temp.contentEditable = true; // （可选）如果你希望能编辑
+    console.log("temp.innerHtml",temp.innerHTML);
+    monitorInsertIn(temp);
+}
+function monitorInsertIn(temp) {
+    document.addEventListener('selectionchange', () => {
+        const selection = window.getSelection();
+        if (!selection.rangeCount) return;
+
+        const range = selection.getRangeAt(0);
+        const node = range.startContainer;
+
+        if (temp.contains(node)) {
+            console.log("🟢 插入点在 temp 中");
+        } else {
+            console.log("🔴 插入点不在 temp 中");
+        }
+    });
 }
   
