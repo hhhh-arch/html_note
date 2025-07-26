@@ -234,7 +234,11 @@ function monitorInsertIn(allTemps,textArea) {
 
                 const range = selection.getRangeAt(0);
                 const node = range.startContainer;
-                allTemps.forEach((temp) => {
+                
+                // 动态获取最新的markdown-temp元素
+                const currentAllTemps = textArea.querySelectorAll(".markdown-temp");
+                
+                currentAllTemps.forEach((temp) => {
                     if (temp.contains(node)) {
                         console.log("🟢 insertation is in the temp");
                         const temp_text = document.createElement('div');
@@ -324,6 +328,7 @@ function parseAllDataNote(currentNote,textArea){
         console.log("textArea",textArea);
     });
     const allTemps = textArea.querySelectorAll(".markdown-temp");
+    console.log("parseAllDataNote完成，找到", allTemps.length, "个markdown-temp元素");
     monitorInsertIn(allTemps,textArea);
     return allTemps;
 }

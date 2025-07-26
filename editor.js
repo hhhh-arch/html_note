@@ -129,12 +129,14 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
   const textArea = editor.querySelector('.note-editor-textarea');
   if (currentNote!=''){
     console.log("currentNote",currentNote);
-    parseAllDataNote(currentNote,textArea);
-    // let focus on the last line of the textArea
-    //textArea.focus();
-    //textArea.selectionStart = textArea.selectionEnd = textArea.value.length;
-    let lastLine = textArea.lastChild;
+    const allTemps = parseAllDataNote(currentNote,textArea);
+    const lastLine = allTemps[allTemps.length - 1];
     lastLine.focus();
+    const range = document.createRange();
+    range.setStart(lastLine, 0);
+    range.collapse(true);
+    const selection = window.getSelection();
+    selection.removeAllRanges();
   }
   // 获取高亮元素相对于视口的位置，并加上滚动偏移
   const rect = highlightElement.getBoundingClientRect();
