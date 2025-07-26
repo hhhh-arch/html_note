@@ -126,18 +126,6 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
     }
 
   }
-  const textArea = editor.querySelector('.note-editor-textarea');
-  if (currentNote!=''){
-    console.log("currentNote",currentNote);
-    const allTemps = parseAllDataNote(currentNote,textArea);
-    const lastLine = allTemps[allTemps.length - 1];
-    lastLine.focus();
-    const range = document.createRange();
-    range.setStart(lastLine, 0);
-    range.collapse(true);
-    const selection = window.getSelection();
-    selection.removeAllRanges();
-  }
   // 获取高亮元素相对于视口的位置，并加上滚动偏移
   const rect = highlightElement.getBoundingClientRect();
   const scrollX = window.pageXOffset || document.documentElement.scrollLeft;
@@ -168,6 +156,29 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
   editor.style.top = `${top}px`;
   editor.style.position = 'absolute';
   document.body.appendChild(editor);
+  
+  // 在编辑器添加到文档后，再处理内容
+  const textArea = editor.querySelector('.note-editor-textarea');
+  if (currentNote!=''){
+    console.log("currentNote",currentNote);
+    const allTemps = parseAllDataNote(currentNote,textArea);
+    const lastLine = allTemps[allTemps.length - 1];
+    
+    // 确保元素在文档中后再设置选择范围
+    if (lastLine && document.contains(lastLine)) {
+      try {
+        lastLine.focus();
+        const range = document.createRange();
+        range.setStart(lastLine, 0);
+        range.collapse(true);
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+      } catch (error) {
+        console.warn('设置选择范围失败:', error);
+      }
+    }
+  }
   
   // 使用 requestAnimationFrame 确保DOM已渲染，然后添加滑动特效
   requestAnimationFrame(() => {
@@ -330,8 +341,29 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
   textArea.focus();
   //textarea.selectionStart = textarea.selectionEnd = textarea.value.length;
   textArea.onfocus = () => {
-    textArea.selectionStart = currentNote.length;
-    textArea.selectionEnd = currentNote.length;
+    // 对于 contenteditable 元素，使用 Range API 而不是 selectionStart/selectionEnd
+    try {
+      const range = document.createRange();
+      const selection = window.getSelection();
+      
+      // 将光标移动到文本末尾
+      if (textArea.childNodes.length > 0) {
+        const lastChild = textArea.lastChild;
+        if (lastChild.nodeType === Node.TEXT_NODE) {
+          range.setStart(lastChild, lastChild.textContent.length);
+        } else {
+          range.setStartAfter(lastChild);
+        }
+      } else {
+        range.setStart(textArea, 0);
+      }
+      
+      range.collapse(true);
+      selection.removeAllRanges();
+      selection.addRange(range);
+    } catch (error) {
+      console.warn('设置焦点位置失败:', error);
+    }
   };
   const tagsBar = editor.querySelector('.note-editor-header');
   //const textArea = editor.querySelector('.note-editor-textarea');
