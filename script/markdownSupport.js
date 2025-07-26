@@ -240,21 +240,59 @@ function parseAllDataNote(currentNote,textArea){
     const lines = currentNote.split('\n');
     lines.forEach((line) => {
         // if line is not empty, parse it
-        const PurifiedNote = window.marked.parse(line);
-        console.log("PurifiedNote",PurifiedNote);
-        const temp = document.createElement('div');
-        temp.innerHTML = PurifiedNote;
-        if (temp.firstChild){
-            temp.firstChild.setAttribute("mardown-data",line);
-            temp.firstChild.tabIndex = 0;
-            temp.firstChild.contentEditable = true;
-            temp.firstChild.classList.add("markdown-temp");
-            console.log("temp",temp);
-            console.log("temp.firstChild",temp.firstChild);
-            console.log("temp.firstChild.innerHTML",temp.firstChild.innerHTML);
+        console.log("line",line);
+        if (line.trim() == ''){
+            const temp = document.createElement('div');
+            temp.innerHTML = line;
+            temp.classList.add("markdown-temp");
+            temp.setAttribute("mardown-data",line);
+            temp.tabIndex = 0;
+            temp.contentEditable = true;
+            textArea.appendChild(temp);
+        }
+        else{
+            const PurifiedNote = window.marked.parse(line);
+            console.log("PurifiedNote",PurifiedNote);
+            const temp = document.createElement('div');
+            temp.innerHTML = PurifiedNote;
+            if (temp.firstChild){
+                temp.firstChild.setAttribute("mardown-data",line);
+                temp.firstChild.tabIndex = 0;
+                temp.firstChild.contentEditable = true;
+                temp.firstChild.classList.add("markdown-temp");
+                console.log("temp",temp);
+                console.log("temp.firstChild",temp.firstChild);
+                console.log("temp.firstChild.innerHTML",temp.firstChild.innerHTML);
+                console.log(' 🔴 try to append temp.firstChild to textArea');
+                // const clone = temp.firstChild?.cloneNode(true);
+                // if (clone) {
+                //     try{
+                //         textArea.appendChild(clone);
+                //     }
+                //     catch(e){
+                //         console.log("error on appending temp.firstChild",e);
+                //     }
+                // }
+                // else{
+                //     console.log("clone is null");
+                // }
+                console.log("temp nodeType",temp.firstChild.nodeType);
+                textArea.appendChild(temp.firstChild);
+
+                console.log("textArea & purify notes",textArea);
+            }
+            else{
+                console.log("temp.firstChild is null");
+                temp.setAttribute("mardown-data",line);
+                temp.tabIndex = 0;
+                temp.contentEditable = true;
+                temp.classList.add("markdown-temp");
+                textArea.appendChild(temp);
+            }
         }
 
-        textArea.appendChild(temp.firstChild);
+
+        
         console.log("textArea",textArea);
     });
     const allTemps = textArea.querySelectorAll(".markdown-temp");

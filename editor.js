@@ -94,7 +94,7 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
           tagsBar.insertBefore(tagBubble, tagsBar.firstChild);
         }
     });
-    const textArea = editor.querySelector('.note-editor-textarea');
+
 
     }
   }
@@ -124,7 +124,11 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
     });
 
     }
-    const textArea = editor.querySelector('.note-editor-textarea');
+
+  }
+  const textArea = editor.querySelector('.note-editor-textarea');
+  if (currentNote!=''){
+    console.log("currentNote",currentNote);
     parseAllDataNote(currentNote,textArea);
   }
   // 获取高亮元素相对于视口的位置，并加上滚动偏移
@@ -256,7 +260,7 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
         return; // 如果焦点转移到了tag输入框，不关闭编辑器
       }
       
-      const note = loadAllMarkdown(textArea);
+      const note = textArea.innerHTML;
       //console.log("note",note);
       const tagsValue = tags.value.trim();
       
@@ -389,4 +393,10 @@ function renderMarkdown(textArea,onMarkdownChange) {
 function showOriginalMarkdown(temp){
 }
 function loadAllMarkdown(textArea){
+}
+function parseAllDataNote(currentNote,textArea){
+}
+
+function monitorTextAreaBlur(textArea){
+
 }
