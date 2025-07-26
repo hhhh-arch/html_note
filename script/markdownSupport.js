@@ -198,33 +198,62 @@ function showOriginalMarkdown(allTemps,textArea){
     // temp.contentEditable = true; // （可选）如果你希望能编辑
     // console.log("temp.innerHtml",temp.innerHTML);
    
-        monitorInsertIn(allTemps,textArea);
+    monitorInsertIn(allTemps,textArea);
     
     // if temp has event listener, remove it
-}   
-function monitorInsertIn(allTemps,textArea) {
-    document.addEventListener('selectionchange', () => {
-        const selection = window.getSelection();
-        if (!selection.rangeCount) return;
+}
 
-        const range = selection.getRangeAt(0);
-        const node = range.startContainer;
-        allTemps.forEach((temp) => {
-            if (temp.contains(node)) {
-                console.log("🟢 insertation is in the temp");
-                const temp_text = document.createElement('div');
-                temp_text.innerHTML = temp.getAttribute('mardown-data');
-                if (temp_text.firstChild){
-                    textArea.insertBefore(temp_text.firstChild,temp);
-                    textArea.removeChild(temp);
-                    console.log("textArea",textArea);
-                    console.log("temp_text",temp_text);
-                }
-            } else {
-                console.log("🔴 insertation is not in the temp");
-            }
-        });
-    });
+// 清理函数，移除事件监听器
+function cleanupMarkdownListeners(textArea) {
+    if (textArea._selectionChangeHandler) {
+        document.removeEventListener('selectionchange', textArea._selectionChangeHandler);
+        delete textArea._selectionChangeHandler;
+    }
+    
+    if (textArea._inputHandler) {
+        textArea.removeEventListener('input', textArea._inputHandler);
+        delete textArea._inputHandler;
+    }
+}
+
+function monitorInsertIn(allTemps,textArea) {
+    // 移除之前可能存在的selectionchange监听器
+    if (textArea._selectionChangeHandler) {
+        document.removeEventListener('selectionchange', textArea._selectionChangeHandler);
+    }
+    
+    // 创建新的处理函数
+    textArea._selectionChangeHandler = (() => {
+        let timeoutId;
+        return () => {
+            // 添加防抖，避免频繁触发
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => {
+                const selection = window.getSelection();
+                if (!selection.rangeCount) return;
+
+                const range = selection.getRangeAt(0);
+                const node = range.startContainer;
+                allTemps.forEach((temp) => {
+                    if (temp.contains(node)) {
+                        console.log("🟢 insertation is in the temp");
+                        const temp_text = document.createElement('div');
+                        temp_text.innerHTML = temp.getAttribute('mardown-data');
+                        if (temp_text.firstChild){
+                            textArea.insertBefore(temp_text.firstChild,temp);
+                            textArea.removeChild(temp);
+                            console.log("textArea",textArea);
+                            console.log("temp_text",temp_text);
+                        }
+                    } else {
+                        console.log("🔴 insertation is not in the temp");
+                    }
+                });
+            }, 100); // 100ms防抖
+        };
+    })();
+    
+    document.addEventListener('selectionchange', textArea._selectionChangeHandler);
 }
 function loadAllMarkdown(textArea){
     const allTemps = textArea.querySelectorAll(".markdown-temp");
@@ -235,8 +264,10 @@ function loadAllMarkdown(textArea){
     return markdown;
 }
 function parseAllDataNote(currentNote,textArea){
+    // 清空textArea内容，避免重复添加
+    //textArea.innerHTML = '';
+    
     // split currentNote by \n
-   
     const lines = currentNote.split('\n');
     lines.forEach((line) => {
         // if line is not empty, parse it
@@ -251,47 +282,44 @@ function parseAllDataNote(currentNote,textArea){
             textArea.appendChild(temp);
         }
         else{
-            const PurifiedNote = window.marked.parse(line);
-            console.log("PurifiedNote",PurifiedNote);
-            const temp = document.createElement('div');
-            temp.innerHTML = PurifiedNote;
-            if (temp.firstChild){
-                temp.firstChild.setAttribute("mardown-data",line);
-                temp.firstChild.tabIndex = 0;
-                temp.firstChild.contentEditable = true;
-                temp.firstChild.classList.add("markdown-temp");
-                console.log("temp",temp);
-                console.log("temp.firstChild",temp.firstChild);
-                console.log("temp.firstChild.innerHTML",temp.firstChild.innerHTML);
-                console.log(' 🔴 try to append temp.firstChild to textArea');
-                // const clone = temp.firstChild?.cloneNode(true);
-                // if (clone) {
-                //     try{
-                //         textArea.appendChild(clone);
-                //     }
-                //     catch(e){
-                //         console.log("error on appending temp.firstChild",e);
-                //     }
-                // }
-                // else{
-                //     console.log("clone is null");
-                // }
-                console.log("temp nodeType",temp.firstChild.nodeType);
-                textArea.appendChild(temp.firstChild);
-
-                console.log("textArea & purify notes",textArea);
-            }
-            else{
-                console.log("temp.firstChild is null");
+            try {
+                const PurifiedNote = window.marked.parse(line);
+                console.log("PurifiedNote",PurifiedNote);
+                const temp = document.createElement('div');
+                temp.innerHTML = PurifiedNote;
+                if (temp.firstChild){
+                    temp.firstChild.setAttribute("mardown-data",line);
+                    temp.firstChild.tabIndex = 0;
+                    temp.firstChild.contentEditable = true;
+                    temp.firstChild.classList.add("markdown-temp");
+                    console.log("temp",temp);
+                    console.log("temp.firstChild",temp.firstChild);
+                    console.log("temp.firstChild.innerHTML",temp.firstChild.innerHTML);
+                    console.log(' 🔴 try to append temp.firstChild to textArea');
+                    console.log("temp nodeType",temp.firstChild.nodeType);
+                    textArea.appendChild(temp.firstChild);
+                    console.log("textArea & purify notes",textArea);
+                }
+                else{
+                    console.log("temp.firstChild is null");
+                    temp.setAttribute("mardown-data",line);
+                    temp.tabIndex = 0;
+                    temp.contentEditable = true;
+                    temp.classList.add("markdown-temp");
+                    textArea.appendChild(temp);
+                }
+            } catch (error) {
+                console.error("Error parsing markdown line:", line, error);
+                // 如果解析失败，直接添加原始文本
+                const temp = document.createElement('div');
+                temp.innerHTML = line;
+                temp.classList.add("markdown-temp");
                 temp.setAttribute("mardown-data",line);
                 temp.tabIndex = 0;
                 temp.contentEditable = true;
-                temp.classList.add("markdown-temp");
                 textArea.appendChild(temp);
             }
         }
-
-
         
         console.log("textArea",textArea);
     });

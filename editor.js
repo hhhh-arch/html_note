@@ -130,6 +130,11 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
   if (currentNote!=''){
     console.log("currentNote",currentNote);
     parseAllDataNote(currentNote,textArea);
+    // let focus on the last line of the textArea
+    //textArea.focus();
+    //textArea.selectionStart = textArea.selectionEnd = textArea.value.length;
+    let lastLine = textArea.lastChild;
+    lastLine.focus();
   }
   // 获取高亮元素相对于视口的位置，并加上滚动偏移
   const rect = highlightElement.getBoundingClientRect();
@@ -232,20 +237,25 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
     });
   });
   tags.onblur = () => {
-    textArea.addEventListener('input', () => {
+    // 移除之前可能存在的input事件监听器
+    if (textArea._inputHandler) {
+      textArea.removeEventListener('input', textArea._inputHandler);
+    }
+    
+    // 创建新的input事件处理函数
+    textArea._inputHandler = () => {
       //renderMarkdown(textArea)
       textArea.style.height = 'auto'; // 先清空高度
       textArea.style.height = textArea.scrollHeight + 'px'; // 根据内容撑开
-  
-    });
-
+    };
+    
+    textArea.addEventListener('input', textArea._inputHandler);
 
     //如果textarea有内容，则自动展开
     if (currentNote!='') {
       textArea.style.height = 'auto'; // 先清空高度
       textArea.style.height = textArea.scrollHeight + 'px'; // 根据内容撑开
     }
-
 
     // 失焦时保存内容
     // 初始化markdown渲染
@@ -284,6 +294,12 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
           //highlightElement.title = note ;
         }
       }
+      
+      // 清理markdown相关的事件监听器
+      if (typeof cleanupMarkdownListeners === 'function') {
+        cleanupMarkdownListeners(textArea);
+      }
+      
       editor.remove();
       document.removeEventListener('mousedown', onDocMouseDown);
     }, 10); // 延迟10ms检查
