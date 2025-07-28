@@ -267,14 +267,14 @@ function monitorInsertIn(allTemps,textArea) {
                 
                 currentAllTemps.forEach((temp) => {
                     if (temp.contains(node)) {
-                        console.log("🟢 insertation is in the temp");
+//                         console.log("🟢 insertation is in the temp");
                         const temp_text = document.createElement('div');
                         temp_text.innerHTML = temp.getAttribute('mardown-data');
                         if (temp_text.firstChild){
                             textArea.insertBefore(temp_text.firstChild,temp);
                             textArea.removeChild(temp);
-                            console.log("textArea",textArea);
-                            console.log("temp_text",temp_text);
+//                             console.log("textArea",textArea);
+//                             console.log("temp_text",temp_text);
                         }
                     } else {
                         console.log("🔴 insertation is not in the temp");
@@ -289,10 +289,17 @@ function monitorInsertIn(allTemps,textArea) {
 function loadAllMarkdown(textArea){
     const allTemps = textArea.querySelectorAll(".markdown-temp");
     let markdown = "";
+    console.log("loadAllMarkdown")
     allTemps.forEach((temp) => {
         markdown += temp.getAttribute('mardown-data') + "\n";
     });
-    
+    // check if the last line is a <br>
+    const everything_textArea = textArea.querySelectorAll("div");
+    if (everything_textArea[everything_textArea.length - 1].innerHTML != '<br>'){
+        markdown += everything_textArea[everything_textArea.length - 1].innerHTML;
+    }
+    console.log("markdown",markdown);
+
     return markdown;
 }
 function parseAllDataNote(currentNote,textArea){
@@ -326,16 +333,16 @@ function parseAllDataNote(currentNote,textArea){
                     temp.firstChild.tabIndex = 0;
                     temp.firstChild.contentEditable = true;
                     temp.firstChild.classList.add("markdown-temp");
-                    console.log("temp",temp);
-                    console.log("temp.firstChild",temp.firstChild);
-                    console.log("temp.firstChild.innerHTML",temp.firstChild.innerHTML);
-                    console.log(' 🔴 try to append temp.firstChild to textArea');
-                    console.log("temp nodeType",temp.firstChild.nodeType);
+//                     console.log("temp",temp);
+//                     console.log("temp.firstChild",temp.firstChild);
+//                     console.log("temp.firstChild.innerHTML",temp.firstChild.innerHTML);
+//                     console.log(' 🔴 try to append temp.firstChild to textArea');
+//                     console.log("temp nodeType",temp.firstChild.nodeType);
                     textArea.appendChild(temp.firstChild);
-                    console.log("textArea & purify notes",textArea);
+//                     console.log("textArea & purify notes",textArea);
                 }
                 else{
-                    console.log("temp.firstChild is null");
+//                     console.log("temp.firstChild is null");
                     temp.setAttribute("mardown-data",line);
                     temp.tabIndex = 0;
                     temp.contentEditable = true;
@@ -358,7 +365,7 @@ function parseAllDataNote(currentNote,textArea){
         console.log("textArea",textArea);
     });
     const allTemps = textArea.querySelectorAll(".markdown-temp");
-    console.log("parseAllDataNote完成，找到", allTemps.length, "个markdown-temp元素");
+//     console.log("parseAllDataNote完成，找到", allTemps.length, "个markdown-temp元素");
     monitorInsertIn(allTemps,textArea);
     return allTemps;
 }
