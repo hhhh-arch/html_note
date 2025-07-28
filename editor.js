@@ -166,10 +166,14 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
     
     // 确保元素在文档中后再设置选择范围
     if (lastLine && document.contains(lastLine)) {
+        lastLine.contentEditable = true;
+        const lastLine_new = showOriginalMarkdown(allTemps,lastLine,textArea);
+        console.log("lastLine_new",lastLine_new);
+    
       try {
-        lastLine.focus();
+        lastLine_new.focus();
         const range = document.createRange();
-        range.setStart(lastLine, 0);
+        range.setStart(lastLine_new, 0);
         range.collapse(true);
         const selection = window.getSelection();
         selection.removeAllRanges();
@@ -336,7 +340,8 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
   document.addEventListener('mousedown', onDocMouseDown);
   renderMarkdown(textArea,allTemps=>{
     //console.log("temp",temp)
-    showOriginalMarkdown(allTemps,textArea);
+
+    monitorInsertIn(allTemps,textArea);
   });
   textArea.focus();
   //textarea.selectionStart = textarea.selectionEnd = textarea.value.length;

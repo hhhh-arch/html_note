@@ -35,6 +35,9 @@ function renderMarkdown(textArea,onMarkdownChange) {
                         return;
                         }
                         let prevLineNode = lineNode.previousSibling;
+                        console.log("blue point textArea",textArea);
+                        //FIXME: in the reloading and editing, three of console is empty
+                        
                         console.log("lineNode.parentNode",lineNode.parentNode);
                         console.log("prevLineNode",prevLineNode);
                         console.log("lineNode",lineNode);
@@ -175,6 +178,7 @@ function renderMarkdown(textArea,onMarkdownChange) {
                         else{
                             console.log("error on processing markdown");
                             window.alert("error on processing markdown");
+                            //FIXME: herer is a bug, after reloaded the notes and try to edit the notes, it will not work
                         }
                     } catch (error) {
                         console.error("Error processing markdown:", error);
@@ -187,18 +191,41 @@ function renderMarkdown(textArea,onMarkdownChange) {
     }
 }
 
-function showOriginalMarkdown(allTemps,textArea){
+function showOriginalMarkdown(allTemps,lastLine,textArea){
+    try{
     console.log("showOriginalMarkdown");
     console.log("allTemps",allTemps);
     allTemps.forEach((temp) => {
         console.log("temp",temp);
         console.log("temp.getAttribute('mardown-data')",temp.getAttribute('mardown-data'));
     });
+    const lastLine_new = document.createElement('div');
+    lastLine_new.innerHTML = lastLine.getAttribute('mardown-data');
+    lastLine_new.tabIndex = 0;
+    lastLine_new.contentEditable = true;
+    if (lastLine.innerHTML == ''){
+        lastLine_new.innerHTML = '<br>';
+    }
+    else{
+        lastLine_new.innerHTML = lastLine.getAttribute('mardown-data');
+    }
+    textArea.insertBefore(lastLine_new,lastLine);
+    textArea.removeChild(lastLine);
+    console.log("!!! lastLine_show original markdown")
+    allTemps.forEach((temp) => {
+        console.log("temp",temp);
+    });
+        monitorInsertIn(allTemps,textArea);
+        return lastLine_new;
+    }
+    catch (e) {
+        console.error("Error showing original markdown:", e);
+    }
     // temp.tabIndex = 0; // 👈 使 div 可聚焦
     // temp.contentEditable = true; // （可选）如果你希望能编辑
     // console.log("temp.innerHtml",temp.innerHTML);
-   
-    monitorInsertIn(allTemps,textArea);
+    //TODO: function of showing a single line of original markdown and add event listener to it
+    // monitorInsertIn(allTemps,textArea);
     
     // if temp has event listener, remove it
 }
@@ -235,7 +262,7 @@ function monitorInsertIn(allTemps,textArea) {
                 const range = selection.getRangeAt(0);
                 const node = range.startContainer;
                 
-                // 动态获取最新的markdown-temp元素
+                
                 const currentAllTemps = textArea.querySelectorAll(".markdown-temp");
                 
                 currentAllTemps.forEach((temp) => {
@@ -265,6 +292,7 @@ function loadAllMarkdown(textArea){
     allTemps.forEach((temp) => {
         markdown += temp.getAttribute('mardown-data') + "\n";
     });
+    
     return markdown;
 }
 function parseAllDataNote(currentNote,textArea){
@@ -273,9 +301,11 @@ function parseAllDataNote(currentNote,textArea){
     
     // split currentNote by \n
     const lines = currentNote.split('\n');
+
     lines.forEach((line) => {
         // if line is not empty, parse it
         console.log("line",line);
+
         if (line.trim() == ''){
             const temp = document.createElement('div');
             temp.innerHTML = line;
@@ -324,7 +354,7 @@ function parseAllDataNote(currentNote,textArea){
                 textArea.appendChild(temp);
             }
         }
-        
+       
         console.log("textArea",textArea);
     });
     const allTemps = textArea.querySelectorAll(".markdown-temp");
@@ -332,3 +362,10 @@ function parseAllDataNote(currentNote,textArea){
     monitorInsertIn(allTemps,textArea);
     return allTemps;
 }
+// function markdownorgainse(textArea){
+//     renderMarkdown(textArea,allTemps=>{
+//         //console.log("temp",temp)
+
+//         monitorInsertIn(allTemps,textArea);
+//       });
+// }
