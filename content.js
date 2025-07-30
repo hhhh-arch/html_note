@@ -490,12 +490,12 @@ class HTMLNoteHighlighter {
     }
 
     // 添加调试信息
-    console.log('[debug] 工具栏位置计算:', {
-      rect: { left: rect.left, top: rect.top, width: rect.width },
-      scroll: { x: scrollX, y: scrollY },
-      mouseEvent: mouseEvent ? { clientX: mouseEvent.clientX, clientY: mouseEvent.clientY } : null,
-      calculated: { left, top }
-    });
+    // console.log('[debug] 工具栏位置计算:', {
+    //   rect: { left: rect.left, top: rect.top, width: rect.width },
+    //   scroll: { x: scrollX, y: scrollY },
+    //   mouseEvent: mouseEvent ? { clientX: mouseEvent.clientX, clientY: mouseEvent.clientY } : null,
+    //   calculated: { left, top }
+    // });
     
     // 设置工具栏初始位置（向上偏移，准备滑动）
     toolbar.style.left = `${left}px`;

@@ -60,7 +60,7 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
           chrome.storage.local.remove([storageKey]);
         }
         
-        console.log('[debug] 删除tag后，tagsString:', tagsString);
+        //console.log('[debug] 删除tag后，tagsString:', tagsString);
       }
     });
     
@@ -87,7 +87,7 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
       <div class="note-editor-textarea" contenteditable="true" data-placeholder="type your note"></div>
     `;
       const tagsBar = editor.querySelector('.note-editor-header');
-      console.log('[debug] display tagsString:', tagsString);
+      //console.log('[debug] display tagsString:', tagsString);
       tagsString.split(',').forEach(tag => {
         if (tag.trim() !== '') {
           const tagBubble = createTagBubble(tag.trim(), tagsBar, highlightElement, groupId);
@@ -144,12 +144,12 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
   }
   
   // 添加调试信息
-  console.log('[debug] 编辑器位置计算:', {
-    rect: { left: rect.left, top: rect.top, bottom: rect.bottom, width: rect.width },
-    scroll: { x: scrollX, y: scrollY },
-    mouseEvent: mouseEvent ? { clientX: mouseEvent.clientX, clientY: mouseEvent.clientY } : null,
-    calculated: { left, top }
-  });  
+  // console.log('[debug] 编辑器位置计算:', {
+  //   rect: { left: rect.left, top: rect.top, bottom: rect.bottom, width: rect.width },
+  //   scroll: { x: scrollX, y: scrollY },
+  //   mouseEvent: mouseEvent ? { clientX: mouseEvent.clientX, clientY: mouseEvent.clientY } : null,
+  //   calculated: { left, top }
+  // });  
   
   // 设置编辑器初始位置（向下偏移，准备滑动）
   editor.style.left = `${left}px`;
@@ -230,7 +230,7 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
     const tagsBar = editor.querySelector('.note-editor-header');
     const tagsInput = tagsBar.querySelector('.note-editor-tags'); 
     tagsInput.focus();
-    console.log('[debug] addTags');
+    //console.log('[debug] addTags');
     tagsInput.addEventListener('keydown', (ev) => {
       if (ev.key === 'Enter') {
         const tagsValue = tagsInput.value.trim();
@@ -250,7 +250,7 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
         const currentTags = tagsString ? tagsString.split(',').filter(tag => tag.trim() !== '') : [];
         currentTags.push(tagsValue);
         tagsString = currentTags.join(',');
-        console.log('[debug] tagsString:', tagsString);
+        //console.log('[debug] tagsString:', tagsString);
         saveTagsToStorage(currentPageUrl, tagsValue);
         // clear the tag input box
         // save the tag bubble for the highlight element

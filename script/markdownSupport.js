@@ -38,9 +38,9 @@ function renderMarkdown(textArea,onMarkdownChange) {
                         console.log("blue point textArea",textArea);
                         //FIXME: in the reloading and editing, three of console is empty
                         
-                        console.log("lineNode.parentNode",lineNode.parentNode);
-                        console.log("prevLineNode",prevLineNode);
-                        console.log("lineNode",lineNode);
+//                         console.log("lineNode.parentNode",lineNode.parentNode);
+//                         console.log("prevLineNode",prevLineNode);
+//                         console.log("lineNode",lineNode);
                         // if (textArea.innerText != ''){
                         //     // first line of textArea
                         //     prevLineNode = document.createElement('div');
@@ -55,9 +55,9 @@ function renderMarkdown(textArea,onMarkdownChange) {
                         // }
                         if (prevLineNode && prevLineNode.innerText) {
                             //FIXME: 这里markdown 无论如何都是空的
-                            console.log("enter the prevLineNode")
+//                             console.log("enter the prevLineNode")
                             let markdown = prevLineNode.innerText;
-                            console.log("Processing markdown:", markdown);
+//                             console.log("Processing markdown:", markdown);
                             
                             // 检查marked和DOMPurify是否可用
                             if (typeof marked === 'undefined') {
@@ -388,7 +388,7 @@ function parseAllDataNote(currentNote,textArea){
             }
         }
        
-        console.log("textArea",textArea);
+        console.log("debug textArea",textArea);
     });
     const allTemps = textArea.querySelectorAll(".markdown-temp");
 //     console.log("parseAllDataNote完成，找到", allTemps.length, "个markdown-temp元素");
@@ -407,9 +407,16 @@ function newLineForReloading(textArea,lastLine){
     const everything_textArea = textArea.querySelectorAll("div");
     //const lastLine = everything_textArea[everything_textArea.length - 1];
     if (lastLine.innerHTML != ''){
+        console.log("[debug] lastLine.innerHTML != ''");
         return lastLine;
     }
     else{
-        return document.createElement('div');
+        console.log("[debug] lastLine.innerHTML == ''");
+        const newLine = document.createElement('div');
+        newLine.tabIndex = 0;
+        newLine.contentEditable = true;
+        newLine.innerHTML = '<br>';
+        textArea.appendChild(newLine);
+        return newLine;
     }
 }
