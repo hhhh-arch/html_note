@@ -290,14 +290,22 @@ function loadAllMarkdown(textArea){
     const allTemps = textArea.querySelectorAll(".markdown-temp");
     let markdown = "";
     console.log("loadAllMarkdown")
-    allTemps.forEach((temp) => {
-        markdown += temp.getAttribute('mardown-data') + "\n";
-    });
+    // allTemps.forEach((temp) => {
+    //     markdown += temp.getAttribute('mardown-data') + "\n";
+    // });
     // check if the last line is a <br>
-    const everything_textArea = textArea.querySelectorAll("div");
-    if (everything_textArea[everything_textArea.length - 1].innerHTML != '<br>'){
-        markdown += everything_textArea[everything_textArea.length - 1].innerHTML;
-    }
+    const everything_textArea = textArea.querySelectorAll("*");
+    // if (everything_textArea[everything_textArea.length - 1].innerHTML != '<br>'){
+    //     markdown += everything_textArea[everything_textArea.length - 1].innerHTML;
+    // }
+    everything_textArea.forEach((child) => {
+        if (child.innerHTML == ''||child.innerHTML == '<br>'){
+            markdown += '\n';
+        }
+        else{
+            markdown += child.getAttribute('mardown-data') + '\n';
+        }
+    });
     console.log("markdown",markdown);
 
     return markdown;
@@ -376,3 +384,14 @@ function parseAllDataNote(currentNote,textArea){
 //         monitorInsertIn(allTemps,textArea);
 //       });
 // }
+// add a new line for focus when reloading the notes 
+function newLineForReloading(textArea,lastLine){
+    const everything_textArea = textArea.querySelectorAll("div");
+    //const lastLine = everything_textArea[everything_textArea.length - 1];
+    if (lastLine.innerHTML != ''){
+        return lastLine;
+    }
+    else{
+        return document.createElement('div');
+    }
+}

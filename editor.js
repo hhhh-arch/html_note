@@ -167,20 +167,27 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
     // 确保元素在文档中后再设置选择范围
     if (lastLine && document.contains(lastLine)) {
         lastLine.contentEditable = true;
-        const lastLine_new = showOriginalMarkdown(allTemps,lastLine,textArea);
+        const lastLine_new = newLineForReloading(textArea,lastLine);
         console.log("lastLine_new",lastLine_new);
-    
-      try {
-        lastLine_new.focus();
-        const range = document.createRange();
-        range.setStart(lastLine_new, 0);
-        range.collapse(true);
-        const selection = window.getSelection();
-        selection.removeAllRanges();
-        selection.addRange(range);
-      } catch (error) {
-        console.warn('设置选择范围失败:', error);
-      }
+      if (lastLine_new && document.contains(lastLine_new)){
+        try {
+          lastLine_new.focus();
+          const range = document.createRange();
+          range.setStart(lastLine_new, 0);
+          range.collapse(true);
+          const selection = window.getSelection();
+          selection.removeAllRanges();
+          selection.addRange(range);
+        } catch (error) {
+          console.warn('设置选择范围失败:', error);
+        }
+        }
+        else{
+            console.log("lastLine_new is not in the document");
+        }
+    }
+    else{
+      window.alert("error on reloading the notes");
     }
   }
   
@@ -454,4 +461,7 @@ function parseAllDataNote(currentNote,textArea){
 
 function monitorTextAreaBlur(textArea){
 
+}
+
+function newLineForReloading(textArea,lastLine){
 }
