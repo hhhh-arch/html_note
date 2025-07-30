@@ -168,7 +168,8 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
     if (lastLine && document.contains(lastLine)) {
         lastLine.contentEditable = true;
         const lastLine_new = newLineForReloading(textArea,lastLine);
-        console.log("lastLine_new",lastLine_new);
+        console.log("[debug] lastLine_new",lastLine_new);
+        console.log("[debug] lastLine_new.innerHTML",lastLine_new.innerHTML);
       if (lastLine_new && document.contains(lastLine_new)){
         try {
           lastLine_new.focus();

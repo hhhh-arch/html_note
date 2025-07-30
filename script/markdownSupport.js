@@ -407,16 +407,18 @@ function newLineForReloading(textArea,lastLine){
     const everything_textArea = textArea.querySelectorAll("div");
     //const lastLine = everything_textArea[everything_textArea.length - 1];
     if (lastLine.innerHTML != ''){
-        console.log("[debug] lastLine.innerHTML != ''");
-        return lastLine;
-    }
-    else{
-        console.log("[debug] lastLine.innerHTML == ''");
         const newLine = document.createElement('div');
         newLine.tabIndex = 0;
         newLine.contentEditable = true;
         newLine.innerHTML = '<br>';
         textArea.appendChild(newLine);
         return newLine;
+    }
+    else{
+        console.log("[debug] lastLine.innerHTML == ''");
+        lastLine.innerHTML = '<br>';
+        lastLine.tabIndex = 0;
+        lastLine.contentEditable = true;
+        return lastLine;
     }
 }
