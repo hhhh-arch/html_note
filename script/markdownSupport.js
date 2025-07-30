@@ -150,6 +150,7 @@ function renderMarkdown(textArea,onMarkdownChange) {
                             console.log("temp.firstChild",temp.firstChild);
                             console.log("temp.firstChild.innerHTML",temp.firstChild.innerHTML);
                             temp.setAttribute("mardown-data",markdown);
+                            //textArea.appendChild(temp);
                             // set up temp class name
                             
                             
@@ -160,6 +161,12 @@ function renderMarkdown(textArea,onMarkdownChange) {
                                 temp.firstChild.contentEditable = true;
                                 textArea.insertBefore(temp.firstChild, lineNode);
                                 textArea.removeChild(prevLineNode);
+                                    // while (temp.parentNode != textArea){
+                                    //     temp = temp.parentNode;
+                                    // }
+                                // textArea.insertBefore(temp.firstChild,temp);
+                                // textArea.removeChild(temp);
+                                 console.log("[debug] textArea",textArea);
 //                                 console.log("textArea.innerHTML",textArea.innerHTML);
 //                                 console.log("textArea.firstChild",textArea.firstChild);
 //                                 console.log("textArea.firstChild.innerHTML",textArea.firstChild.innerHTML);
@@ -312,13 +319,20 @@ function loadAllMarkdown(textArea){
     //     markdown += temp.getAttribute('mardown-data') + "\n";
     // });
     // check if the last line is a <br>
-    const everything_textArea = textArea.querySelectorAll("*");
+    // get all the children of textArea
+    const everything_textArea = Array.from(textArea.children);;
+    // console.log("[debug] everything_textArea",everything_textArea);
     // if (everything_textArea[everything_textArea.length - 1].innerHTML != '<br>'){
     //     markdown += everything_textArea[everything_textArea.length - 1].innerHTML;
     // }
+    // textArea.removeChild(everything_textArea[everything_textArea.length - 1]);
+    everything_textArea.forEach((child) => {
+        //FIXME: textArea last line is br ?
+        console.log("[debug] child",child);
+    });
     everything_textArea.forEach((child) => {
         if (child.innerHTML == ''||child.innerHTML == '<br>'){
-            markdown += '\n';
+            markdown += '<br>' + '\n';
         }
         else{
             markdown += child.getAttribute('mardown-data') + '\n';
