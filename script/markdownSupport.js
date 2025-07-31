@@ -10,7 +10,10 @@ function markdownInputMonitor(textArea) {
             return;
         }
         const textArea_children = textArea.querySelectorAll("div");
-        textArea_children.forEach((child) => {
+        console.log(`📊 找到 ${textArea_children.length} 个 div 子元素`);
+        
+        let boundCount = 0;
+        textArea_children.forEach((child, index) => {
             if (child.getAttribute('inputEventLiscener')==='false'){
                 
                 child.addEventListener("keydown", (e) => {
@@ -41,7 +44,8 @@ function createAnNewContainer(textArea){
     textArea.appendChild(newContainer);
     newContainer.focus();
     //onNewContainer(newContainer);
-    markdownInputMonitor(textArea);
+    // 不要在这里调用 markdownInputMonitor，避免重复绑定事件
+    // markdownInputMonitor(textArea);
     return newContainer;
 }
 
