@@ -51,20 +51,52 @@ function createAnNewContainer(textArea){
     markdownInputMonitor(textArea);
     return newContainer;
 }
-
-function showOriginalMarkdown(temp,textArea){
-    console.log("[debug] showOriginalMarkdown: temp",temp);
-    if (temp.classList.contains('md-h1')){
-        temp.classList.remove('md-h1');
-    }
-    temp.classList.remove('markdown-temp');
-    temp.innerHTML = temp.getAttribute('mardown-data');
-    temp.tabIndex = 0;
-    temp.contentEditable = true;
+function createAnNewContainerWithNotes(textArea, markdown_data){
+    const newContainer = document.createElement('div');
+    newContainer.tabIndex = 0;
+    newContainer.contentEditable = true;
+    newContainer.setAttribute('inputEventLiscener','false');
+    newContainer.className = 'note-editor-textarea-div';
+    newContainer.innerHTML = markdown_data;
     
-    //monitorInsertIn(temp,textArea);
+    return newContainer;
 }
 
+function showOriginalMarkdown(temp,textArea){
+    const newContainer = createAnNewContainerWithNotes(textArea,temp.getAttribute('mardown-data'));
+    // console.log("[debug] type of temp",typeof temp);
+    // console.log("[debug] temp.nodeType",temp.nodeType);
+    // console.log("[debug] temp.parentNode",temp.parentNode);
+    textArea.insertBefore(newContainer,temp);
+    textArea.removeChild(temp);
+    //monitorInsertIn(newContainer,textArea);
+    const allTemps = textArea.querySelectorAll(".markdown-temp");
+    monitorInsertIn(allTemps,textArea);
+}
+function createNewDOMElement(markdown, markdown_data){
+    const newDOMElement = document.createElement('div');
+    if (markdown.includes('<div class="md-h1">')){
+        newDOMElement.innerHTML = markdown;
+        if (newDOMElement.firstChild){
+            newDOMElement.firstChild.setAttribute('mardown-data',markdown_data);
+            newDOMElement.firstChild.classList.add('markdown-temp');
+            newDOMElement.firstChild.tabIndex = 0;
+            newDOMElement.firstChild.contentEditable = true;
+            return newDOMElement.firstChild;
+        }
+    }
+    else{
+        newDOMElement.innerHTML = markdown;
+        if (newDOMElement.firstChild){
+            newDOMElement.firstChild.setAttribute('mardown-data',markdown_data);
+            newDOMElement.firstChild.classList.add('markdown-temp');
+            newDOMElement.firstChild.tabIndex = 0;
+            newDOMElement.firstChild.contentEditable = true;
+            return newDOMElement.firstChild;
+        }
+    }
+    return newDOMElement;
+}
 function renderMarkdown(textArea,child,onMarkdownChange){
     setTimeout(() => {
         try {
@@ -80,25 +112,14 @@ function renderMarkdown(textArea,child,onMarkdownChange){
             }
             markdownModify();
             // 清理可能的 <br> 标签
+            const markdown_data = child.innerText;
             child.setAttribute('markdown-data',child.innerText);
             const markdown = marked.parse(child.innerText);
-            
+            const newDOMElement = createNewDOMElement(markdown,markdown_data);
+            textArea.insertBefore(newDOMElement,child);
+            textArea.removeChild(child);
             console.log("[debug] markdown.typeOf",typeof markdown);
-            
 
-
-            
-            if (markdown.includes('<div class="md-h1">')){
-                child.classList.add("md-h1");
-                child.classList.add("markdown-temp");
-                child.innerText = child.getAttribute('markdown-data').replace('#','');
-
-
-            }
-            else{
-                child.innerHTML = markdown;
-            }
-            child.classList.add("markdown-temp");
             const allTemps = textArea.querySelectorAll(".markdown-temp");
             onMarkdownChange(allTemps);
             
