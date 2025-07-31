@@ -210,7 +210,7 @@ function showOriginalMarkdown(allTemps,lastLine,textArea){
     lastLine_new.innerHTML = lastLine.getAttribute('mardown-data');
     lastLine_new.tabIndex = 0;
     lastLine_new.contentEditable = true;
-    if (lastLine.innerHTML == ''){
+    if (lastLine.innerHTML == '' || lastLine.innerHTML == '<br>'){
         lastLine_new.innerHTML = '<br>';
     }
     else{
@@ -315,31 +315,33 @@ function loadAllMarkdown(textArea){
     const allTemps = textArea.querySelectorAll(".markdown-temp");
     let markdown = "";
     console.log("loadAllMarkdown")
-    // allTemps.forEach((temp) => {
-    //     markdown += temp.getAttribute('mardown-data') + "\n";
-    // });
-    // check if the last line is a <br>
+    
     // get all the children of textArea
-    const everything_textArea = Array.from(textArea.children);;
-    // console.log("[debug] everything_textArea",everything_textArea);
-    // if (everything_textArea[everything_textArea.length - 1].innerHTML != '<br>'){
-    //     markdown += everything_textArea[everything_textArea.length - 1].innerHTML;
-    // }
-    // textArea.removeChild(everything_textArea[everything_textArea.length - 1]);
+    const everything_textArea = Array.from(textArea.children);
+    
     everything_textArea.forEach((child) => {
-        //FIXME: textArea last line is br ?
         console.log("[debug] child",child);
     });
+    
+    // Process children and handle consecutive empty lines properly
+    let previousWasEmpty = false;
     everything_textArea.forEach((child) => {
-        if (child.innerHTML == ''||child.innerHTML == '<br>'){
-            markdown += '<br>' + '\n';
-        }
-        else{
+        const isEmpty = child.innerHTML === '' || child.innerHTML === '<br>';
+        
+        if (isEmpty) {
+            // Only add one <br> for consecutive empty lines
+            if (!previousWasEmpty) {
+                markdown += '<br>' + '\n';
+            }
+            previousWasEmpty = true;
+        } else {
+            // Reset the flag for non-empty lines
+            previousWasEmpty = false;
             markdown += child.getAttribute('mardown-data') + '\n';
         }
     });
+    
     console.log("markdown",markdown);
-
     return markdown;
 }
 function parseAllDataNote(currentNote,textArea){
@@ -355,9 +357,9 @@ function parseAllDataNote(currentNote,textArea){
 
         if (line.trim() == ''){
             const temp = document.createElement('div');
-            temp.innerHTML = line;
+            temp.innerHTML = '<br>';
             temp.classList.add("markdown-temp");
-            temp.setAttribute("mardown-data",line);
+            temp.setAttribute("mardown-data",'<br>');
             temp.tabIndex = 0;
             temp.contentEditable = true;
             textArea.appendChild(temp);
@@ -420,7 +422,7 @@ function parseAllDataNote(currentNote,textArea){
 function newLineForReloading(textArea,lastLine){
     const everything_textArea = textArea.querySelectorAll("div");
     //const lastLine = everything_textArea[everything_textArea.length - 1];
-    if (lastLine.innerHTML != ''){
+    if (lastLine.innerHTML != '' && lastLine.innerHTML != '<br>'){
         const newLine = document.createElement('div');
         newLine.tabIndex = 0;
         newLine.contentEditable = true;
@@ -429,7 +431,7 @@ function newLineForReloading(textArea,lastLine){
         return newLine;
     }
     else{
-        console.log("[debug] lastLine.innerHTML == ''");
+        console.log("[debug] lastLine.innerHTML == '' or '<br>'");
         lastLine.innerHTML = '<br>';
         lastLine.tabIndex = 0;
         lastLine.contentEditable = true;
