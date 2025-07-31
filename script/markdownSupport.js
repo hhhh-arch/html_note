@@ -317,11 +317,11 @@ function loadAllMarkdown(textArea){
     console.log("loadAllMarkdown")
     
     // get all the children of textArea
-    const everything_textArea = Array.from(textArea.children);
+    const everything_textArea = textArea.querySelectorAll("*");
     
-    everything_textArea.forEach((child) => {
-        console.log("[debug] child",child);
-    });
+    // everything_textArea.forEach((child) => {
+    //     console.log("[debug] child",child);
+    // });
     
     // Process children and handle consecutive empty lines properly
     let previousWasEmpty = false;
@@ -337,7 +337,13 @@ function loadAllMarkdown(textArea){
         } else {
             // Reset the flag for non-empty lines
             previousWasEmpty = false;
-            markdown += child.getAttribute('mardown-data') + '\n';
+            if (child.classList.contains('markdown-temp')){
+                markdown += child.getAttribute('mardown-data') + '\n';
+            }
+            else{
+                markdown += child.innerText + '\n';
+            }
+            
         }
     });
     
@@ -422,7 +428,7 @@ function parseAllDataNote(currentNote,textArea){
 function newLineForReloading(textArea,lastLine){
     const everything_textArea = textArea.querySelectorAll("div");
     //const lastLine = everything_textArea[everything_textArea.length - 1];
-    if (lastLine.innerHTML != '' && lastLine.innerHTML != '<br>'){
+    if (lastLine.innerHTML !== '' && lastLine.innerHTML !== '<br>'){
         const newLine = document.createElement('div');
         newLine.tabIndex = 0;
         newLine.contentEditable = true;
