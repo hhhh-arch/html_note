@@ -172,13 +172,29 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
         console.log("[debug] lastLine_new.innerHTML",lastLine_new.innerHTML);
       if (lastLine_new && document.contains(lastLine_new)){
         try {
-          lastLine_new.focus();
           const range = document.createRange();
-          range.setStart(lastLine_new, 0);
+          
+          // 检查 lastLine_new 是否有子节点
+          if (lastLine_new.childNodes.length > 0) {
+            // 如果有子节点，将光标设置在最后一个子节点之后
+            const lastChild = lastLine_new.lastChild;
+            if (lastChild.nodeType === Node.TEXT_NODE) {
+              range.setStartAfter(lastChild);
+            } else {
+              range.setStartAfter(lastChild);
+            }
+          } else {
+            // 如果没有子节点，直接设置在元素内部
+            range.setStart(lastLine_new, 0);
+          }
+          
           range.collapse(true);
           const selection = window.getSelection();
           selection.removeAllRanges();
           selection.addRange(range);
+          
+          // 在设置选择范围后，确保元素获得焦点
+          lastLine_new.focus();
         } catch (error) {
           console.warn('设置选择范围失败:', error);
         }

@@ -315,13 +315,13 @@ function loadAllMarkdown(textArea){
     const allTemps = textArea.querySelectorAll(".markdown-temp");
     let markdown = "";
     console.log("loadAllMarkdown")
-    
+    console.log("[debug] textArea",textArea);
     // get all the children of textArea
     const everything_textArea = textArea.querySelectorAll("*");
     
-    // everything_textArea.forEach((child) => {
-    //     console.log("[debug] child",child);
-    // });
+    everything_textArea.forEach((child) => {
+        console.log("[debug] child",child);
+    });
     
     // Process children and handle consecutive empty lines properly
     let previousWasEmpty = false;
@@ -345,8 +345,11 @@ function loadAllMarkdown(textArea){
             }
             
         }
+
     });
-    
+    if (textArea.innerText !==''){
+        markdown += textArea.innerText + '\n';
+    }
     console.log("markdown",markdown);
     return markdown;
 }
