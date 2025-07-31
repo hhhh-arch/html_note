@@ -162,22 +162,22 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
   if (currentNote!=''){
     console.log("currentNote",currentNote);
     const allTemps = parseAllDataNote(currentNote,textArea);
-    const lastLine = allTemps[allTemps.length - 1];
+    const lastLine = textArea.querySelectorAll("*")[textArea.querySelectorAll("*").length - 1];
     
     // 确保元素在文档中后再设置选择范围
     if (lastLine && document.contains(lastLine)) {
         lastLine.contentEditable = true;
-        const lastLine_new = newLineForReloading(textArea,lastLine);
-        console.log("[debug] lastLine_new",lastLine_new);
-        console.log("[debug] lastLine_new.innerHTML",lastLine_new.innerHTML);
-      if (lastLine_new && document.contains(lastLine_new)){
+        //const lastLine_new = newLineForReloading(textArea,lastLine);
+        console.log("[debug] lastLine_new",lastLine);
+        console.log("[debug] lastLine_new.innerHTML",lastLine.innerHTML);
+      if (lastLine && document.contains(lastLine)){
         try {
           const range = document.createRange();
           
           // 检查 lastLine_new 是否有子节点
-          if (lastLine_new.childNodes.length > 0) {
+          if (lastLine.childNodes.length > 0) {
             // 如果有子节点，将光标设置在最后一个子节点之后
-            const lastChild = lastLine_new.lastChild;
+            const lastChild = lastLine.lastChild;
             if (lastChild.nodeType === Node.TEXT_NODE) {
               range.setStartAfter(lastChild);
             } else {
@@ -185,7 +185,7 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
             }
           } else {
             // 如果没有子节点，直接设置在元素内部
-            range.setStart(lastLine_new, 0);
+            range.setStart(lastLine, 0);
           }
           
           range.collapse(true);
@@ -194,7 +194,7 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
           selection.addRange(range);
           
           // 在设置选择范围后，确保元素获得焦点
-          lastLine_new.focus();
+          lastLine.focus();
         } catch (error) {
           console.warn('设置选择范围失败:', error);
         }

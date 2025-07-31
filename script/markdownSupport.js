@@ -347,9 +347,10 @@ function loadAllMarkdown(textArea){
         }
 
     });
-    if (textArea.innerText !==''){
-        markdown += textArea.innerText + '\n';
-    }
+    // if (textArea.innerText !==''){
+    //     markdown += textArea.innerText + '\n';
+    //     textArea.innerHTML = '';
+    // }
     console.log("markdown",markdown);
     return markdown;
 }
