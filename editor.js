@@ -76,7 +76,7 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
       <div class="note-editor-header" >
         <input type="text" class="note-editor-tags" placeholder="Tags" />
       </div>
-      <div class="note-editor-textarea" contenteditable="true" data-placeholder="type your note"></div>
+      <div class="note-editor-textarea"></div>
     `;
     }
     else {
@@ -84,7 +84,7 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
       <div class="note-editor-header" >
         <input type="text" class="note-editor-tags" placeholder="Tags" />
       </div>
-      <div class="note-editor-textarea" contenteditable="true" data-placeholder="type your note"></div>
+      <div class="note-editor-textarea" ></div>
     `;
       const tagsBar = editor.querySelector('.note-editor-header');
       //console.log('[debug] display tagsString:', tagsString);
@@ -104,7 +104,7 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
       <div class="note-editor-header" >
         <input type="text" class="note-editor-tags" placeholder="Tags" />
       </div>
-      <div class="note-editor-textarea" contenteditable="true"></div>
+      <div class="note-editor-textarea"></div>
     `;
 
     }
@@ -113,7 +113,7 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
       <div class="note-editor-header" >
         <input type="text" class="note-editor-tags" placeholder="Tags" />
       </div>
-      <div class="note-editor-textarea" contenteditable="true"></div>
+      <div class="note-editor-textarea" ></div>
     `;
     const tagsBar = editor.querySelector('.note-editor-header');
     tagsString.split(',').forEach(tag => {
@@ -206,6 +206,10 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
     else{
       window.alert("error on reloading the notes");
     }
+  }
+  else{
+    const newContainer = createAnNewContainer(textArea);
+   
   }
   
   // 使用 requestAnimationFrame 确保DOM已渲染，然后添加滑动特效
@@ -362,11 +366,11 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
     }
   }
   document.addEventListener('mousedown', onDocMouseDown);
-  renderMarkdown(textArea,allTemps=>{
-    //console.log("temp",temp)
+  // renderMarkdown(textArea,allTemps=>{
+  //   //console.log("temp",temp)
 
-    monitorInsertIn(allTemps,textArea);
-  });
+  //   monitorInsertIn(allTemps,textArea);
+  // });
   textArea.focus();
   //textarea.selectionStart = textarea.selectionEnd = textarea.value.length;
   textArea.onfocus = () => {

@@ -1,6 +1,6 @@
 // markdown.js
 
-function renderMarkdown(textArea,onMarkdownChange) {
+function markdownInputMonitor(textArea) {
     console.log("renderMarkdown");
     try {
         console.log("textArea", textArea);
@@ -9,193 +9,94 @@ function renderMarkdown(textArea,onMarkdownChange) {
             console.error("textArea is null or undefined");
             return;
         }
-        
-        textArea.addEventListener("keydown", (e) => {
-            //console.log("e.key", e.key);
-            if (e.key === 'Enter') {
-                // 延迟一帧等待 DOM 插入新行
-                setTimeout(() => {
-                    try {
-                        const sel = window.getSelection();
-                        if (!sel.rangeCount) return;
+        const textArea_children = textArea.querySelectorAll("div");
+        textArea_children.forEach((child) => {
+            if (child.getAttribute('inputEventLiscener')==='false'){
+                
+                child.addEventListener("keydown", (e) => {
+                    if (e.key === 'Enter') {
+                        renderMarkdown(textArea,child,allTemps=>{
+                            //console.log("temp",temp)
                         
-                        const range = sel.getRangeAt(0);
-                        const container = range.startContainer;
+                            monitorInsertIn(allTemps,textArea);
+                          });
+                        const newContainer = createAnNewContainer(textArea);
                         
-                        // 获取上一行内容（可能是 textNode 或 <div>）
-                        let lineNode = container;
-                        // 向上查找，直到 lineNode 是 textArea 的直接子节点
-                        while (lineNode && lineNode.parentNode !== textArea) {
-                        lineNode = lineNode.parentNode;
-                        }
-
-                        if (!lineNode || lineNode.parentNode !== textArea) {
-                            console.log("there is no lineNode")
-                        // 没找到合适的节点，直接返回
-                        return;
-                        }
-                        let prevLineNode = lineNode.previousSibling;
-                        console.log("blue point textArea",textArea);
-                        //FIXME: in the reloading and editing, three of console is empty
-                        
-//                         console.log("lineNode.parentNode",lineNode.parentNode);
-//                         console.log("prevLineNode",prevLineNode);
-//                         console.log("lineNode",lineNode);
-                        // if (textArea.innerText != ''){
-                        //     // first line of textArea
-                        //     prevLineNode = document.createElement('div');
-                        //     prevLineNode.innerText = textArea.innerText;
-                        //     textArea.innerText = '';
-                        //     textArea.appendChild(prevLineNode);
-                        //     textArea.appendChild(lineNode);
-                        //     lineNode.previousSibling = prevLineNode;
-                        //     console.log("prevLineNode",prevLineNode);
-                        //     console.log("lineNode",lineNode);
-                        //     console.log("lineNode.parentNode",lineNode.parentNode);
-                        // }
-                        if (prevLineNode && prevLineNode.innerText) {
-                            //FIXME: 这里markdown 无论如何都是空的
-//                             console.log("enter the prevLineNode")
-                            let markdown = prevLineNode.innerText;
-//                             console.log("Processing markdown:", markdown);
-                            
-                            // 检查marked和DOMPurify是否可用
-                            if (typeof marked === 'undefined') {
-                                console.error("marked.js is not loaded");
-                                return;
-                            }
-                            
-                            if (typeof DOMPurify === 'undefined') {
-                                console.error("DOMPurify is not loaded");
-                                return;
-                            }
-                            console.log("process markdown")
-                            //const html = DOMPurify.sanitize(marked.parse(markdown));
-                            const renderer={
-                                heading({ tokens, depth }) {
-                                    const text = this.parser.parseInline(tokens);
-                                    if (depth === 1) {
-                                        return `<div class="md-h1">${text}</div>`;
-                                    }
-                                
-                                    return `<h${depth}>${text}</h${depth}>`;
-                                  }
-                                };
-                            
-                            window.marked.use({ renderer });
-                            const html = window.marked.parse(markdown);
-                            console.log("Generated HTML:", html);
-                            
-                            let temp = document.createElement('div');
-                            temp.innerHTML = html;
-                            
-                            if (temp.firstChild) {
-                                temp.firstChild.classList.add("markdown-temp");
-                                temp.firstChild.setAttribute("mardown-data",markdown);
-                                temp.firstChild.tabIndex = 0;
-                                temp.firstChild.contentEditable = true;
-                                textArea.insertBefore(temp.firstChild, lineNode);
-                                textArea.removeChild(prevLineNode);
-                                
-//                                 console.log("textArea.innerHTML",textArea.innerHTML);
-//                                 console.log("textArea.firstChild",textArea.firstChild);
-//                                 console.log("textArea.firstChild.innerHTML",textArea.firstChild.innerHTML);
-//                                 console.log("textArea.innerHTML",textArea.innerHTML);
-                                console.log("textArea",textArea)
-                                const allTemps = textArea.querySelectorAll(".markdown-temp");
-                                console.log("from the second row")
-                                console.log("allTemps",allTemps);
-//                                 console.log("temp.getAttribute('mardown-data')",temp.getAttribute('mardown-data'));
-                                if (onMarkdownChange){
-                                    onMarkdownChange(allTemps);
-                                }
-                            }
-                        }
-                        else if (prevLineNode.nodeType === Node.TEXT_NODE && lineNode){
-                            // first line of textArea
-                            console.log("enter the TEXT_NODE")
-                            const markdown = prevLineNode.textContent;
-                            console.log("Processing markdown:", markdown);
-                            
-                            // 检查marked和DOMPurify是否可用
-                            if (typeof marked === 'undefined') {
-                                console.error("marked.js is not loaded");
-                                return;
-                            }
-                            
-                            if (typeof DOMPurify === 'undefined') {
-                                console.error("DOMPurify is not loaded");
-                                return;
-                            }
-                            console.log("process markdown")
-                            const renderer={
-                                heading({ tokens, depth }) {
-                                    const text = this.parser.parseInline(tokens);
-                                    if (depth === 1) {
-                                        return `<div class="md-h1">${text}</div>`;
-                                    }
-                                
-                                    return `<h${depth}>${text}</h${depth}>`;
-                                  }
-                                };
-                            
-
-                            window.marked.use({ renderer });
-                            const html = window.marked.parse(markdown);
-                            console.log("Generated HTML:", html);
-                            
-                            let temp = document.createElement('div');
-                            temp.innerHTML = html;
-                            console.log("temp.innerHTML",temp.innerHTML);
-                            console.log("temp.firstChild",temp.firstChild);
-                            console.log("temp.firstChild.innerHTML",temp.firstChild.innerHTML);
-                            temp.setAttribute("mardown-data",markdown);
-                            //textArea.appendChild(temp);
-                            // set up temp class name
-                            
-                            
-                            if (temp.firstChild) {
-                                temp.firstChild.classList.add("markdown-temp");
-                                temp.firstChild.setAttribute("mardown-data",markdown);
-                                temp.firstChild.tabIndex = 0;
-                                temp.firstChild.contentEditable = true;
-                                textArea.insertBefore(temp.firstChild, lineNode);
-                                textArea.removeChild(prevLineNode);
-                                    // while (temp.parentNode != textArea){
-                                    //     temp = temp.parentNode;
-                                    // }
-                                // textArea.insertBefore(temp.firstChild,temp);
-                                // textArea.removeChild(temp);
-                                 console.log("[debug] textArea",textArea);
-//                                 console.log("textArea.innerHTML",textArea.innerHTML);
-//                                 console.log("textArea.firstChild",textArea.firstChild);
-//                                 console.log("textArea.firstChild.innerHTML",textArea.firstChild.innerHTML);
-//                                 console.log("textArea.innerHTML",textArea.innerHTML);
-//                                 console.log("textArea",textArea)
-                                const allTemps = textArea.querySelectorAll(".markdown-temp");
-//                                 console.log("from the first row")
-//                                 console.log("allTemps",allTemps);
-//                                 console.log("temp",temp);
-//                                 console.log("temp.getAttribute('mardown-data')",temp.getAttribute('mardown-data'));
-                                if (onMarkdownChange){
-                                    onMarkdownChange(allTemps);
-                                }
-                            }
-                        }
-                        else{
-                            console.log("error on processing markdown");
-                            window.alert("error on processing markdown");
-                            //FIXME: herer is a bug, after reloaded the notes and try to edit the notes, it will not work
-                        }
-                    } catch (error) {
-                        console.error("Error processing markdown:", error);
                     }
-                }, 0);
+                });
+                child.setAttribute('inputEventLiscener','true');
             }
         });
-    } catch (e) {
+        console.log('[debug] textArea in markdownInputMonitor',textArea);
+    }
+    catch (e) {
         console.error("Markdown 渲染失败", e);
     }
+}
+function createAnNewContainer(textArea){
+    const newContainer = document.createElement('div');
+    newContainer.tabIndex = 0;
+    newContainer.contentEditable = true;
+    newContainer.setAttribute('inputEventLiscener','false');
+    textArea.appendChild(newContainer);
+    newContainer.focus();
+    //onNewContainer(newContainer);
+    markdownInputMonitor(textArea);
+    return newContainer;
+}
+
+function showOriginalMarkdown(allTemps,lastLine,textArea){
+}
+
+function renderMarkdown(textArea,child,onMarkdownChange){
+    setTimeout(() => {
+        try {
+            if (child.innerHTML == ''){
+                return;
+            }
+            if (child.parentNode != textArea){
+                console.log("child.parentNode != textArea");
+                return;
+            }
+            if (!checkPackage()){
+                return;
+            }
+            markdownModify();
+            child.setAttribute('markdown-data',child.innerText);
+            const markdown = marked.parse(child.innerText);
+            console.log("[debug] markdown.typeOf",typeof markdown);
+            
+
+
+            
+            if (markdown.includes('<div class="md-h1">')){
+                child.classList.add("md-h1");
+                child.classList.add("markdown-temp");
+                child.innerText = child.getAttribute('markdown-data').replace('#','');
+                
+
+            }
+            else{
+                child.innerHTML = markdown;
+            }
+            child.classList.add("markdown-temp");
+            const allTemps = textArea.querySelectorAll(".markdown-temp");
+            onMarkdownChange(allTemps);
+            
+
+
+  
+            
+
+            
+
+            
+
+        }
+        catch (e) {
+            console.error("Error rendering markdown:", e);
+        }
+    }, 100);
 }
 
 function showOriginalMarkdown(allTemps,lastLine,textArea){
@@ -466,3 +367,33 @@ function newLineForReloading(textArea,lastLine){
         return lastLine;
     }
 }
+function checkPackage(){
+    if (typeof marked === 'undefined') {
+        console.error("marked.js is not loaded");
+        return false;
+    }
+    if (typeof DOMPurify === 'undefined') {
+        console.error("DOMPurify is not loaded");
+        return false;
+    }
+    else{
+        return true;
+    }
+}
+
+function markdownModify(){
+    const renderer={
+        heading({ tokens, depth }) {
+            const text = this.parser.parseInline(tokens);
+            if (depth === 1) {
+                return `<div class="md-h1">${text}</div>`;
+            }
+        
+            return `<h${depth}>${text}</h${depth}>`;
+          }
+        };
+    
+
+    window.marked.use({ renderer });
+}
+ 
