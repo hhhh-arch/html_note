@@ -18,13 +18,16 @@ function markdownInputMonitor(textArea) {
                 
                 child.addEventListener("keydown", (e) => {
                     if (e.key === 'Enter') {
+                        // 阻止 Enter 键的默认行为，避免自动插入 <br>
+                        e.preventDefault();
+                        
                         renderMarkdown(textArea,child,allTemps=>{
                             //console.log("temp",temp)
                         
-                            monitorInsertIn(allTemps,textArea);
+                            //monitorInsertIn(allTemps,textArea);
                           });
+                        console.log('🔴 textArea in markdownInputMonitor',textArea);
                         const newContainer = createAnNewContainer(textArea);
-                        
                     }
                 });
                 child.setAttribute('inputEventLiscener','true');
@@ -41,11 +44,12 @@ function createAnNewContainer(textArea){
     newContainer.tabIndex = 0;
     newContainer.contentEditable = true;
     newContainer.setAttribute('inputEventLiscener','false');
+    newContainer.className = 'note-editor-textarea-div';
     textArea.appendChild(newContainer);
     newContainer.focus();
     //onNewContainer(newContainer);
     // 不要在这里调用 markdownInputMonitor，避免重复绑定事件
-    // markdownInputMonitor(textArea);
+    markdownInputMonitor(textArea);
     return newContainer;
 }
 
@@ -66,6 +70,7 @@ function renderMarkdown(textArea,child,onMarkdownChange){
                 return;
             }
             markdownModify();
+            // 清理可能的 <br> 标签
             child.setAttribute('markdown-data',child.innerText);
             const markdown = marked.parse(child.innerText);
             console.log("[debug] markdown.typeOf",typeof markdown);
@@ -77,7 +82,7 @@ function renderMarkdown(textArea,child,onMarkdownChange){
                 child.classList.add("md-h1");
                 child.classList.add("markdown-temp");
                 child.innerText = child.getAttribute('markdown-data').replace('#','');
-                
+
 
             }
             else{

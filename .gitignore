@@ -53,3 +53,4 @@ out/
 # 备份文件
 *.bak
 *.backup 
+DEBUG_GUIDE.md
