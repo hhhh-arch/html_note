@@ -10,7 +10,6 @@ function markdownInputMonitor(textArea) {
             return;
         }
         const textArea_children = textArea.querySelectorAll("div");
-        console.log(`📊 找到 ${textArea_children.length} 个 div 子元素`);
         
         let boundCount = 0;
         textArea_children.forEach((child, index) => {
@@ -24,7 +23,7 @@ function markdownInputMonitor(textArea) {
                         renderMarkdown(textArea,child,allTemps=>{
                             //console.log("temp",temp)
                         
-                            //monitorInsertIn(allTemps,textArea);
+                            monitorInsertIn(allTemps,textArea);
                           });
                         console.log('🔴 textArea in markdownInputMonitor',textArea);
                         const newContainer = createAnNewContainer(textArea);
@@ -53,7 +52,17 @@ function createAnNewContainer(textArea){
     return newContainer;
 }
 
-function showOriginalMarkdown(allTemps,lastLine,textArea){
+function showOriginalMarkdown(temp,textArea){
+    console.log("[debug] showOriginalMarkdown: temp",temp);
+    if (temp.classList.contains('md-h1')){
+        temp.classList.remove('md-h1');
+    }
+    temp.classList.remove('markdown-temp');
+    temp.innerHTML = temp.getAttribute('mardown-data');
+    temp.tabIndex = 0;
+    temp.contentEditable = true;
+    
+    //monitorInsertIn(temp,textArea);
 }
 
 function renderMarkdown(textArea,child,onMarkdownChange){
@@ -73,6 +82,7 @@ function renderMarkdown(textArea,child,onMarkdownChange){
             // 清理可能的 <br> 标签
             child.setAttribute('markdown-data',child.innerText);
             const markdown = marked.parse(child.innerText);
+            
             console.log("[debug] markdown.typeOf",typeof markdown);
             
 
@@ -108,36 +118,36 @@ function renderMarkdown(textArea,child,onMarkdownChange){
     }, 100);
 }
 
-function showOriginalMarkdown(allTemps,lastLine,textArea){
-    try{
-    console.log("showOriginalMarkdown");
-    console.log("allTemps",allTemps);
-    allTemps.forEach((temp) => {
-        console.log("temp",temp);
-        console.log("temp.getAttribute('mardown-data')",temp.getAttribute('mardown-data'));
-    });
-    const lastLine_new = document.createElement('div');
-    lastLine_new.innerHTML = lastLine.getAttribute('mardown-data');
-    lastLine_new.tabIndex = 0;
-    lastLine_new.contentEditable = true;
-    if (lastLine.innerHTML == '' || lastLine.innerHTML == '<br>'){
-        lastLine_new.innerHTML = '<br>';
-    }
-    else{
-        lastLine_new.innerHTML = lastLine.getAttribute('mardown-data');
-    }
-    textArea.insertBefore(lastLine_new,lastLine);
-    textArea.removeChild(lastLine);
-    console.log("!!! lastLine_show original markdown")
-    allTemps.forEach((temp) => {
-        console.log("temp",temp);
-    });
-        monitorInsertIn(allTemps,textArea);
-        return lastLine_new;
-    }
-    catch (e) {
-        console.error("Error showing original markdown:", e);
-    }
+// function showOriginalMarkdown(allTemps,lastLine,textArea){
+//     try{
+//     console.log("showOriginalMarkdown");
+//     console.log("allTemps",allTemps);
+//     allTemps.forEach((temp) => {
+//         console.log("temp",temp);
+//         console.log("temp.getAttribute('mardown-data')",temp.getAttribute('mardown-data'));
+//     });
+//     const lastLine_new = document.createElement('div');
+//     lastLine_new.innerHTML = lastLine.getAttribute('mardown-data');
+//     lastLine_new.tabIndex = 0;
+//     lastLine_new.contentEditable = true;
+//     if (lastLine.innerHTML == '' || lastLine.innerHTML == '<br>'){
+//         lastLine_new.innerHTML = '<br>';
+//     }
+//     else{
+//         lastLine_new.innerHTML = lastLine.getAttribute('mardown-data');
+//     }
+//     textArea.insertBefore(lastLine_new,lastLine);
+//     textArea.removeChild(lastLine);
+//     console.log("!!! lastLine_show original markdown")
+//     allTemps.forEach((temp) => {
+//         console.log("temp",temp);
+//     });
+//         monitorInsertIn(allTemps,textArea);
+//         return lastLine_new;
+//     }
+//     catch (e) {
+//         console.error("Error showing original markdown:", e);
+//     }
     // temp.tabIndex = 0; // 👈 使 div 可聚焦
     // temp.contentEditable = true; // （可选）如果你希望能编辑
     // console.log("temp.innerHtml",temp.innerHTML);
@@ -145,7 +155,7 @@ function showOriginalMarkdown(allTemps,lastLine,textArea){
     // monitorInsertIn(allTemps,textArea);
     
     // if temp has event listener, remove it
-}
+// }
 
 // 清理函数，移除事件监听器
 function cleanupMarkdownListeners(textArea) {
@@ -161,83 +171,33 @@ function cleanupMarkdownListeners(textArea) {
 }
 
 function monitorInsertIn(allTemps,textArea) {
-    // 移除之前可能存在的selectionchange监听器
-    if (textArea._selectionChangeHandler) {
-        document.removeEventListener('selectionchange', textArea._selectionChangeHandler);
-    }
-    
-    // 创建新的处理函数
-    textArea._selectionChangeHandler = (() => {
-        let timeoutId;
-        return () => {
-            // 添加防抖，避免频繁触发
-            clearTimeout(timeoutId);
-            timeoutId = setTimeout(() => {
-                const selection = window.getSelection();
-                if (!selection.rangeCount) return;
+    //TODO: add remove event listener function
+    console.log("[debug] monitorInsertIn");
 
-                const range = selection.getRangeAt(0);
-                const node = range.startContainer;
-                
-                
-                const currentAllTemps = textArea.querySelectorAll(".markdown-temp");
-                
-                currentAllTemps.forEach((temp) => {
-                    if (temp.contains(node)) {
-//                         console.log("🟢 insertation is in the temp");
-                        const temp_text = document.createElement('div');
-                        temp_text.innerHTML = temp.getAttribute('mardown-data');
-                        // if (temp_text.firstChild){
-                        //     const temp_parentNode = temp.parentNode;
-                        //     // if (temp_parentNode == textArea){
-                        //     //     textArea.insertBefore(temp_text.firstChild,temp);
-                        //     //     temp_parentNode.removeChild(temp);
-                        //     //     return;
-                        //     // }
-                        //     // else{
-                        //     //     while(temp_parentNode != textArea){
-                        //     //         temp_parentNode = temp_parentNode.parentNode;
-                        //     //         if (temp_parentNode == textArea){
-                        //     //             textArea.insertBefore(temp_text.firstChild,temp_parentNode);
-                        //     //             temp_parentNode.removeChild(temp_parentNode);
-                        //     //             break;
-                        //     //         }
-                        //     //     }
-                        //     // }
-                        temp_text.tabIndex = 0;
-                        temp_text.contentEditable = true;
-                        if (temp.parentNode == textArea){
-                            textArea.insertBefore(temp_text,temp);
-                            textArea.removeChild(temp);
-                        }
-                        else{
-                            while (temp.parentNode != textArea){
-                                temp = temp.parentNode;
-                                if (temp.parentNode == textArea){
-                                    textArea.insertBefore(temp_text,temp);
-                                    temp.parentNode.removeChild(temp);
-                                    break;
-                                }
-                            }
+    allTemps.forEach((temp) => {
 
-                        
-
-                            //textArea.insertBefore(temp_text.firstChild,temp);
-                            //textArea.removeChild(temp);
-                            //temp_parentNode.removeChild(temp);
-//                             console.log("textArea",textArea);
-//                             console.log("temp_text",temp_text);
-                        }
-                        console.log("[debug] textArea in monitorInsertIn",textArea);
-                    } else {
-                        console.log("🔴 insertation is not in the temp");
-                    }
-                });
-            }, 100); // 100ms防抖
-        };
-    })();
-    
-    document.addEventListener('selectionchange', textArea._selectionChangeHandler);
+            temp.removeEventListener("keydown", (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                }
+            });
+            temp.removeEventListener('click', (e) => {
+                showOriginalMarkdown(temp,textArea);
+                console.log("[debug] temp clicked");
+            });
+            temp.addEventListener("keydown", (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                }
+            });
+            temp.addEventListener('click', (e) => {
+                showOriginalMarkdown(temp,textArea);
+                console.log("[debug] temp clicked");
+            });
+            temp.setAttribute('inputEventLiscener','true');
+        
+        
+    });
 }
 function loadAllMarkdown(textArea){
     const allTemps = textArea.querySelectorAll(".markdown-temp");
