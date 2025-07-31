@@ -277,23 +277,40 @@ function monitorInsertIn(allTemps,textArea) {
 //                         console.log("🟢 insertation is in the temp");
                         const temp_text = document.createElement('div');
                         temp_text.innerHTML = temp.getAttribute('mardown-data');
-                        if (temp_text.firstChild){
-                            const temp_parentNode = temp.parentNode;
-                            if (temp_parentNode == textArea){
-                                textArea.insertBefore(temp_text.firstChild,temp);
-                                temp_parentNode.removeChild(temp);
-                                return;
-                            }
-                            else{
-                                while(temp_parentNode != textArea){
-                                    temp_parentNode = temp_parentNode.parentNode;
-                                    if (temp_parentNode == textArea){
-                                        textArea.insertBefore(temp_text.firstChild,temp_parentNode);
-                                        temp_parentNode.removeChild(temp_parentNode);
-                                        break;
-                                    }
+                        // if (temp_text.firstChild){
+                        //     const temp_parentNode = temp.parentNode;
+                        //     // if (temp_parentNode == textArea){
+                        //     //     textArea.insertBefore(temp_text.firstChild,temp);
+                        //     //     temp_parentNode.removeChild(temp);
+                        //     //     return;
+                        //     // }
+                        //     // else{
+                        //     //     while(temp_parentNode != textArea){
+                        //     //         temp_parentNode = temp_parentNode.parentNode;
+                        //     //         if (temp_parentNode == textArea){
+                        //     //             textArea.insertBefore(temp_text.firstChild,temp_parentNode);
+                        //     //             temp_parentNode.removeChild(temp_parentNode);
+                        //     //             break;
+                        //     //         }
+                        //     //     }
+                        //     // }
+                        temp_text.tabIndex = 0;
+                        temp_text.contentEditable = true;
+                        if (temp.parentNode == textArea){
+                            textArea.insertBefore(temp_text,temp);
+                            textArea.removeChild(temp);
+                        }
+                        else{
+                            while (temp.parentNode != textArea){
+                                temp = temp.parentNode;
+                                if (temp.parentNode == textArea){
+                                    textArea.insertBefore(temp_text,temp);
+                                    temp.parentNode.removeChild(temp);
+                                    break;
                                 }
                             }
+
+                        
 
                             //textArea.insertBefore(temp_text.firstChild,temp);
                             //textArea.removeChild(temp);
@@ -301,6 +318,7 @@ function monitorInsertIn(allTemps,textArea) {
 //                             console.log("textArea",textArea);
 //                             console.log("temp_text",temp_text);
                         }
+                        console.log("[debug] textArea in monitorInsertIn",textArea);
                     } else {
                         console.log("🔴 insertation is not in the temp");
                     }
