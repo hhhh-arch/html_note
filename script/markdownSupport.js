@@ -58,7 +58,7 @@ function createAnNewContainerWithNotes(textArea, markdown_data){
     newContainer.setAttribute('inputEventLiscener','false');
     newContainer.className = 'note-editor-textarea-div';
     newContainer.innerHTML = markdown_data;
-    
+    newContainer.classList.add('markdown-temp');
     return newContainer;
 }
 
@@ -71,7 +71,9 @@ function showOriginalMarkdown(temp,textArea){
     textArea.removeChild(temp);
     //monitorInsertIn(newContainer,textArea);
     const allTemps = textArea.querySelectorAll(".markdown-temp");
-    monitorInsertIn(allTemps,textArea);
+    // console.log("[debug] allTemps",allTemps);
+    newContainer.focus();
+    editingMarkdownMonitor(newContainer,textArea);
 }
 function createNewDOMElement(markdown, markdown_data){
     const newDOMElement = document.createElement('div');
@@ -209,6 +211,13 @@ function monitorInsertIn(allTemps,textArea) {
             temp.addEventListener("keydown", (e) => {
                 if (e.key === 'Enter') {
                     e.preventDefault();
+                    renderMarkdown(textArea,temp,allTemps=>{
+                        //console.log("temp",temp)
+                    
+                        monitorInsertIn(allTemps,textArea);
+                      });
+                    console.log('🔴 textArea in markdownInputMonitor',textArea);
+                    //const newContainer = createAnNewContainer(textArea);
                 }
             });
             temp.addEventListener('click', (e) => {
@@ -386,4 +395,19 @@ function markdownModify(){
 
     window.marked.use({ renderer });
 }
- 
+function editingMarkdownMonitor(newContainer,textArea){
+    newContainer.addEventListener("keydown", (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            renderMarkdown(textArea,newContainer,allTemps=>{
+                //console.log("temp",temp)
+            
+                monitorInsertIn(allTemps,textArea);
+              });
+        }
+    });
+    
+}
+function focusOnTheEndOfTheElement(element){
+    const range = document.createRange();
+    range.setStartAfter(element);}
