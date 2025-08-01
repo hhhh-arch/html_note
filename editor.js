@@ -314,7 +314,7 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
       if (activeElement && activeElement.classList.contains('note-editor-tags')) {
         return; // 如果焦点转移到了tag输入框，不关闭编辑器
       }
-      
+
       const note = textArea.innerHTML;
       //console.log("note",note);
       const tagsValue = tags.value.trim();
@@ -362,9 +362,13 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
     const isInColorPicker = ev.target.closest('.color-picker-float');
     
     if (!editor.contains(ev.target) && !isInToolbar && !isInColorPicker) {
-      textArea.blur();
+      console.log("[debug] if it can chekc the editor");
+       saveNotesContent(textArea,tags,groupId,currentPageUrl,currentNote);
+       editor.remove();
+       document.removeEventListener('mousedown', onDocMouseDown);
     }
   }
+
   document.addEventListener('mousedown', onDocMouseDown);
   // renderMarkdown(textArea,allTemps=>{
   //   //console.log("temp",temp)
@@ -485,4 +489,55 @@ function monitorTextAreaBlur(textArea){
 }
 
 function newLineForReloading(textArea,lastLine){
+}
+function saveNotesContent(textArea,tags,groupId,currentPageUrl,currentNote){
+  console.log("[debug] saveNotesContent");
+  setTimeout(() => {
+    // 检查是否是因为点击了tag输入框而导致的失焦
+    const activeElement = document.activeElement;
+    if (activeElement && activeElement.classList.contains('note-editor-tags')) {
+      return; // 如果焦点转移到了tag输入框，不关闭编辑器
+    }
+
+    const note = loadAllMarkdown(textArea);
+    //console.log("note",note);
+    const tagsValue = tags.value.trim();
+    
+    // 保存tags到本地存储
+    if (tagsValue) {
+      const tagsArray = tagsValue.split(',').map(tag => tag.trim()).filter(Boolean);
+      saveTagsToStorage(currentPageUrl, tagsArray);
+    }
+    
+    if (groupId) {
+      if (note != ''||currentNote!='') {
+        document.querySelectorAll('.html-note-highlight[data-group-id="' + groupId + '"]').forEach(span => {
+          span.setAttribute('data-note', note);
+          //span.title = note ;
+        });
+
+      }
+    } else {
+      if (note != ''||currentNote!='') {
+        highlightElement.setAttribute('data-note', note);
+        //highlightElement.title = note ;
+      }
+    }
+    
+    // 清理markdown相关的事件监听器
+    removeListener(textArea);
+    
+
+  }, 10); // 延迟10ms检查
+}
+function loadNotesContent(textArea){
+}
+// it is going to remove all the listeners of the child elements of textArea
+function removeListener(textArea){
+  const allChildren = textArea.querySelectorAll("markdown-temp");
+  allChildren.forEach((child) => {
+    child.removeEventListener("keydown", (e) => {});
+    child.removeEventListener("click", (e) => {});
+  });
+
 }

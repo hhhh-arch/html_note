@@ -211,12 +211,7 @@ function monitorInsertIn(allTemps,textArea) {
             temp.addEventListener("keydown", (e) => {
                 if (e.key === 'Enter') {
                     e.preventDefault();
-                    renderMarkdown(textArea,temp,allTemps=>{
-                        //console.log("temp",temp)
-                    
-                        monitorInsertIn(allTemps,textArea);
-                      });
-                    console.log('🔴 textArea in markdownInputMonitor',textArea);
+                   
                     //const newContainer = createAnNewContainer(textArea);
                 }
             });
@@ -230,46 +225,18 @@ function monitorInsertIn(allTemps,textArea) {
     });
 }
 function loadAllMarkdown(textArea){
+    console.log("[debug] loadAllMarkdown");
     const allTemps = textArea.querySelectorAll(".markdown-temp");
     let markdown = "";
     console.log("loadAllMarkdown")
     console.log("[debug] textArea",textArea);
-    // get all the children of textArea
-    const everything_textArea = textArea.querySelectorAll("*");
-    
-    everything_textArea.forEach((child) => {
-        console.log("[debug] child",child);
-    });
-    
-    // Process children and handle consecutive empty lines properly
-    let previousWasEmpty = false;
-    everything_textArea.forEach((child) => {
-        const isEmpty = child.innerHTML === '' || child.innerHTML === '<br>';
-        
-        if (isEmpty) {
-            // Only add one <br> for consecutive empty lines
-            if (!previousWasEmpty) {
-                markdown += '<br>' + '\n';
-            }
-            previousWasEmpty = true;
-        } else {
-            // Reset the flag for non-empty lines
-            previousWasEmpty = false;
-            if (child.classList.contains('markdown-temp')){
-                markdown += child.getAttribute('mardown-data') + '\n';
-            }
-            else{
-                markdown += child.innerText + '\n';
-            }
-            
+    allTemps.forEach((temp) => {
+        if (temp.innerHTML === '' || temp.innerHTML === '<br>'){
+            markdown += '\n';
         }
-
+        markdown += temp.getAttribute('mardown-data') + '\n';
     });
-    // if (textArea.innerText !==''){
-    //     markdown += textArea.innerText + '\n';
-    //     textArea.innerHTML = '';
-    // }
-    console.log("markdown",markdown);
+
     return markdown;
 }
 function parseAllDataNote(currentNote,textArea){
