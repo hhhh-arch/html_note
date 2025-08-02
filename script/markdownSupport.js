@@ -44,6 +44,8 @@ function createAnNewContainer(textArea){
     newContainer.contentEditable = true;
     newContainer.setAttribute('inputEventLiscener','false');
     newContainer.className = 'note-editor-textarea-div';
+    //newContainer.classList.add('markdown-temp');
+    
     textArea.appendChild(newContainer);
     newContainer.focus();
     //onNewContainer(newContainer);
@@ -371,6 +373,13 @@ function editingMarkdownMonitor(newContainer,textArea){
             
                 monitorInsertIn(allTemps,textArea);
               });
+              const nextContainer = createAnNewContainer(textArea);
+              // insert the nextContainer after the newContainer
+              textArea.removeChild(newContainer);
+              textArea.insertBefore(nextContainer,newContainer.nextSibling);
+              //nextContainer.focus();
+
+              console.log('🔴 textArea in markdownInputMonitor',textArea);
         }
     });
     
