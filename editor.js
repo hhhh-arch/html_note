@@ -510,7 +510,7 @@ function saveNotesContent(textArea,tags,groupId,currentPageUrl,currentNote){
     }
     
     if (groupId) {
-      if (note != ''||currentNote!='') {
+      if (note != ""||currentNote!='') {
         document.querySelectorAll('.html-note-highlight[data-group-id="' + groupId + '"]').forEach(span => {
           span.setAttribute('data-note', note);
           //span.title = note ;
@@ -518,7 +518,7 @@ function saveNotesContent(textArea,tags,groupId,currentPageUrl,currentNote){
 
       }
     } else {
-      if (note != ''||currentNote!='') {
+      if (note != ""||currentNote!='') {
         highlightElement.setAttribute('data-note', note);
         //highlightElement.title = note ;
       }

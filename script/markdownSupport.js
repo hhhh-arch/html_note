@@ -232,6 +232,17 @@ function loadAllMarkdown(textArea){
     let markdown = "";
     console.log("loadAllMarkdown")
     console.log("[debug] textArea",textArea);
+    if (allTemps.length === 0){
+        return "";
+    }
+    if (allTemps.length === 1){
+        if (allTemps[0].innerHTML === '' || allTemps[0].innerHTML === '<br>'){
+            return "";
+        }
+        else{
+            return allTemps[0].getAttribute('mardown-data');
+        }
+    }
     allTemps.forEach((temp) => {
         if (temp.innerHTML === '' || temp.innerHTML === '<br>'){
             markdown += '\n';
