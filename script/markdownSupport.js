@@ -19,15 +19,7 @@ function markdownInputMonitor(textArea,newContainer) {
             }
             if (e.key === 'Backspace'){
                 // check if selection is before the text[0], delete the container and add text to the previous container 
-                if (checkSelectionPositionStart(newContainer)){
-                    e.preventDefault();
-                    const previousContainer = deleteContainerAndAddTextToPreviousContainer(newContainer,textArea);
-                    if (previousContainer){
-                        const newContainer = showOriginalMarkdown(previousContainer,textArea);
-                        locateCaretPositionToTheEnd(newContainer);
-                        
-                    }
-                }
+                backspaceKeyHandler(e,newContainer,textArea);
                 
             }
         });
@@ -40,7 +32,10 @@ function markdownInputMonitor(textArea,newContainer) {
 function removeListenerEventEnter(temp){
     temp.removeEventListener("keydown", (e) => {
         if (e.key === 'Enter') {
-            e.preventDefault();
+            enterKeyHandler(e,newContainer,textArea);
+        }
+        if (e.key === 'Backspace'){
+            backspaceKeyHandler(e,newContainer,textArea);
         }
     });
 }
@@ -96,7 +91,7 @@ function showOriginalMarkdown(temp,textArea){
     // console.log("[debug] allTemps",allTemps);
     newContainer.focus();
     //console.log("[debug] textArea in showOriginalMarkdown 3",textArea);
-    markdownInputMonitor(textArea,newContainer);
+   
     return newContainer;
 }
 function createNewDOMElement(markdown, markdown_data){
@@ -233,11 +228,13 @@ function monitorInsertIn(temp,textArea) {
 
         temp.removeEventListener('click', (e) => {
             showOriginalMarkdown(temp,textArea);
+            markdownInputMonitor(textArea,temp);
             console.log("[debug] temp clicked");
         });
 
         temp.addEventListener('click', (e) => {
             showOriginalMarkdown(temp,textArea);
+            markdownInputMonitor(textArea,temp);
             console.log("[debug] temp clicked");
         });
         temp.setAttribute('inputEventLiscener','true');
@@ -457,8 +454,13 @@ function checkSelectionPositionEnd(element){
         console.error("[debug] element is null");
         return null;
     }
+
     const selection = window.getSelection();
     const range = selection.getRangeAt(0);
+    if (range.endContainer.nodeType != Node.TEXT_NODE){
+        range.endContainer = range.endContainer.firstChild;
+        
+    }
     const endOffset = range.endOffset;
     if (endOffset === element.innerText.length){
         return -1;
@@ -485,6 +487,7 @@ function enterKeyHandler(e,newContainer,textArea){
         console.log("[debug] caretPosition is null");
         return;
     }
+
     if (caretPosition == -1){
         e.preventDefault();
                 renderMarkdown(textArea,newContainer,newDOMElement=>{
@@ -556,4 +559,15 @@ function locateCaretPositionToTheStart(newContainer){
 }
 function createNewRange(){
     const range = document.createRange();
+}
+function backspaceKeyHandler(e,newContainer,textArea){
+    if (checkSelectionPositionStart(newContainer)){
+        e.preventDefault();
+        const previousContainer = deleteContainerAndAddTextToPreviousContainer(newContainer,textArea);
+        if (previousContainer){
+            const newContainer = showOriginalMarkdown(previousContainer,textArea);
+            locateCaretPositionToTheEnd(newContainer);
+            markdownInputMonitor(textArea,newContainer);
+        }
+    }
 }
