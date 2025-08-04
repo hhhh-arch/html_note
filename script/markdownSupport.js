@@ -22,7 +22,11 @@ function markdownInputMonitor(textArea,newContainer) {
                 if (checkSelectionPositionStart(newContainer)){
                     e.preventDefault();
                     const previousContainer = deleteContainerAndAddTextToPreviousContainer(newContainer,textArea);
-                    locateCaretPositionToTheEnd(previousContainer);
+                    if (previousContainer){
+                        const newContainer = showOriginalMarkdown(previousContainer,textArea);
+                        locateCaretPositionToTheEnd(newContainer);
+                        
+                    }
                 }
                 
             }
@@ -92,7 +96,8 @@ function showOriginalMarkdown(temp,textArea){
     // console.log("[debug] allTemps",allTemps);
     newContainer.focus();
     //console.log("[debug] textArea in showOriginalMarkdown 3",textArea);
-    editingMarkdownMonitor(newContainer,textArea);
+    markdownInputMonitor(textArea,newContainer);
+    return newContainer;
 }
 function createNewDOMElement(markdown, markdown_data){
     const newDOMElement = document.createElement('div');
@@ -419,7 +424,12 @@ function editingMarkdownMonitor(newContainer,textArea){
             // check if selection is before the text[0], delete the container and add text to the previous container 
             if (checkSelectionPositionStart(newContainer)){
                 e.preventDefault();
-                deleteContainerAndAddTextToPreviousContainer(newContainer,textArea);
+                const previousContainer = deleteContainerAndAddTextToPreviousContainer(newContainer,textArea);
+                if (previousContainer){
+                    const newContainer = showOriginalMarkdown(previousContainer,textArea);
+                    locateCaretPositionToTheEnd(newContainer);
+                    
+                }
             }
             
         }
@@ -524,12 +534,16 @@ function splitContainer(newContainer,caretPosition,textArea){
 
 }
 function locateCaretPositionToTheEnd(newContainer){
-    const selection = window.getSelection();
-    const range = selection.getRangeAt(0);
+    newContainer.focus();
+
+    const range = document.createRange();
+    const sel = window.getSelection();
+
     range.selectNodeContents(newContainer);
-    range.collapse(false); // false 表示光标放在内容末尾
-    selection.removeAllRanges();
-    selection.addRange(range);
+    range.collapse(false);
+
+    sel.removeAllRanges();
+    sel.addRange(range);
 }
 function locateCaretPositionToTheStart(newContainer){
     const selection = window.getSelection();
