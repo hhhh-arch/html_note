@@ -15,19 +15,11 @@ function markdownInputMonitor(textArea,newContainer) {
         removeListenerEventEnter(newContainer);
         newContainer.addEventListener("keydown", (e) => {
             if (e.key === 'Enter') {
-
-                e.preventDefault();
-                renderMarkdown(textArea,newContainer,newDOMElement=>{
-                    //console.log("temp",temp)
-                
-                    (newDOMElement,textArea);
-                  });
-                const nextContainer = createAnNewContainer(textArea);
-                markdownInputMonitor(textArea,nextContainer);
+                enterKeyHandler(e,newContainer,textArea);
             }
             if (e.key === 'Backspace'){
                 // check if selection is before the text[0], delete the container and add text to the previous container 
-                if (checkSelectionPosition(newContainer)){
+                if (checkSelectionPositionStart(newContainer)){
                     e.preventDefault();
                     deleteContainerAndAddTextToPreviousContainer(newContainer,textArea);
                 }
@@ -424,7 +416,7 @@ function editingMarkdownMonitor(newContainer,textArea){
         }
         if (e.key === 'Backspace'){
             // check if selection is before the text[0], delete the container and add text to the previous container 
-            if (checkSelectionPosition(newContainer)){
+            if (checkSelectionPositionStart(newContainer)){
                 e.preventDefault();
                 deleteContainerAndAddTextToPreviousContainer(newContainer,textArea);
             }
@@ -438,7 +430,7 @@ function focusOnTheEndOfTheElement(element){
     range.setStartAfter(element);
 }
 
-function checkSelectionPosition(element){
+function checkSelectionPositionStart(element){
     const selection = window.getSelection();
     const range = selection.getRangeAt(0);
     const startOffset = range.startOffset;
@@ -449,6 +441,17 @@ function checkSelectionPosition(element){
         return false;
     }
 }
+function checkSelectionPositionEnd(element){
+    const selection = window.getSelection();
+    const range = selection.getRangeAt(0);
+    const endOffset = range.endOffset;
+    if (endOffset === element.innerText.length){
+        return -1;
+    }
+    else{
+        return endOffset;
+    }
+}
 function deleteContainerAndAddTextToPreviousContainer(newContainer,textArea){
     const previousContainer = newContainer.previousSibling;
     if (previousContainer){
@@ -457,4 +460,47 @@ function deleteContainerAndAddTextToPreviousContainer(newContainer,textArea){
         previousContainer.focus();
         textArea.removeChild(newContainer);
     }
+}
+function enterKeyHandler(e,newContainer,textArea){
+    const caretPosition = checkSelectionPositionEnd(newContainer);
+    if (caretPosition == null){
+        console.log("[debug] caretPosition is null");
+        return;
+    }
+    if (caretPosition == -1){
+        e.preventDefault();
+                renderMarkdown(textArea,newContainer,newDOMElement=>{
+                    //console.log("temp",temp)
+                
+                    (newDOMElement,textArea);
+                  });
+                const nextContainer = createAnNewContainer(textArea);
+                markdownInputMonitor(textArea,nextContainer);
+    }
+    if (caretPosition == 0){
+        e.preventDefault();
+        const nextContainer = createAnNewContainer(textArea);
+        textArea.insertBefore(nextContainer,newContainer);
+        markdownInputMonitor(textArea,nextContainer);
+    }
+    if (caretPosition > 0 && caretPosition < newContainer.innerText.length){
+        e.preventDefault();
+        splitContainer(newContainer,caretPosition,textArea);
+    }
+    else{
+        console.error("[debug] caretPosition is out of range");
+    }
+}
+function splitContainer(newContainer,caretPosition,textArea){
+    const string1 = newContainer.innerText.substring(0,caretPosition);
+    const string2 = newContainer.innerText.substring(caretPosition);
+    const nextContainer = createAnNewContainer(textArea);
+    nextContainer.innerHTML = string2;
+    nextContainer.setAttribute('mardown-data',string2);
+    textArea.insertBefore(nextContainer,newContainer.nextSibling);
+    newContainer.innerHTML = string1;
+    newContainer.setAttribute('mardown-data',string1);
+    newContainer.focus();
+    markdownInputMonitor(textArea,nextContainer);
+
 }
