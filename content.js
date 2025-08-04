@@ -76,9 +76,9 @@ class HTMLNoteHighlighter {
 //           console.log('[debug] 找到同组元素数量:', allSpans.length);
           // 传第一个span和groupId给工具栏
           this.showToolbarForHighlight(allSpans[0], groupId,e);
-//           console.log('[debug] showToolbarForHighlight 调用完成');
+//            console.log('[debug] showToolbarForHighlight 调用完成');
           showNoteEditor(allSpans[0], groupId, e);
-//           console.log('[debug] showNoteEditor 调用完成');
+//            console.log('[debug] showNoteEditor 调用完成');
           //TODO: 这里点击编辑框出不来
         } else {
 //           console.log('[debug] 没有groupId，直接处理单个元素');
@@ -490,12 +490,12 @@ class HTMLNoteHighlighter {
     }
 
     // 添加调试信息
-    console.log('[debug] 工具栏位置计算:', {
-      rect: { left: rect.left, top: rect.top, width: rect.width },
-      scroll: { x: scrollX, y: scrollY },
-      mouseEvent: mouseEvent ? { clientX: mouseEvent.clientX, clientY: mouseEvent.clientY } : null,
-      calculated: { left, top }
-    });
+    // console.log('[debug] 工具栏位置计算:', {
+    //   rect: { left: rect.left, top: rect.top, width: rect.width },
+    //   scroll: { x: scrollX, y: scrollY },
+    //   mouseEvent: mouseEvent ? { clientX: mouseEvent.clientX, clientY: mouseEvent.clientY } : null,
+    //   calculated: { left, top }
+    // });
     
     // 设置工具栏初始位置（向上偏移，准备滑动）
     toolbar.style.left = `${left}px`;
