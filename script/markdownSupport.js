@@ -614,5 +614,17 @@ function arrowUpKeyHandler(e,newContainer,textArea){
 }
 
 function arrowDownKeyHandler(e,newContainer,textArea){
-    e.preventDefault();
+    if (checkSelectionPositionEnd(newContainer)){
+        e.preventDefault();
+        const nextContainer = newContainer.nextSibling;
+        if (nextContainer){
+            const editorContainer = showOriginalMarkdown(nextContainer,textArea);
+            renderMarkdown(textArea,newContainer,newDOMElement=>{
+                monitorInsertIn(newDOMElement,textArea);
+            });
+            editorContainer.focus();
+            markdownInputMonitor(textArea,editorContainer);
+
+        }
+    }
 }
