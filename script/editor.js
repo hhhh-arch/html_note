@@ -162,7 +162,9 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
   if (currentNote!=''){
     console.log("currentNote",currentNote);
     const allTemps = parseAllDataNote(currentNote,textArea);
-    const lastLine = textArea.querySelectorAll("*")[textArea.querySelectorAll("*").length - 1];
+    
+    const newContainer = createAnNewContainer(textArea);
+    markdownInputMonitor(textArea,newContainer);
     
     // // 确保元素在文档中后再设置选择范围
     // if (lastLine && document.contains(lastLine)) {
