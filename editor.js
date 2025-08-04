@@ -164,51 +164,52 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
     const allTemps = parseAllDataNote(currentNote,textArea);
     const lastLine = textArea.querySelectorAll("*")[textArea.querySelectorAll("*").length - 1];
     
-    // 确保元素在文档中后再设置选择范围
-    if (lastLine && document.contains(lastLine)) {
-        lastLine.contentEditable = true;
-        //const lastLine_new = newLineForReloading(textArea,lastLine);
-        console.log("[debug] lastLine_new",lastLine);
-        console.log("[debug] lastLine_new.innerHTML",lastLine.innerHTML);
-      if (lastLine && document.contains(lastLine)){
-        try {
-          const range = document.createRange();
+    // // 确保元素在文档中后再设置选择范围
+    // if (lastLine && document.contains(lastLine)) {
+    //     lastLine.contentEditable = true;
+    //     //const lastLine_new = newLineForReloading(textArea,lastLine);
+    //     console.log("[debug] lastLine_new",lastLine);
+    //     console.log("[debug] lastLine_new.innerHTML",lastLine.innerHTML);
+    //   if (lastLine && document.contains(lastLine)){
+    //     try {
+    //       const range = document.createRange();
           
-          // 检查 lastLine_new 是否有子节点
-          if (lastLine.childNodes.length > 0) {
-            // 如果有子节点，将光标设置在最后一个子节点之后
-            const lastChild = lastLine.lastChild;
-            if (lastChild.nodeType === Node.TEXT_NODE) {
-              range.setStartAfter(lastChild);
-            } else {
-              range.setStartAfter(lastChild);
-            }
-          } else {
-            // 如果没有子节点，直接设置在元素内部
-            range.setStart(lastLine, 0);
-          }
+    //       // 检查 lastLine_new 是否有子节点
+    //       if (lastLine.childNodes.length > 0) {
+    //         // 如果有子节点，将光标设置在最后一个子节点之后
+    //         const lastChild = lastLine.lastChild;
+    //         if (lastChild.nodeType === Node.TEXT_NODE) {
+    //           range.setStartAfter(lastChild);
+    //         } else {
+    //           range.setStartAfter(lastChild);
+    //         }
+    //       } else {
+    //         // 如果没有子节点，直接设置在元素内部
+    //         range.setStart(lastLine, 0);
+    //       }
           
-          range.collapse(true);
-          const selection = window.getSelection();
-          selection.removeAllRanges();
-          selection.addRange(range);
+    //       range.collapse(true);
+    //       const selection = window.getSelection();
+    //       selection.removeAllRanges();
+    //       selection.addRange(range);
           
-          // 在设置选择范围后，确保元素获得焦点
-          lastLine.focus();
-        } catch (error) {
-          console.warn('设置选择范围失败:', error);
-        }
-        }
-        else{
-            console.log("lastLine_new is not in the document");
-        }
+    //       // 在设置选择范围后，确保元素获得焦点
+    //       lastLine.focus();
+    //     } catch (error) {
+    //       console.warn('设置选择范围失败:', error);
+    //     }
+    //     }
+    //     else{
+    //         console.log("lastLine_new is not in the document");
+    //     }
     }
-    else{
-      window.alert("error on reloading the notes");
-    }
-  }
+  //   else{
+  //     window.alert("error on reloading the notes");
+  //   }
+  // }
   else{
     const newContainer = createAnNewContainer(textArea);
+    markdownInputMonitor(textArea,newContainer);
    
   }
   
@@ -472,24 +473,7 @@ function loadTagsFromStorage(pageUrl, callback) {
 //  */
 // function addTags(currentPageUrl, editor) {
 
-// }
-function renderMarkdown(textArea,onMarkdownChange) {
-  // 使用marked.js渲染markdown
-}
 
-function showOriginalMarkdown(temp){
-}
-function loadAllMarkdown(textArea){
-}
-function parseAllDataNote(currentNote,textArea){
-}
-
-function monitorTextAreaBlur(textArea){
-
-}
-
-function newLineForReloading(textArea,lastLine){
-}
 function saveNotesContent(textArea,tags,groupId,currentPageUrl,currentNote){
   console.log("[debug] saveNotesContent");
   setTimeout(() => {

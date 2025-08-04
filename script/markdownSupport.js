@@ -1,7 +1,6 @@
 // markdown.js
 
-function markdownInputMonitor(textArea) {
-    console.log("renderMarkdown");
+function markdownInputMonitor(textArea,newContainer) {
     try {
         console.log("textArea", textArea);
         
@@ -9,34 +8,35 @@ function markdownInputMonitor(textArea) {
             console.error("textArea is null or undefined");
             return;
         }
-        const textArea_children = textArea.querySelectorAll("div");
-        
-        let boundCount = 0;
-        textArea_children.forEach((child, index) => {
-            if (child.getAttribute('inputEventLiscener')==='false'){
+        if (!newContainer) {
+            console.error("newContainer is null or undefined");
+            return;
+        }
+        removeListenerEventEnter(newContainer);
+        newContainer.addEventListener("keydown", (e) => {
+            if (e.key === 'Enter') {
+
+                e.preventDefault();
+                renderMarkdown(textArea,newContainer,newDOMElement=>{
+                    //console.log("temp",temp)
                 
-                child.addEventListener("keydown", (e) => {
-                    if (e.key === 'Enter') {
-                        // 阻止 Enter 键的默认行为，避免自动插入 <br>
-                        e.preventDefault();
-                        
-                        renderMarkdown(textArea,child,allTemps=>{
-                            //console.log("temp",temp)
-                        
-                            monitorInsertIn(allTemps,textArea);
-                          });
-                        console.log('🔴 textArea in markdownInputMonitor',textArea);
-                        const newContainer = createAnNewContainer(textArea);
-                    }
-                });
-                child.setAttribute('inputEventLiscener','true');
+                    (newDOMElement,textArea);
+                  });
+                const nextContainer = createAnNewContainer(textArea);
             }
         });
-        console.log('[debug] textArea in markdownInputMonitor',textArea);
     }
+
     catch (e) {
         console.error("Markdown 渲染失败", e);
     }
+}
+function removeListenerEventEnter(temp){
+    temp.removeEventListener("keydown", (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+        }
+    });
 }
 function createAnNewContainer(textArea){
     const newContainer = document.createElement('div');
@@ -50,8 +50,10 @@ function createAnNewContainer(textArea){
     newContainer.focus();
     //onNewContainer(newContainer);
     // 不要在这里调用 markdownInputMonitor，避免重复绑定事件
-    markdownInputMonitor(textArea);
-    return newContainer;
+    
+    // find the NO. of child in textArea
+    const childIndex = Array.from(textArea.children).length -1;
+    return textArea.children[childIndex];
 }
 function createAnNewContainerWithNotes(textArea, markdown_data){
     const newContainer = document.createElement('div');
@@ -65,17 +67,30 @@ function createAnNewContainerWithNotes(textArea, markdown_data){
 }
 
 function showOriginalMarkdown(temp,textArea){
+//     console.log("[debug] showOriginalMarkdown , textArea",textArea);
     const newContainer = createAnNewContainerWithNotes(textArea,temp.getAttribute('mardown-data'));
+//     console.log("[debug] newContainer in showOriginalMarkdown",newContainer);
     // console.log("[debug] type of temp",typeof temp);
     // console.log("[debug] temp.nodeType",temp.nodeType);
     // console.log("[debug] temp.parentNode",temp.parentNode);
+//     console.log("[debug] textArea in showOriginalMarkdown 1",textArea);
+    if (!newContainer){
+        console.log("[debug] newContainer is null");
+        return;
+    }
+    if (temp.parentNode != textArea){
+        console.log("[debug] temp.parentNode != textArea");
+        return;
+    }
     textArea.insertBefore(newContainer,temp);
+//     console.log("[debug] textArea in showOriginalMarkdown 2",textArea);
     textArea.removeChild(temp);
     //monitorInsertIn(newContainer,textArea);
     const allTemps = textArea.querySelectorAll(".markdown-temp");
     // console.log("[debug] allTemps",allTemps);
     newContainer.focus();
-    editingMarkdownMonitor(newContainer,textArea);
+    //console.log("[debug] textArea in showOriginalMarkdown 3",textArea);
+    //editingMarkdownMonitor(newContainer,textArea);
 }
 function createNewDOMElement(markdown, markdown_data){
     const newDOMElement = document.createElement('div');
@@ -119,13 +134,20 @@ function renderMarkdown(textArea,child,onMarkdownChange){
             const markdown_data = child.innerText;
             child.setAttribute('markdown-data',child.innerText);
             const markdown = marked.parse(child.innerText);
+
             const newDOMElement = createNewDOMElement(markdown,markdown_data);
+            // // find the NO. of child in textArea
+            // const childIndex = Array.from(textArea.children).indexOf(child);
+            // console.debug("[debug] childIndex",childIndex);
+
+            monitorInsertIn(newDOMElement,textArea);
             textArea.insertBefore(newDOMElement,child);
             textArea.removeChild(child);
-            console.log("[debug] markdown.typeOf",typeof markdown);
-
-            const allTemps = textArea.querySelectorAll(".markdown-temp");
-            onMarkdownChange(allTemps);
+            // console.log("[debug] textArea in renderMarkdown",textArea);
+            // console.debug("[debug] newDOMElement",);
+            // const allTemps = textArea.querySelectorAll(".markdown-temp");
+            // onMarkdownChange(allTemps);
+            onMarkdownChange(newDOMElement,textArea);
             
 
 
@@ -195,35 +217,38 @@ function cleanupMarkdownListeners(textArea) {
     }
 }
 
-function monitorInsertIn(allTemps,textArea) {
+function monitorInsertIn(temp,textArea) {
     //TODO: add remove event listener function
     console.log("[debug] monitorInsertIn");
 
-    allTemps.forEach((temp) => {
+    
 
-            temp.removeEventListener("keydown", (e) => {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                }
-            });
-            temp.removeEventListener('click', (e) => {
-                showOriginalMarkdown(temp,textArea);
-                console.log("[debug] temp clicked");
-            });
-            temp.addEventListener("keydown", (e) => {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                   
-                    //const newContainer = createAnNewContainer(textArea);
-                }
-            });
-            temp.addEventListener('click', (e) => {
-                showOriginalMarkdown(temp,textArea);
-                console.log("[debug] temp clicked");
-            });
-            temp.setAttribute('inputEventLiscener','true');
+
+        temp.removeEventListener('click', (e) => {
+            showOriginalMarkdown(temp,textArea);
+            console.log("[debug] temp clicked");
+        });
+
+        temp.addEventListener('click', (e) => {
+            showOriginalMarkdown(temp,textArea);
+            console.log("[debug] temp clicked");
+        });
+        temp.setAttribute('inputEventLiscener','true');
         
         
+    
+}
+
+function monitorKeyDown(temp,textArea){
+    temp.removeEventListener("keydown", (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+        }
+    });
+    temp.addEventListener("keydown", (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+        }
     });
 }
 function loadAllMarkdown(textArea){
@@ -277,28 +302,11 @@ function parseAllDataNote(currentNote,textArea){
                 const PurifiedNote = window.marked.parse(line);
                 console.log("PurifiedNote",PurifiedNote);
                 const temp = document.createElement('div');
-                temp.innerHTML = PurifiedNote;
-                if (temp.firstChild){
-                    temp.firstChild.setAttribute("mardown-data",line);
-                    temp.firstChild.tabIndex = 0;
-                    temp.firstChild.contentEditable = true;
-                    temp.firstChild.classList.add("markdown-temp");
-//                     console.log("temp",temp);
-//                     console.log("temp.firstChild",temp.firstChild);
-//                     console.log("temp.firstChild.innerHTML",temp.firstChild.innerHTML);
-//                     console.log(' 🔴 try to append temp.firstChild to textArea');
-//                     console.log("temp nodeType",temp.firstChild.nodeType);
-                    textArea.appendChild(temp.firstChild);
-//                     console.log("textArea & purify notes",textArea);
-                }
-                else{
-//                     console.log("temp.firstChild is null");
-                    temp.setAttribute("mardown-data",line);
-                    temp.tabIndex = 0;
-                    temp.contentEditable = true;
-                    temp.classList.add("markdown-temp");
-                    textArea.appendChild(temp);
-                }
+                const newDOMElement = createNewDOMElement(PurifiedNote,line);
+                textArea.appendChild(newDOMElement);
+                console.debug("newDOMElement 's textArea",textArea);
+                console.debug("[debug] newDOMElement",newDOMElement);
+                
             } catch (error) {
                 console.error("Error parsing markdown line:", line, error);
                 // 如果解析失败，直接添加原始文本
@@ -316,7 +324,8 @@ function parseAllDataNote(currentNote,textArea){
     });
     const allTemps = textArea.querySelectorAll(".markdown-temp");
 //     console.log("parseAllDataNote完成，找到", allTemps.length, "个markdown-temp元素");
-    monitorInsertIn(allTemps,textArea);
+    //monitorInsertIn(newDOMElement,textArea);
+    const newContainer = createAnNewContainer(textArea);
     return allTemps;
 }
 // function markdownorgainse(textArea){
@@ -376,9 +385,12 @@ function markdownModify(){
     window.marked.use({ renderer });
 }
 function editingMarkdownMonitor(newContainer,textArea){
+    console.log("[debug] newContainer in editingMarkdownMonitor 1",textArea);
     newContainer.addEventListener("keydown", (e) => {
         if (e.key === 'Enter') {
             e.preventDefault();
+            console.log("[debug] newContainer in editingMarkdownMonitor",textArea);
+           
             renderMarkdown(textArea,newContainer,allTemps=>{
                 //console.log("temp",temp)
             
