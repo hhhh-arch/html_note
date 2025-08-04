@@ -22,6 +22,12 @@ function markdownInputMonitor(textArea,newContainer) {
                 backspaceKeyHandler(e,newContainer,textArea);
                 
             }
+            if (e.key === 'ArrowUp'){
+                arrowUpKeyHandler(e,newContainer,textArea);
+            }
+            if (e.key === 'ArrowDown'){
+                arrowDownKeyHandler(e,newContainer,textArea);
+            }
         });
     }
 
@@ -589,4 +595,24 @@ function backspaceKeyHandler(e,newContainer,textArea){
             markdownInputMonitor(textArea,newContainer);
         }
     }
+}
+function arrowUpKeyHandler(e,newContainer,textArea){
+    if (checkSelectionPositionStart(newContainer)){
+        e.preventDefault();
+        const previousContainer = newContainer.previousSibling;
+        if (previousContainer){
+            const editorContainer = showOriginalMarkdown(previousContainer,textArea);
+
+            renderMarkdown(textArea,newContainer,newDOMElement=>{
+                monitorInsertIn(newDOMElement,textArea);
+            });
+            locateCaretPositionToTheEnd(editorContainer);
+            markdownInputMonitor(textArea,editorContainer);
+        }
+
+    }
+}
+
+function arrowDownKeyHandler(e,newContainer,textArea){
+    e.preventDefault();
 }
