@@ -23,6 +23,7 @@ function markdownInputMonitor(textArea,newContainer) {
                     (newDOMElement,textArea);
                   });
                 const nextContainer = createAnNewContainer(textArea);
+                markdownInputMonitor(textArea,nextContainer);
             }
         });
     }
@@ -86,11 +87,11 @@ function showOriginalMarkdown(temp,textArea){
 //     console.log("[debug] textArea in showOriginalMarkdown 2",textArea);
     textArea.removeChild(temp);
     //monitorInsertIn(newContainer,textArea);
-    const allTemps = textArea.querySelectorAll(".markdown-temp");
+    
     // console.log("[debug] allTemps",allTemps);
     newContainer.focus();
     //console.log("[debug] textArea in showOriginalMarkdown 3",textArea);
-    //editingMarkdownMonitor(newContainer,textArea);
+    editingMarkdownMonitor(newContainer,textArea);
 }
 function createNewDOMElement(markdown, markdown_data){
     const newDOMElement = document.createElement('div');
@@ -386,23 +387,32 @@ function markdownModify(){
 }
 function editingMarkdownMonitor(newContainer,textArea){
     console.log("[debug] newContainer in editingMarkdownMonitor 1",textArea);
+    if (!newContainer){
+        console.log("[debug] newContainer is null");
+        return;
+    }
+    if (newContainer.parentNode != textArea){
+        console.log("[debug] newContainer.parentNode != textArea");
+        return;
+    }
+    removeListenerEventEnter(newContainer);
     newContainer.addEventListener("keydown", (e) => {
         if (e.key === 'Enter') {
             e.preventDefault();
             console.log("[debug] newContainer in editingMarkdownMonitor",textArea);
-           
-            renderMarkdown(textArea,newContainer,allTemps=>{
+            
+            renderMarkdown(textArea,newContainer,newDOMElement=>{
                 //console.log("temp",temp)
             
-                monitorInsertIn(allTemps,textArea);
-              });
-              const nextContainer = createAnNewContainer(textArea);
+                monitorInsertIn(newDOMElement,textArea);
+                const nextContainer = createAnNewContainer(textArea);
               // insert the nextContainer after the newContainer
-              textArea.removeChild(newContainer);
-              textArea.insertBefore(nextContainer,newContainer.nextSibling);
-              //nextContainer.focus();
+                textArea.insertBefore(nextContainer,newDOMElement.nextSibling);
+                markdownInputMonitor(textArea,nextContainer);
+                nextContainer.focus();
+              });
 
-              console.log('🔴 textArea in markdownInputMonitor',textArea);
+              console.log('🔴 textArea in editingMarkdownMonitor',textArea);
         }
     });
     
