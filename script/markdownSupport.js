@@ -458,6 +458,7 @@ function checkSelectionPositionEnd(element){
     const selection = window.getSelection();
     const range = selection.getRangeAt(0);
     if (range.endContainer.nodeType != Node.TEXT_NODE){
+        console.log("[debug] range.endContainer.firstChild",range.endContainer.firstChild);
         range.endContainer = range.endContainer.firstChild;
         
     }
@@ -536,17 +537,24 @@ function splitContainer(newContainer,caretPosition,textArea){
 
 
 }
-function locateCaretPositionToTheEnd(newContainer){
-    newContainer.focus();
-
+function locateCaretPositionToTheEnd(newContainer) {
+    const selection = window.getSelection();
     const range = document.createRange();
-    const sel = window.getSelection();
 
-    range.selectNodeContents(newContainer);
-    range.collapse(false);
+    const firstChild = newContainer.firstChild;
 
-    sel.removeAllRanges();
-    sel.addRange(range);
+    if (firstChild && firstChild.nodeType === Node.TEXT_NODE) {
+        
+        range.setStart(firstChild, firstChild.length);
+        range.setEnd(firstChild, firstChild.length);
+    } else {
+        
+        range.selectNodeContents(newContainer);
+        range.collapse(false);
+    }
+
+    selection.removeAllRanges();
+    selection.addRange(range);
 }
 function locateCaretPositionToTheStart(newContainer){
     const selection = window.getSelection();
