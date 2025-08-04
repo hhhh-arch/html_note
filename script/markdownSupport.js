@@ -25,6 +25,14 @@ function markdownInputMonitor(textArea,newContainer) {
                 const nextContainer = createAnNewContainer(textArea);
                 markdownInputMonitor(textArea,nextContainer);
             }
+            if (e.key === 'Backspace'){
+                // check if selection is before the text[0], delete the container and add text to the previous container 
+                if (checkSelectionPosition(newContainer)){
+                    e.preventDefault();
+                    deleteContainerAndAddTextToPreviousContainer(newContainer,textArea);
+                }
+                
+            }
         });
     }
 
@@ -414,9 +422,39 @@ function editingMarkdownMonitor(newContainer,textArea){
 
               console.log('🔴 textArea in editingMarkdownMonitor',textArea);
         }
+        if (e.key === 'Backspace'){
+            // check if selection is before the text[0], delete the container and add text to the previous container 
+            if (checkSelectionPosition(newContainer)){
+                e.preventDefault();
+                deleteContainerAndAddTextToPreviousContainer(newContainer,textArea);
+            }
+            
+        }
     });
     
 }
 function focusOnTheEndOfTheElement(element){
     const range = document.createRange();
-    range.setStartAfter(element);}
+    range.setStartAfter(element);
+}
+
+function checkSelectionPosition(element){
+    const selection = window.getSelection();
+    const range = selection.getRangeAt(0);
+    const startOffset = range.startOffset;
+    if (startOffset === 0){
+        return true;
+    }
+    else{
+        return false;
+    }
+}
+function deleteContainerAndAddTextToPreviousContainer(newContainer,textArea){
+    const previousContainer = newContainer.previousSibling;
+    if (previousContainer){
+        previousContainer.innerText = previousContainer.innerText + newContainer.innerText;
+        previousContainer.setAttribute('mardown-data',previousContainer.getAttribute('mardown-data') + newContainer.innerText);
+        previousContainer.focus();
+        textArea.removeChild(newContainer);
+    }
+}
