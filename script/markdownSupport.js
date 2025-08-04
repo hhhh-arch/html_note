@@ -458,8 +458,7 @@ function checkSelectionPositionEnd(element){
     const selection = window.getSelection();
     const range = selection.getRangeAt(0);
     if (range.endContainer.nodeType != Node.TEXT_NODE){
-        console.log("[debug] range.endContainer.firstChild",range.endContainer.firstChild);
-        range.endContainer = range.endContainer.firstChild;
+        return null;
         
     }
     const endOffset = range.endOffset;
@@ -560,7 +559,7 @@ function locateCaretPositionToTheStart(newContainer){
     const selection = window.getSelection();
     const range = selection.getRangeAt(0);
     range.selectNodeContents(newContainer);
-    range.collapse(true); // true 表示光标放在内容开头
+    range.collapse(true); 
     selection.removeAllRanges();
     selection.addRange(range);
     
