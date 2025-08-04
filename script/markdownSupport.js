@@ -142,7 +142,7 @@ function renderMarkdown(textArea,child,onMarkdownChange){
             // const childIndex = Array.from(textArea.children).indexOf(child);
             // console.debug("[debug] childIndex",childIndex);
 
-            monitorInsertIn(newDOMElement,textArea);
+            
             textArea.insertBefore(newDOMElement,child);
             textArea.removeChild(child);
             // console.log("[debug] textArea in renderMarkdown",textArea);
@@ -480,18 +480,18 @@ function enterKeyHandler(e,newContainer,textArea){
                 renderMarkdown(textArea,newContainer,newDOMElement=>{
                     //console.log("temp",temp)
                 
-                    (newDOMElement,textArea);
+                    monitorInsertIn(newDOMElement,textArea);
                   });
                 const nextContainer = createAnNewContainer(textArea);
                 markdownInputMonitor(textArea,nextContainer);
     }
-    if (caretPosition == 0){
+    else if (caretPosition == 0){
         e.preventDefault();
         const nextContainer = createAnNewContainer(textArea);
         textArea.insertBefore(nextContainer,newContainer);
         markdownInputMonitor(textArea,nextContainer);
     }
-    if (caretPosition > 0 && caretPosition < newContainer.innerText.length-1){
+    else if (caretPosition > 0 && caretPosition < newContainer.innerText.length){
         e.preventDefault();
         splitContainer(newContainer,caretPosition,textArea);
         console.log("[debug] splitContainer textArea",textArea);
@@ -509,11 +509,17 @@ function splitContainer(newContainer,caretPosition,textArea){
     textArea.insertBefore(nextContainer,newContainer.nextSibling);
     newContainer.innerHTML = string1;
     newContainer.setAttribute('mardown-data',string1);
-    newContainer.focus();
-    markdownInputMonitor(textArea,nextContainer);
-    
-    locateCaretPositionToTheEnd(newContainer);
 
+    markdownInputMonitor(textArea,nextContainer);
+    newContainer.innerText = string1;
+    renderMarkdown(textArea,newContainer,newDOMElement=>{
+        //console.log("temp",temp)
+    
+        monitorInsertIn(newDOMElement,textArea);
+      });
+
+   
+    nextContainer.focus();
 
 
 }
