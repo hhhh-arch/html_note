@@ -43,6 +43,7 @@
   transform: translate(0, 120%);
   transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.3s ease;
   opacity: 0;
+  max-width:340px !important;
 }
 
 .note-editor.show {
