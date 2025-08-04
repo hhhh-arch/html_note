@@ -314,6 +314,8 @@ function parseAllDataNote(currentNote,textArea){
                 const temp = document.createElement('div');
                 const newDOMElement = createNewDOMElement(PurifiedNote,line);
                 textArea.appendChild(newDOMElement);
+                markdownInputMonitor(textArea,newDOMElement);
+                monitorInsertIn(newDOMElement,textArea);
                 console.debug("newDOMElement 's textArea",textArea);
                 console.debug("[debug] newDOMElement",newDOMElement);
                 
@@ -335,7 +337,7 @@ function parseAllDataNote(currentNote,textArea){
     const allTemps = textArea.querySelectorAll(".markdown-temp");
 //     console.log("parseAllDataNote完成，找到", allTemps.length, "个markdown-temp元素");
     //monitorInsertIn(newDOMElement,textArea);
-    const newContainer = createAnNewContainer(textArea);
+   
     return allTemps;
 }
 // function markdownorgainse(textArea){
