@@ -227,14 +227,14 @@ function monitorInsertIn(temp,textArea) {
 
 
         temp.removeEventListener('click', (e) => {
-            showOriginalMarkdown(temp,textArea);
-            markdownInputMonitor(textArea,temp);
+            const newContainer = showOriginalMarkdown(temp,textArea);
+            markdownInputMonitor(textArea,newContainer);
             console.log("[debug] temp clicked");
         });
 
         temp.addEventListener('click', (e) => {
-            showOriginalMarkdown(temp,textArea);
-            markdownInputMonitor(textArea,temp);
+            const newContainer = showOriginalMarkdown(temp,textArea);
+            markdownInputMonitor(textArea,newContainer);
             console.log("[debug] temp clicked");
         });
         temp.setAttribute('inputEventLiscener','true');
@@ -494,9 +494,21 @@ function enterKeyHandler(e,newContainer,textArea){
                     //console.log("temp",temp)
                 
                     monitorInsertIn(newDOMElement,textArea);
+                    const nextContainer = createAnNewContainer(textArea);
+                    if (newDOMElement.nextSibling){
+                        
+                        textArea.insertBefore(nextContainer,newDOMElement.nextSibling);
+                        markdownInputMonitor(textArea,nextContainer);
+                        nextContainer.focus();
+                    }
+                    else{
+                        textArea.appendChild(nextContainer);
+                        markdownInputMonitor(textArea,nextContainer);
+                        nextContainer.focus();
+                    }
+
                   });
-                const nextContainer = createAnNewContainer(textArea);
-                markdownInputMonitor(textArea,nextContainer);
+                
     }
     else if (caretPosition == 0){
         e.preventDefault();
