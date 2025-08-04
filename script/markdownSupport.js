@@ -21,7 +21,8 @@ function markdownInputMonitor(textArea,newContainer) {
                 // check if selection is before the text[0], delete the container and add text to the previous container 
                 if (checkSelectionPositionStart(newContainer)){
                     e.preventDefault();
-                    deleteContainerAndAddTextToPreviousContainer(newContainer,textArea);
+                    const previousContainer = deleteContainerAndAddTextToPreviousContainer(newContainer,textArea);
+                    locateCaretPositionToTheEnd(previousContainer);
                 }
                 
             }
@@ -442,6 +443,10 @@ function checkSelectionPositionStart(element){
     }
 }
 function checkSelectionPositionEnd(element){
+    if (!element){
+        console.error("[debug] element is null");
+        return null;
+    }
     const selection = window.getSelection();
     const range = selection.getRangeAt(0);
     const endOffset = range.endOffset;
@@ -459,10 +464,13 @@ function deleteContainerAndAddTextToPreviousContainer(newContainer,textArea){
         previousContainer.setAttribute('mardown-data',previousContainer.getAttribute('mardown-data') + newContainer.innerText);
         previousContainer.focus();
         textArea.removeChild(newContainer);
+        return previousContainer;
     }
+    return null;
 }
 function enterKeyHandler(e,newContainer,textArea){
     const caretPosition = checkSelectionPositionEnd(newContainer);
+    console.log("[debug] caretPosition",caretPosition);
     if (caretPosition == null){
         console.log("[debug] caretPosition is null");
         return;
@@ -483,12 +491,13 @@ function enterKeyHandler(e,newContainer,textArea){
         textArea.insertBefore(nextContainer,newContainer);
         markdownInputMonitor(textArea,nextContainer);
     }
-    if (caretPosition > 0 && caretPosition < newContainer.innerText.length){
+    if (caretPosition > 0 && caretPosition < newContainer.innerText.length-1){
         e.preventDefault();
         splitContainer(newContainer,caretPosition,textArea);
+        console.log("[debug] splitContainer textArea",textArea);
     }
     else{
-        console.error("[debug] caretPosition is out of range");
+        console.error("[debug] caretPosition is out of range,caretPosition",caretPosition);
     }
 }
 function splitContainer(newContainer,caretPosition,textArea){
@@ -502,5 +511,29 @@ function splitContainer(newContainer,caretPosition,textArea){
     newContainer.setAttribute('mardown-data',string1);
     newContainer.focus();
     markdownInputMonitor(textArea,nextContainer);
+    
+    locateCaretPositionToTheEnd(newContainer);
 
+
+
+}
+function locateCaretPositionToTheEnd(newContainer){
+    const selection = window.getSelection();
+    const range = selection.getRangeAt(0);
+    range.selectNodeContents(newContainer);
+    range.collapse(false); // false 表示光标放在内容末尾
+    selection.removeAllRanges();
+    selection.addRange(range);
+}
+function locateCaretPositionToTheStart(newContainer){
+    const selection = window.getSelection();
+    const range = selection.getRangeAt(0);
+    range.selectNodeContents(newContainer);
+    range.collapse(true); // true 表示光标放在内容开头
+    selection.removeAllRanges();
+    selection.addRange(range);
+    
+}
+function createNewRange(){
+    const range = document.createRange();
 }
