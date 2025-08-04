@@ -15,14 +15,14 @@
         "libs/purify.min.js",
       "libs/marked.min.js",
       
-      "content.js", 
-      "editor.js",
+      "script/content.js", 
+      "script/editor.js",
       "script/markdownSupport.js"],
       "css": ["style.css"]
     }
   ],
   "icons": {
 
-    "128": "icon-128.png"
+    "128": "images/icon-128.png"
   }
 }
