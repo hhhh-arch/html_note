@@ -15,6 +15,7 @@ class HTMLNoteHighlighter {
     this.restoreHighlights();
     // 创建工具栏
     //this.createToolbar();
+    load_groupId_list(window.location.href);
   }
 
   /**
@@ -105,6 +106,8 @@ class HTMLNoteHighlighter {
       this.highlightSelectionWithDefaultColor();
       btn.remove();
       this.highlightButton = null;
+      
+      //TODO: storage for the highlight
     };
   }
 
@@ -132,15 +135,16 @@ class HTMLNoteHighlighter {
      
       // 👇 使用 extract + insert 替代 surround，绕过 DOMException
       this.wrapRangeWithSpan(range, this.createHighlightSpan(groupId));
-  
+      
       selection.removeAllRanges();
+      const highlightElement = document.querySelector('.html-note-highlight[data-group-id="' + groupId + '"]');
 
-      // setTimeout(() => {
-      //   if (typeof this.showToolbarForHighlight === 'function') {
-      //     // 传递 groupId，显示工具栏时可用
-      //     this.showToolbarForHighlight(document.querySelector('.html-note-highlight[data-group-id="' + groupId + '"]'), groupId);
-      //   }
-      // }, 100);
+      if (highlightElement){
+        storageHighlight(highlightElement,window.location.href);
+      }
+      else{
+        console.error(`highlightElement is null for groupId: ${groupId}`);
+      }
     } catch (error) {
       console.error('高亮文本时出错:', error);
       this.showNotification('高亮失败（可能选中内容结构复杂）');
@@ -986,3 +990,99 @@ function highlightElement_mouseOutHandler(e){
     }
   }
 }
+function storageHighlight(highlightElement,pageUrl){
+  const groupId = highlightElement.getAttribute('data-group-id');
+  const highlightElement_data = highlightElement_dataStructure(highlightElement);
+  if (!highlightElement_data){
+    console.log(`highlightElement_dataStructure is null for highlightElement: ${highlightElement}`);
+    return;
+  }
+  let groupId_list;
+  const previous_groupId_list = chrome.storage.local.get(pageUrl);
+  // if previous
+  // if (previous_groupId_list){
+  //   // console.log(`previous_groupId_list: ${previous_groupId_list}`);
+  //   groupId_list = update_groupId_list(previous_groupId_list, groupId);
+  // }
+  // else{
+    groupId_list = update_groupId_list([], groupId);
+  
+  if (!groupId_list){
+    console.log(`new_groupId_list is null for pageUrl: ${pageUrl}`);    
+    return;
+  }
+
+    // store the highlight element for this page and groupId
+  chrome.storage.local.set({
+    [groupId]: highlightElement_data,
+    [pageUrl]: groupId_list
+
+
+  })
+
+}
+
+function highlightElement_selectorGenerator(highlightElement){
+  const selector = window.CssSelectorGenerator.getCssSelector(highlightElement);
+  return selector;
+}
+function highlightElement_dataStructure(highlightElement){
+  const groupId = highlightElement.getAttribute('data-group-id');
+  const highlightElements_group = [];
+  if (groupId){
+    const highlightElements = document.querySelectorAll(`.html-note-highlight[data-group-id="${groupId}"]`);
+    if (!highlightElements){
+      return null;
+    }
+    const note = highlightElements[0].getAttribute('data-note');
+
+    highlightElements.forEach(highlightElement=>{
+      highlightElements_group.push(highlightElement_selectorGenerator(highlightElement));
+    })
+    return {
+      groupId: groupId,
+      highlightElements: highlightElements_group,
+      note: note,
+    }
+
+  }
+  return null;
+
+}
+function update_groupId_list(groupId_list, groupId){
+  console.log(`update_groupId_list: ${groupId_list}, ${groupId}`);
+  if (!groupId_list){
+    return null;
+  }
+  if(groupId_list.length === 0){
+    groupId_list = [groupId];
+    return groupId_list;
+  }
+  if (groupId_list.includes(groupId)){
+    return groupId_list;
+  }
+  groupId_list.push(groupId);
+  return groupId_list;
+
+}
+function load_groupId_list(pageUrl){
+  chrome.storage.local.get(pageUrl, function(result){
+    const groupId_list = result[pageUrl];
+    if (groupId_list){
+      console.log(`load_groupId_list: ${groupId_list}`);
+      chrome.storage.local.get(groupId_list, function(result){
+        console.log(`load_highlightElement_data_Structure:`);
+        console.log(`result groupId: ${result[groupId_list[0]].groupId}`);
+        console.log(`result highlightElements: ${result[groupId_list[0]].highlightElements}`);
+        console.log(`result note: ${result[groupId_list[0]].note}`);
+
+      })
+    }
+  })
+  
+}
+// function load_highilightElement_data_Structure(groupId){
+//   chrome.storage.local.get(groupId, function(result){
+//     const highlightElement_data = result[groupId];
+//     if (highlightElement_data){
+// }
