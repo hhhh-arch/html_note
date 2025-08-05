@@ -4,7 +4,7 @@ class HTMLNoteHighlighter {
     this.isActive = false;
     this.noteCounter = 0;
     this.highlightButton = null; // 悬浮高亮按钮
-    this.defaultColor = this.getDefaultColor(); // 获取存储的默认颜色
+    this.defaultColor = getDefaultColor(); // 获取存储的默认颜色
     this.init();
   }
 
@@ -18,15 +18,8 @@ class HTMLNoteHighlighter {
     load_groupId_list(window.location.href);
   }
 
-  /**
-   * 获取存储的默认颜色，如果没有则返回默认值
-   * @returns {string} 默认颜色
-   */
-  getDefaultColor() {
-    const storedColor = localStorage.getItem('html-note-default-color');
-    return storedColor || '#ffeb3b';
-  }
 
+  
   /**
    * 设置默认颜色并保存到localStorage
    * @param {string} color - 要设置的默认颜色
@@ -163,7 +156,7 @@ class HTMLNoteHighlighter {
     highlightSpan.setAttribute('data-note', '');
     highlightSpan.setAttribute('data-timestamp', Date.now().toString());
     // 每次都重新获取最新的默认颜色
-    const color = this.getDefaultColor();
+    const color = getDefaultColor();
     // console.log('[debug] createHighlightSpan 用的 color:', color);
     highlightSpan.style.backgroundColor = color;
     highlightSpan.setAttribute('data-color', color);
@@ -178,7 +171,7 @@ class HTMLNoteHighlighter {
       // 检查是否是跨块级元素的选区
       const groupId = highlightSpan.getAttribute('data-group-id');
       if (this.isCrossBlockSelection(range)) {
-        const color = highlightSpan.getAttribute('data-color') || this.getDefaultColor();
+        const color = highlightSpan.getAttribute('data-color') || getDefaultColor();
         //console.log('[debug] wrapRangeWithSpan 传入 wrapCrossBlockSelection 的 color:', color);
         this.wrapCrossBlockSelection(range, color, groupId);
       } else {
@@ -260,7 +253,7 @@ class HTMLNoteHighlighter {
 
   wrapCrossBlockSelection(range, color = null, groupId) {
     if (!color) {
-      color = this.getDefaultColor();
+      color = getDefaultColor();
     }
     console.log('[debug] wrapCrossBlockSelection 用的 color:', color);
     try {
@@ -364,7 +357,7 @@ class HTMLNoteHighlighter {
     
     // 如果没有指定颜色，使用默认颜色
     if (!color) {
-      color = this.getDefaultColor();
+      color = getDefaultColor();
     }
     
     // 创建一个文本节点来替换选区
@@ -1087,14 +1080,40 @@ function load_highilightElement_data_Structure(groupId){
     console.log(`result groupId: ${result[groupId].groupId}`);
     console.log(`result highlightElements: ${result[groupId].highlightElements}`);
     console.log(`result note: ${result[groupId].note}`);
+    load_highilightElement_data_Handler(groupId, result[groupId].highlightElements, result[groupId].note);
 
   })
 }
- function load_groupId_list_Handler(groupId_list){
+function load_groupId_list_Handler(groupId_list){
  
   if (groupId_list){
     groupId_list.forEach(groupId=>{
       load_highilightElement_data_Structure(groupId);
     })
   }
+}
+function load_highilightElement_data_Handler(groupId, highlightElement_dataSet, note){
+  console.log(`[debug]load_highilightElement_data_Handler: ${highlightElement_dataSet}`);
+  highlightElement_dataSet.forEach(highlightElement_data=>{
+    const highlightElement = document.querySelector(highlightElement_data.selector);
+    if (highlightElement){
+      console.log('[debug] enter the highlightElement');
+      highlightElement.classList.add('html-note-highlight');
+      highlightElement.setAttribute('data-group-id', groupId);
+      highlightElement.style.backgroundColor = getDefaultColor();
+    }
+    else{
+      console.log(`[debug] highlightElement is null for highlightElement_data: ${highlightElement_data}`);
+    }
+  })
+
+}
+  /**
+   * 获取存储的默认颜色，如果没有则返回默认值
+   * @returns {string} 默认颜色
+   */
+function getDefaultColor(){
+  const storedColor = localStorage.getItem('html-note-default-color');
+  return storedColor || '#ffeb3b';
+
 }
