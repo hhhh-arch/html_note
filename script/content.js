@@ -1004,11 +1004,17 @@ function storageHighlight(highlightElement,pageUrl){
     console.log(`new_groupId_list is null for pageUrl: ${pageUrl}`);    
     return;
   }
+  const color = highlightElement.getAttribute('data-color');
+  if (!color){
+    color = getDefaultColor();
+  }
+
 
     // store the highlight element for this page and groupId
   chrome.storage.local.set({
     [groupId]: highlightElement_data,
-    [pageUrl]: groupId_list
+    [pageUrl]: groupId_list,
+    [color]: color
 
 
   })
@@ -1030,8 +1036,14 @@ function highlightElement_dataStructure(highlightElement){
     const note = highlightElements[0].getAttribute('data-note');
 
     highlightElements.forEach(highlightElement=>{
-      highlightElements_group.push(highlightElement_selectorGenerator(highlightElement));
+      const highlightElement_selector = highlightElement_selectorGenerator(highlightElement);
+       console.log(`[debug] highlightElement for each : ${highlightElement_selector}`);
+      // console.log(`[debug] type of highlightElement_selectorGenerator(highlightElement): ${typeof highlightElement_selector}`);
+      // console.log(`[debug] is Array: ${Array.isArray(highlightElement_selector)}`);
+      highlightElements_group.push(highlightElement_selector);
     })
+    console.log(`[debug] type of highlightElements_group: ${Array.isArray(highlightElements_group)}`);
+    console.log(`[debug] highlightElements_group: ${highlightElements_group}`);
     return {
       groupId: groupId,
       highlightElements: highlightElements_group,
@@ -1078,7 +1090,9 @@ function load_highilightElement_data_Structure(groupId){
   chrome.storage.local.get(groupId, function(result){
     
     console.log(`result groupId: ${result[groupId].groupId}`);
+    console.log(`result groupId type: ${typeof result[groupId].groupId}`);
     console.log(`result highlightElements: ${result[groupId].highlightElements}`);
+    console.log(`result highlightElements type: ${Array.isArray(result[groupId].highlightElements)}`);
     console.log(`result note: ${result[groupId].note}`);
     load_highilightElement_data_Handler(groupId, result[groupId].highlightElements, result[groupId].note);
 
@@ -1093,19 +1107,7 @@ function load_groupId_list_Handler(groupId_list){
   }
 }
 function load_highilightElement_data_Handler(groupId, highlightElement_dataSet, note){
-  console.log(`[debug]load_highilightElement_data_Handler: ${highlightElement_dataSet}`);
-  highlightElement_dataSet.forEach(highlightElement_data=>{
-    const highlightElement = document.querySelector(highlightElement_data.selector);
-    if (highlightElement){
-      console.log('[debug] enter the highlightElement');
-      highlightElement.classList.add('html-note-highlight');
-      highlightElement.setAttribute('data-group-id', groupId);
-      highlightElement.style.backgroundColor = getDefaultColor();
-    }
-    else{
-      console.log(`[debug] highlightElement is null for highlightElement_data: ${highlightElement_data}`);
-    }
-  })
+
 
 }
   /**
