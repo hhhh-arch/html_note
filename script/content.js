@@ -967,7 +967,6 @@ function createhighlightBotton(rect) {
 function highlightElement_mouseOverHandler(e){
   if (e.target.classList.contains('html-note-highlight')){
     const groupId = e.target.getAttribute('data-group-id');
-    console.log("[debug] groupId in highlightElement_mouseOverHandler:",groupId);
     if (groupId){
       const highlightElements = document.querySelectorAll(`.html-note-highlight[data-group-id="${groupId}"]`);
       highlightElements.forEach(highlightElement=>{
