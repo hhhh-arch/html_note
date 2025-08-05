@@ -73,7 +73,12 @@ class HTMLNoteHighlighter {
 //         console.log('[debug] 点击的不是高亮元素');
       }
     });
-
+    document.addEventListener('mouseover',(e)=>{
+      highlightElement_mouseOverHandler(e);
+    })
+    document.addEventListener('mouseout',(e)=>{
+      highlightElement_mouseOutHandler(e);
+    })
 
 
   }
@@ -958,4 +963,27 @@ function createhighlightBotton(rect) {
   btn.onmouseleave = () => btn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
   document.body.appendChild(btn);
   return btn;
+}
+function highlightElement_mouseOverHandler(e){
+  if (e.target.classList.contains('html-note-highlight')){
+    const groupId = e.target.getAttribute('data-group-id');
+    console.log("[debug] groupId in highlightElement_mouseOverHandler:",groupId);
+    if (groupId){
+      const highlightElements = document.querySelectorAll(`.html-note-highlight[data-group-id="${groupId}"]`);
+      highlightElements.forEach(highlightElement=>{
+        highlightElement.classList.add('html-note-highlight-hover');
+      })
+    }
+  }
+}
+function highlightElement_mouseOutHandler(e){
+  if (e.target.classList.contains('html-note-highlight')){
+    const groupId = e.target.getAttribute('data-group-id');
+    if (groupId){
+      const highlightElements = document.querySelectorAll(`.html-note-highlight[data-group-id="${groupId}"]`);
+      highlightElements.forEach(highlightElement=>{
+        highlightElement.classList.remove('html-note-highlight-hover');
+      })
+    }
+  }
 }
