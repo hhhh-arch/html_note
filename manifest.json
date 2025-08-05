@@ -15,6 +15,7 @@
         "libs/purify.min.js",
       "libs/marked.min.js",
       "libs/css-selector-generator.min.js",
+      "libs/crypto-js.min.js",
       "script/content.js", 
       "script/editor.js",
       "script/markdownSupport.js"],
