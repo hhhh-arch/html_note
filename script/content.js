@@ -1070,19 +1070,31 @@ function load_groupId_list(pageUrl){
     const groupId_list = result[pageUrl];
     if (groupId_list){
       console.log(`load_groupId_list: ${groupId_list}`);
-      chrome.storage.local.get(groupId_list, function(result){
-        console.log(`load_highlightElement_data_Structure:`);
-        console.log(`result groupId: ${result[groupId_list[0]].groupId}`);
-        console.log(`result highlightElements: ${result[groupId_list[0]].highlightElements}`);
-        console.log(`result note: ${result[groupId_list[0]].note}`);
-
-      })
+      load_groupId_list_Handler(groupId_list);
+      
+    }
+    else{
+      console.log(`load_groupId_list failed: ${pageUrl}`);
+      return null;
     }
   })
   
 }
-// function load_highilightElement_data_Structure(groupId){
-//   chrome.storage.local.get(groupId, function(result){
-//     const highlightElement_data = result[groupId];
-//     if (highlightElement_data){
-// }
+function load_highilightElement_data_Structure(groupId){
+  console.log(`load_highlightElement_data_Structure:`);
+  chrome.storage.local.get(groupId, function(result){
+    
+    console.log(`result groupId: ${result[groupId].groupId}`);
+    console.log(`result highlightElements: ${result[groupId].highlightElements}`);
+    console.log(`result note: ${result[groupId].note}`);
+
+  })
+}
+ function load_groupId_list_Handler(groupId_list){
+ 
+  if (groupId_list){
+    groupId_list.forEach(groupId=>{
+      load_highilightElement_data_Structure(groupId);
+    })
+  }
+}
