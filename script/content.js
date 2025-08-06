@@ -133,6 +133,7 @@ class HTMLNoteHighlighter {
       const highlightElement = document.querySelector('.html-note-highlight[data-group-id="' + groupId + '"]');
 
       if (highlightElement){
+
         storageHighlight(highlightElement,window.location.href);
       }
       else{
@@ -1020,10 +1021,37 @@ function storageHighlight(highlightElement,pageUrl){
   })
 
 }
+function highlightElement_data_hash(element){
+  const hash = CryptoJS.SHA256(element.innerText).toString();
+  //console.log(`[debug] highlightElement_data_hash: ${hash}`);
+  return hash;
+}
 
-function highlightElement_selectorGenerator(highlightElement){
-  const selector = window.CssSelectorGenerator.getCssSelector(highlightElement);
-  return selector;
+function highlightElement_data(highlightElement){
+  //TODO: use hash to highlightElement's parent node to store the highlightElement's data
+  const parentNode = highlightElement.parentNode;
+  if (parentNode){
+    console.log(`[debug] parentNode: ${parentNode.innerText}`);
+    const hash_parentNode = highlightElement_data_hash(parentNode);
+    // TODO: record the highlightElement's index in the highlightElement's parent node 
+    const hash_highlightElement = highlightElement_data_hash(highlightElement);
+    const index_highlightElement = parentNode.innerText.indexOf(highlightElement.innerText);
+    console.log(`[debug] parentNode.innerText.26:${parentNode.innerText.substring(index_highlightElement,index_highlightElement+highlightElement.innerText.length)}`);
+    console.log(`[debug] index_highlightElement: ${index_highlightElement}`);
+    return {
+      hash_parentNode: hash_parentNode,
+      index_highlightElement: index_highlightElement,
+      highlightElement_text: highlightElement.innerText,
+      length: highlightElement.innerText.length,
+      highlightElement_tag: highlightElement.tagName,
+      parentNode_tag: parentNode.tagName,
+    }
+  }
+  else{
+    console.log(`[debug] parentNode is null for highlightElement: ${highlightElement}`);
+  }
+
+  
 }
 function highlightElement_dataStructure(highlightElement){
   const groupId = highlightElement.getAttribute('data-group-id');
@@ -1035,13 +1063,7 @@ function highlightElement_dataStructure(highlightElement){
     }
     const note = highlightElements[0].getAttribute('data-note');
 
-    highlightElements.forEach(highlightElement=>{
-      const highlightElement_selector = highlightElement_selectorGenerator(highlightElement);
-       console.log(`[debug] highlightElement for each : ${highlightElement_selector}`);
-      // console.log(`[debug] type of highlightElement_selectorGenerator(highlightElement): ${typeof highlightElement_selector}`);
-      // console.log(`[debug] is Array: ${Array.isArray(highlightElement_selector)}`);
-      highlightElements_group.push(highlightElement_selector);
-    })
+    highlightElements_group.push(highlightElement_data(highlightElement));
     console.log(`[debug] type of highlightElements_group: ${Array.isArray(highlightElements_group)}`);
     console.log(`[debug] highlightElements_group: ${highlightElements_group}`);
     return {
@@ -1094,7 +1116,7 @@ function load_highilightElement_data_Structure(groupId){
     console.log(`result highlightElements: ${result[groupId].highlightElements}`);
     console.log(`result highlightElements type: ${Array.isArray(result[groupId].highlightElements)}`);
     console.log(`result note: ${result[groupId].note}`);
-    load_highilightElement_data_Handler(groupId, result[groupId].highlightElements, result[groupId].note);
+    load_highilightElement_data_Handler(groupId, result[groupId].highlightElements[0], result[groupId].note,result[groupId].color);
 
   })
 }
@@ -1106,8 +1128,21 @@ function load_groupId_list_Handler(groupId_list){
     })
   }
 }
-function load_highilightElement_data_Handler(groupId, highlightElement_dataSet, note){
-
+function load_highilightElement_data_Handler(groupId, highlightElement_dataSet, note,color){
+    const parent_tag = highlightElement_dataSet.parentNode_tag;
+    const all_elements = document.querySelectorAll(parent_tag);
+    all_elements.forEach(element=>{
+      const element_hash = highlightElement_data_hash(element);
+      if (element_hash === highlightElement_dataSet.hash_parentNode){
+        const index_highlightElement = highlightElement_dataSet.index_highlightElement;
+        const highlightElement_length = highlightElement_dataSet.length;
+        if (element.innerText.includes(highlightElement_dataSet.highlightElement_text)){
+          const highlightSpan = createHighlightSpanWithColor(color,groupId,0);
+          
+        //TODO: make a highlightelement and insert it into the element
+        
+      }
+    })
 
 }
   /**
@@ -1118,4 +1153,6 @@ function getDefaultColor(){
   const storedColor = localStorage.getItem('html-note-default-color');
   return storedColor || '#ffeb3b';
 
+}
+function make_highlightElement(element,color){
 }
