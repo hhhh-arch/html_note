@@ -1141,7 +1141,7 @@ function load_highilightElement_data_Handler(groupId, highlightElement_dataSet, 
       console.log(`[debug] all_elements is empty for parent_tag: ${parent_tag}`);
       return;
     }
-    all_elements.forEach(element=>{
+    for (const element of all_elements) {
       const element_hash = highlightElement_data_hash(element);
       console.log(`[debug] element_hash: ${element_hash}`);
       if (element_hash === highlightElement_dataSet.hash_parentNode){
@@ -1155,6 +1155,9 @@ function load_highilightElement_data_Handler(groupId, highlightElement_dataSet, 
         }
         if (target_node.textContent.substring(index_highlightElement,index_highlightElement+highlightElement_length+1).includes(target_text)){
           insert_highlightElement(element,target_text,index_highlightElement,highlightElement_length,color,groupId,target_node);
+          
+          return;
+
         }
         else{
           console.log(`[debug] target text :${target_text}`)
@@ -1165,7 +1168,7 @@ function load_highilightElement_data_Handler(groupId, highlightElement_dataSet, 
       else{
         console.log(`[debug] element_hash is not equal to highlightElement_dataSet.hash_parentNode: ${element_hash} !== ${highlightElement_dataSet.hash_parentNode}`);
       }
-    })
+    }
 
 }
   /**
