@@ -786,6 +786,8 @@ class HTMLNoteHighlighter {
       document.removeEventListener('mousedown', this._toolbarCloseHandler);
       this._toolbarCloseHandler = null;
     }
+    //remove_highlightElementStorage(highlightElement,window.location.href);
+    remove_all_highlightElementStorage(window.location.href);
   }
 
   normalizeTextNodes(element) {
@@ -1140,6 +1142,7 @@ function load_highilightElement_data_Structure(groupId){
 function load_groupId_list_Handler(groupId_list){
  
   if (groupId_list){
+    console.log(`[debug] groupId_list: ${groupId_list}`);
     groupId_list.forEach(groupId=>{
       load_highilightElement_data_Structure(groupId);
     })
@@ -1168,6 +1171,7 @@ function searchAndInsertHighlightElement(groupId, highlightElement_dataSet, note
             console.log(`[debug] target_node is text node: ${target_node.textContent}`);
           }
           else{
+            console.log(`target_text: ${target_text}`);
             console.error(`[debug] target_node is not text node: ${element.outerHTML}`);
             return;
 
@@ -1242,3 +1246,49 @@ function insert_highlightElement(target_text,index_highlightElement,highlightEle
   element.removeChild(target_node);
 
 }
+function remove_highlightElementStorage(highlightElement,pageUrl){
+  const groupId = highlightElement.getAttribute('data-group-id');
+
+  chrome.storage.local.remove(groupId, function(result){
+    if (result){
+      remove_groupIdFromListStorage(pageUrl,groupId);
+    }
+  })
+}
+function remove_groupIdFromListStorage(pageUrl,groupId){
+  chrome.storage.local.get(pageUrl, function(result){
+    if (result){
+      const groupId_list = result[pageUrl];
+      if (groupId_list){
+        if (groupId_list.includes(groupId)){
+          groupId_list.splice(groupId_list.indexOf(groupId),1);
+          chrome.storage.local.set({
+            [pageUrl]: groupId_list
+          })
+        }
+      }
+    }
+  })
+}
+function remove_all_highlightElementStorage(pageUrl){
+  chrome.storage.local.get(pageUrl, function(result){
+    if (result){
+      const groupId_list = result[pageUrl];
+      if (groupId_list){
+        groupId_list.forEach(groupId=>{
+          chrome.storage.local.remove(groupId, function(result){
+            if (result){
+              console.log(`[debug] remove_all_highlightElementStorage: ${result}`);
+            }
+          })
+        })
+      }
+    }
+  })
+  chrome.storage.local.remove(pageUrl, function(result){
+    if (result){
+      console.log(`[debug] remove_all_highlightElementStorage: ${result}`);
+    }
+  })
+}
+
