@@ -1168,14 +1168,14 @@ function searchAndInsertHighlightElement(groupId, highlightElement_dataSet, note
             console.log(`[debug] target_node is text node: ${target_node.textContent}`);
           }
           else{
-            console.error(`[debug] target_node is not text node: ${target_node.textContent}`);
+            console.error(`[debug] target_node is not text node: ${element.outerHTML}`);
             return;
 
           }
         }
         if (target_node.textContent.substring(index_highlightElement,index_highlightElement+highlightElement_length+1).includes(target_text)){
           console.log(`[debug] target_node.textContent: ${target_node.textContent}`);
-          insert_highlightElement(element,target_text,index_highlightElement,highlightElement_length,color,groupId,target_node);
+          insert_highlightElement(target_text,index_highlightElement,highlightElement_length,color,groupId,target_node);
           
           return;
         }
@@ -1204,26 +1204,30 @@ function getDefaultColor(){
 function make_highlightElement(element,color){
 }
 function find_textNode(element,text){
+  if (!element){
+    return null;
+  }
+  if (element.nodeType === Node.TEXT_NODE){
+    if (element.textContent.includes(text)){
+      return element;
+    }
+  }
   const nodes = Array.from(element.childNodes);
   if (nodes.length === 0){
     return null;
   }
-  for (const node of nodes) {
-
-    if (node.nodeType === Node.TEXT_NODE){
-
-      if (node.textContent.includes(text)){
-        
-        return node;
-      }
+  for (const node of nodes){
+    const found_node = find_textNode(node,text);
+    if (found_node){
+      return found_node;
     }
-    find_textNode(node,text);
   }
   return null;
 }
-function insert_highlightElement(element,target_text,index_highlightElement,highlightElement_length,color,groupId,target_node){
+function insert_highlightElement(target_text,index_highlightElement,highlightElement_length,color,groupId,target_node){
   const highlightSpan = createHighlightSpanWithColor(color,groupId,0);
   highlightSpan.textContent = target_text;
+  const element = target_node.parentNode;
   if (index_highlightElement > 0){// there is before text
     const before_text = target_node.textContent.substring(0,index_highlightElement);
     const before_node = document.createTextNode(before_text);
