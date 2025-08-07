@@ -994,14 +994,14 @@ function storageHighlight(highlightElement,pageUrl){
   const previous_groupId_list = chrome.storage.local.get(pageUrl);
   chrome.storage.local.get(pageUrl, function(result){
     let groupId_list = result[pageUrl];
-    if (groupId_list.length > 0){
-      console.log(`[debug] groupId_list in storage highlightElement: ${groupId_list}`);
-      groupId_list = update_groupId_list(groupId_list, groupId);
-    }
-    else{
+    if (!groupId_list){
       groupId_list = [groupId];
       console.log(`[debug] can not group id list : ${groupId_list}`);
     }
+    else{
+      groupId_list = update_groupId_list(groupId_list, groupId);
+    }
+
     chrome.storage.local.set({
       [groupId]: highlightElement_data,
       [pageUrl]: groupId_list
@@ -1160,10 +1160,18 @@ function searchAndInsertHighlightElement(groupId, highlightElement_dataSet, note
         const index_highlightElement = highlightElement_dataSet.index_highlightElement;
         const highlightElement_length = highlightElement_dataSet.length;
         const target_text = highlightElement_dataSet.highlightElement_text;
+        console.log(`[debug] element.outerHTML: ${element.outerHTML}`);
         const target_node = find_textNode(element,target_text);
         if (target_node===null){
-          console.error(`[debug] target_node is null for target_text: ${target_text}`);
-          return;
+          if (element.nodeType === Node.TEXT_NODE){
+            target_node = element;
+            console.log(`[debug] target_node is text node: ${target_node.textContent}`);
+          }
+          else{
+            console.error(`[debug] target_node is not text node: ${target_node.textContent}`);
+            return;
+
+          }
         }
         if (target_node.textContent.substring(index_highlightElement,index_highlightElement+highlightElement_length+1).includes(target_text)){
           console.log(`[debug] target_node.textContent: ${target_node.textContent}`);
@@ -1197,7 +1205,9 @@ function make_highlightElement(element,color){
 }
 function find_textNode(element,text){
   const nodes = Array.from(element.childNodes);
-
+  if (nodes.length === 0){
+    return null;
+  }
   for (const node of nodes) {
 
     if (node.nodeType === Node.TEXT_NODE){
@@ -1207,6 +1217,7 @@ function find_textNode(element,text){
         return node;
       }
     }
+    find_textNode(node,text);
   }
   return null;
 }
