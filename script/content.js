@@ -991,34 +991,38 @@ function storageHighlight(highlightElement,pageUrl){
     console.log(`highlightElement_dataStructure is null for highlightElement: ${highlightElement}`);
     return;
   }
-  let groupId_list;
   const previous_groupId_list = chrome.storage.local.get(pageUrl);
+  chrome.storage.local.get(pageUrl, function(result){
+    let groupId_list = result[pageUrl];
+    if (groupId_list.length > 0){
+      console.log(`[debug] groupId_list in storage highlightElement: ${groupId_list}`);
+      groupId_list = update_groupId_list(groupId_list, groupId);
+    }
+    else{
+      groupId_list = [groupId];
+      console.log(`[debug] can not group id list : ${groupId_list}`);
+    }
+    chrome.storage.local.set({
+      [groupId]: highlightElement_data,
+      [pageUrl]: groupId_list
+   
+  
+  
+    })
+  })
   // if previous
   // if (previous_groupId_list){
   //   // console.log(`previous_groupId_list: ${previous_groupId_list}`);
   //   groupId_list = update_groupId_list(previous_groupId_list, groupId);
   // }
   // else{
-    groupId_list = update_groupId_list([], groupId);
+
   
-  if (!groupId_list){
-    console.log(`new_groupId_list is null for pageUrl: ${pageUrl}`);    
-    return;
-  }
-  const color = highlightElement.getAttribute('data-color');
-  if (!color){
-    color = getDefaultColor();
-  }
+
 
 
     // store the highlight element for this page and groupId
-  chrome.storage.local.set({
-    [groupId]: highlightElement_data,
-    [pageUrl]: groupId_list
- 
 
-
-  })
 
 }
 function highlightElement_data_hash(element){
@@ -1067,14 +1071,17 @@ function highlightElement_dataStructure(highlightElement){
       return null;
     }
     const note = highlightElements[0].getAttribute('data-note');
-
-    highlightElements_group.push(highlightElement_data(highlightElement));
+    highlightElements.forEach(highlightElement=>{
+      highlightElements_group.push(highlightElement_data(highlightElement));
+    })
     console.log(`[debug] type of highlightElements_group: ${Array.isArray(highlightElements_group)}`);
     console.log(`[debug] highlightElements_group: ${highlightElements_group}`);
+    const color = highlightElements[0].getAttribute('data-color')||getDefaultColor();
     return {
       groupId: groupId,
       highlightElements: highlightElements_group,
       note: note,
+      color: color,
     }
 
   }
@@ -1093,7 +1100,10 @@ function update_groupId_list(groupId_list, groupId){
   if (groupId_list.includes(groupId)){
     return groupId_list;
   }
-  groupId_list.push(groupId);
+  else{
+    groupId_list.push(groupId);
+  }
+  
   return groupId_list;
 
 }
@@ -1115,13 +1125,15 @@ function load_groupId_list(pageUrl){
 function load_highilightElement_data_Structure(groupId){
   console.log(`load_highlightElement_data_Structure:`);
   chrome.storage.local.get(groupId, function(result){
-    
-    console.log(`result groupId: ${result[groupId].groupId}`);
-    console.log(`result groupId type: ${typeof result[groupId].groupId}`);
-    console.log(`result highlightElements: ${result[groupId].highlightElements}`);
-    console.log(`result highlightElements type: ${Array.isArray(result[groupId].highlightElements)}`);
-    console.log(`result note: ${result[groupId].note}`);
-    load_highilightElement_data_Handler(groupId, result[groupId].highlightElements[0], result[groupId].note,result[groupId].color);
+    //const next_priority_parentNode =searchAndInsertHighlightElement(groupId, result[groupId].highlightElements[0], result[groupId].note,result[groupId].color,null); 
+    // for (i = 1; i < result[groupId].highlightElements.length; i++) {
+    //   searchAndInsertHighlightElement(groupId, result[groupId].highlightElements[i], result[groupId].note,result[groupId].color,null);
+    // }
+    console.log(`[debug] length of result[groupId].highlightElements: ${result[groupId].highlightElements.length}`);
+    result[groupId].highlightElements.forEach(highlightElement_dataSet=>{
+      console.log(`[debug] highlightElement_dataSet: ${highlightElement_dataSet}`);
+      searchAndInsertHighlightElement(groupId, highlightElement_dataSet, result[groupId].note,result[groupId].color,null);
+    })
 
   })
 }
@@ -1133,7 +1145,7 @@ function load_groupId_list_Handler(groupId_list){
     })
   }
 }
-function load_highilightElement_data_Handler(groupId, highlightElement_dataSet, note,color){
+function searchAndInsertHighlightElement(groupId, highlightElement_dataSet, note,color,next_priority_parentNode){
     console.log(`[debug] load_highilightElement_data_Handler: ${highlightElement_dataSet}`);
     const parent_tag = highlightElement_dataSet.parentNode_tag;
     const all_elements = document.querySelectorAll(parent_tag);
@@ -1154,10 +1166,10 @@ function load_highilightElement_data_Handler(groupId, highlightElement_dataSet, 
           return;
         }
         if (target_node.textContent.substring(index_highlightElement,index_highlightElement+highlightElement_length+1).includes(target_text)){
+          console.log(`[debug] target_node.textContent: ${target_node.textContent}`);
           insert_highlightElement(element,target_text,index_highlightElement,highlightElement_length,color,groupId,target_node);
           
           return;
-
         }
         else{
           console.log(`[debug] target text :${target_text}`)
@@ -1167,6 +1179,7 @@ function load_highilightElement_data_Handler(groupId, highlightElement_dataSet, 
       }
       else{
         console.log(`[debug] element_hash is not equal to highlightElement_dataSet.hash_parentNode: ${element_hash} !== ${highlightElement_dataSet.hash_parentNode}`);
+        //console.log(`[debug] element.innerHTML: ${element.innerHTML}`);
       }
     }
 
