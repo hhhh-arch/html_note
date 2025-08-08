@@ -1176,11 +1176,11 @@ function searchAndInsertHighlightElement(groupId, highlightElement_dataSet, note
             
             return;
           }
-          console.log(`[debug] target_text: ${target_text}`);
-          console.log(`[debug] element.innerText: ${element.innerText}`);
-          console.log(`[debug] element.innerHTML: ${element.innerHTML}`);
+          else{
+            console.log(`[debug] fragment element `)
+            loop_textNode(target_text,target_node,element,index_highlightElement,highlightElement_length,groupId,color);
+          }
 
-          find_target_text_in_node(target_text,element,index_highlightElement,highlightElement_length);
         }
         else{
           console.log(`[debug] target text :${target_text}`)
@@ -1259,7 +1259,7 @@ function remove_highlightElementStorage(highlightElement,pageUrl){
       remove_groupIdFromListStorage(pageUrl,groupId);
     }
   })
-}
+}find_target_text_in_node
 function remove_groupIdFromListStorage(pageUrl,groupId){
   chrome.storage.local.get(pageUrl, function(result){
     if (result){
@@ -1362,3 +1362,34 @@ function parse_fragement_element(node, index_highlightElement,highlightElement_l
   count += node.textContent.length;
   return count;
 }
+function loop_textNode(target_text,target_node,element,index_highlightElement,highlightElement_length,groupId,color){
+  const nodes = Array.from(element.childNodes);
+  for (let node of nodes){
+    if (node.nodeType === Node.ELEMENT_NODE){
+      node = find_textNode(node,target_text);
+    }
+    if (node.nodeType === Node.TEXT_NODE){
+      if (node.textContent.includes(target_text)){
+        insert_highlightElement_fragement(target_text,node,element,index_highlightElement,highlightElement_length,groupId,color)
+        break;
+      }
+    }
+    
+  }
+}
+function insert_highlightElement_fragement(target_text,target_node,element,index_highlightElement,highlightElement_length,groupId,color){
+  const highlightSpan = createHighlightSpanWithColor(color,groupId,0);
+  console.log(`[debug] insert_highlightElement_fragement: ${target_text}`);
+  console.log(`[debug] target_node.textContent in insert_highlightElement_fragement: ${target_node.textContent}`);
+  console.log(`[debug] element.innerText in insert_highlightElement_fragement: ${element.innerText}`);
+  console.log(`[debug] index_highlightElement in insert_highlightElement_fragement: ${index_highlightElement}`);
+  console.log(`[debug] highlightElement_length in insert_highlightElement_fragement: ${highlightElement_length}`);
+  const element_innerText = element.innerText;
+  if (element_innerText.substring(index_highlightElement,index_highlightElement+highlightElement_length).includes(target_node.textContent)){
+    highlightSpan.textContent = target_node.textContent;
+    element.insertBefore(highlightSpan,target_node.nextSibling);
+    element.removeChild(target_node);
+    return;
+  }
+}
+
