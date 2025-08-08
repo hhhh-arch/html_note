@@ -993,7 +993,7 @@ function storageHighlight(highlightElement,pageUrl){
     console.log(`highlightElement_dataStructure is null for highlightElement: ${highlightElement}`);
     return;
   }
-  const previous_groupId_list = chrome.storage.local.get(pageUrl);
+ 
   chrome.storage.local.get(pageUrl, function(result){
     let groupId_list = result[pageUrl];
     if (!groupId_list){
@@ -1158,7 +1158,7 @@ function searchAndInsertHighlightElement(groupId, highlightElement_dataSet, note
     }
     for (const element of all_elements) {
       const element_hash = highlightElement_data_hash(element);
-      console.log(`[debug] element_hash: ${element_hash}`);
+      //console.log(`[debug] element_hash: ${element_hash}`);
       if (element_hash === highlightElement_dataSet.hash_parentNode){
         const index_highlightElement = highlightElement_dataSet.index_highlightElement;
         const highlightElement_length = highlightElement_dataSet.length;
@@ -1166,22 +1166,21 @@ function searchAndInsertHighlightElement(groupId, highlightElement_dataSet, note
         console.log(`[debug] element.outerHTML: ${element.outerHTML}`);
         const target_node = find_textNode(element,target_text);
         if (target_node===null){
-          if (element.nodeType === Node.TEXT_NODE){
-            target_node = element;
-            console.log(`[debug] target_node is text node: ${target_node.textContent}`);
-          }
-          else{
-            console.log(`target_text: ${target_text}`);
-            console.error(`[debug] target_node is not text node: ${element.outerHTML}`);
-            return;
-
-          }
-        }
-        if (target_node.textContent.substring(index_highlightElement,index_highlightElement+highlightElement_length+1).includes(target_text)){
-          console.log(`[debug] target_node.textContent: ${target_node.textContent}`);
-          insert_highlightElement(target_text,index_highlightElement,highlightElement_length,color,groupId,target_node);
-          
+          console.error(`[debug] target_node is null`);
           return;
+        }
+        if (element.innerText.substring(index_highlightElement,index_highlightElement+highlightElement_length).includes(target_text)){
+          if (target_node.textContent.substring(index_highlightElement,index_highlightElement+highlightElement_length+1).includes(target_text)){
+            console.log(`[debug] target_node.textContent: ${target_node.textContent}`);
+            insert_highlightElement(target_text,index_highlightElement,highlightElement_length,color,groupId,target_node);
+            
+            return;
+          }
+          console.log(`[debug] target_text: ${target_text}`);
+          console.log(`[debug] element.innerText: ${element.innerText}`);
+          console.log(`[debug] element.innerHTML: ${element.innerHTML}`);
+
+          find_target_text_in_node(target_text,element,index_highlightElement,highlightElement_length);
         }
         else{
           console.log(`[debug] target text :${target_text}`)
@@ -1190,7 +1189,7 @@ function searchAndInsertHighlightElement(groupId, highlightElement_dataSet, note
         }
       }
       else{
-        console.log(`[debug] element_hash is not equal to highlightElement_dataSet.hash_parentNode: ${element_hash} !== ${highlightElement_dataSet.hash_parentNode}`);
+       
         //console.log(`[debug] element.innerHTML: ${element.innerHTML}`);
       }
     }
@@ -1212,9 +1211,7 @@ function find_textNode(element,text){
     return null;
   }
   if (element.nodeType === Node.TEXT_NODE){
-    if (element.textContent.includes(text)){
-      return element;
-    }
+    return element;
   }
   const nodes = Array.from(element.childNodes);
   if (nodes.length === 0){
@@ -1237,13 +1234,21 @@ function insert_highlightElement(target_text,index_highlightElement,highlightEle
     const before_node = document.createTextNode(before_text);
     element.insertBefore(before_node,target_node);
   }
+  highlightSpan.setAttribute('data-group-id',groupId);
   element.insertBefore(highlightSpan,target_node.nextSibling);
+  console.log(`index_highlightElement+highlightElement_length: ${index_highlightElement+highlightElement_length}`);
+  console.log(`target_node.textContent.length: ${target_node.textContent.length}`);
   if (index_highlightElement+highlightElement_length < target_node.textContent.length){// there is after text
     const after_text = target_node.textContent.substring(index_highlightElement+highlightElement_length);
     const after_node = document.createTextNode(after_text);
     element.insertBefore(after_node,highlightSpan.nextSibling);
+    console.log(`[debug] after_node: ${after_node.textContent}`);
   }
+  console.log(`[debug] element.removeChild(target_node): ${target_node.textContent}`);
+  
   element.removeChild(target_node);
+  console.log(`element.innerHTML: ${element.innerHTML}`);
+  
 
 }
 function remove_highlightElementStorage(highlightElement,pageUrl){
@@ -1291,4 +1296,69 @@ function remove_all_highlightElementStorage(pageUrl){
     }
   })
 }
-
+function find_target_text_in_node(target_text,target_node,element,index_highlightElement,highlightElement_length,groupId,color){
+  const highlightSpan = createHighlightSpanWithColor(color,groupId,0);
+  console.log(`target text in find_target_text_in_node: ${target_text}`);
+  console.log(`target_node.textContent in find_target_text_in_node: ${target_node.textContent}`);
+  console.log(`target_node.textContent.includes(target_text): ${target_node.textContent.includes(target_text)}`);
+  console.log(`target_node.textContent.length: ${target_node.textContent.length}`);
+  console.log(`target_text.length: ${target_text.length}`);
+  if (target_node.textContent.includes(target_text)&&target_node.textContent.length === target_text.length){
+    insert_highlightElement(target_text,index_highlightElement,highlightElement_length,color,groupId,target_node);
+    return;
+  }
+  else{
+    //find_target_node(target_text,element,index_highlightElement,highlightElement_length,groupId,color);
+  }
+  
+  return;
+}
+function find_target_node(target_text,element,index_highlightElement,highlightElement_length,groupId,color){
+  const nodes = Array.from(element.childNodes);
+  let count = 0;
+  for (const node of nodes){
+    if (node.nodeType === Node.TEXT_NODE){
+      count = parse_fragement_element(node, index_highlightElement,highlightElement_length,color,groupId,count);
+      
+      continue;
+    }
+    if (node.nodeType === Node.ELEMENT_NODE){
+      found_node = find_textNode(node,target_text);
+      if (found_node){
+        console.log(`index_highlightElement: ${index_highlightElement}`);
+        count = parse_fragement_element(found_node, index_highlightElement,highlightElement_length,color,groupId,count);
+        continue;
+      }
+    }
+    
+}}
+function parse_fragement_element(node, index_highlightElement,highlightElement_length,color,groupId,count){
+  console.log(`[debug] parse_fragement_element: ${node.textContent}`);
+  if (count+node.textContent.length > index_highlightElement){
+    let preNode_index = index_highlightElement-count;
+    if (preNode_index <0){
+      preNode_index = 0;
+    }
+    const pre_target_text = node.textContent.substring(preNode_index);
+    let pre_text_length = 0;
+    const target_element_end_index = index_highlightElement+highlightElement_length;
+    const current_node_end_index = count+pre_target_text.length;
+    console.log(`[debug] current_node_end_index: ${current_node_end_index}`);
+    console.log(`[debug] target_element_end_index: ${target_element_end_index}`);
+    console.log(`[debug] pre_target_text: ${pre_target_text.length}`);
+    console.log(`[debug] preNode_index: ${preNode_index}`);
+    console.log(`[debug] count: ${count}`);
+    console.log(`[debug] index_highlightElement: ${index_highlightElement}`);
+    if (current_node_end_index > target_element_end_index){
+      pre_text_length = target_element_end_index-count;
+      console.log(`[debug] pre_text_length: ${pre_text_length}`);
+    }
+    else{
+      pre_text_length = pre_target_text.length-preNode_index;
+    }
+    insert_highlightElement(pre_target_text,preNode_index,pre_text_length,color,groupId,node);
+    return count+pre_text_length;
+  }
+  count += node.textContent.length;
+  return count;
+}
