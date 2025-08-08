@@ -1180,6 +1180,7 @@ function searchAndInsertHighlightElement(groupId, highlightElement_dataSet, note
             return;
           }
           else{
+            console.log(`[debug] target text :${target_text}`)
             console.error(`[debug] target_node.textContent.substring(index_highlightElement,index_highlightElement+highlightElement_length) is not equal to target_text: ${target_text, element.innerText}`);
           }
 
@@ -1235,7 +1236,8 @@ function insert_highlightElement(target_text,index_highlightElement,highlightEle
     console.error(`[debug] element is null`);
     return;
   }
-  if (index_highlightElement > 0){// there is before text
+  console.log(`[debug] element.querySelectorAll('data-group-id').length: ${element.querySelectorAll('data-group-id').length}`);
+  if (index_highlightElement > 0 && element.querySelectorAll('data-group-id').length === 0){// there is before text
     const before_text = target_node.textContent.substring(0,index_highlightElement);
     const before_node = document.createTextNode(before_text);
     element.insertBefore(before_node,target_node);
@@ -1405,17 +1407,37 @@ function loop_textNode(target_text,target_node,element,index_highlightElement,hi
 
     
   // }
-  const string_content  = element.innerText;
-  const text_node = document.createTextNode(string_content);
-  for (const node of nodes){
-    element.removeChild(node);
+  const already_inserted_node = element.querySelectorAll('.html-note-highlight');
+  if (already_inserted_node.length > 0){
+    const nodes  = Array.from(element.childNodes);
+    for (const node of nodes){
+      if (node.tagName === 'SPAN'){
+        if (node.classList.contains('html-note-highlight')){
+          continue;
+        }
+      }
+      if (node.textContent.includes(target_text)){
+        insert_highlightElement(target_text,index_highlightElement,highlightElement_length,color,groupId,node);
+        return true;
+      }
+    }
   }
-  element.appendChild(text_node);
-  if (element.innerText.includes(target_text)){
-    insert_highlightElement(target_text,index_highlightElement,highlightElement_length,color,groupId,text_node);
-    return true;
+  else{
+    const string_content  = element.innerText;
+    const text_node = document.createTextNode(string_content);
+    for (const node of nodes){
+      element.removeChild(node);
+    }
+    element.appendChild(text_node);
+    if (element.innerText.includes(target_text)){
+      insert_highlightElement(target_text,index_highlightElement,highlightElement_length,color,groupId,text_node);
+      return true;
+    }
+    return false;
+
   }
-  return false;
+
+
 }
 function insert_highlightElement_fragement(target_text,target_node,element,index_highlightElement,highlightElement_length,groupId,color){
   const highlightSpan = createHighlightSpanWithColor(color,groupId,0);
