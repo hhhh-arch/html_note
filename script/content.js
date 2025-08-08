@@ -1176,9 +1176,11 @@ function searchAndInsertHighlightElement(groupId, highlightElement_dataSet, note
             
             return;
           }
+          else if (loop_textNode(target_text,target_node,element,index_highlightElement,highlightElement_length,groupId,color)){
+            return;
+          }
           else{
-            console.log(`[debug] fragment element `)
-            loop_textNode(target_text,target_node,element,index_highlightElement,highlightElement_length,groupId,color);
+            console.error(`[debug] target_node.textContent.substring(index_highlightElement,index_highlightElement+highlightElement_length) is not equal to target_text: ${target_text, element.innerText}`);
           }
 
         }
@@ -1229,16 +1231,20 @@ function insert_highlightElement(target_text,index_highlightElement,highlightEle
   const highlightSpan = createHighlightSpanWithColor(color,groupId,0);
   highlightSpan.textContent = target_text;
   const element = target_node.parentNode;
+  if (!element){
+    console.error(`[debug] element is null`);
+    return;
+  }
   if (index_highlightElement > 0){// there is before text
     const before_text = target_node.textContent.substring(0,index_highlightElement);
     const before_node = document.createTextNode(before_text);
     element.insertBefore(before_node,target_node);
   }
   highlightSpan.setAttribute('data-group-id',groupId);
-  element.insertBefore(highlightSpan,target_node.nextSibling);
+  element.insertBefore(highlightSpan,target_node);
   console.log(`index_highlightElement+highlightElement_length: ${index_highlightElement+highlightElement_length}`);
   console.log(`target_node.textContent.length: ${target_node.textContent.length}`);
-  if (index_highlightElement+highlightElement_length < target_node.textContent.length){// there is after text
+  if (index_highlightElement+highlightElement_length < element.innerText.indexOf(target_node.textContent)+target_node.textContent.length){// there is after text
     const after_text = target_node.textContent.substring(index_highlightElement+highlightElement_length);
     const after_node = document.createTextNode(after_text);
     element.insertBefore(after_node,highlightSpan.nextSibling);
@@ -1364,18 +1370,52 @@ function parse_fragement_element(node, index_highlightElement,highlightElement_l
 }
 function loop_textNode(target_text,target_node,element,index_highlightElement,highlightElement_length,groupId,color){
   const nodes = Array.from(element.childNodes);
-  for (let node of nodes){
-    if (node.nodeType === Node.ELEMENT_NODE){
-      node = find_textNode(node,target_text);
-    }
-    if (node.nodeType === Node.TEXT_NODE){
-      if (node.textContent.includes(target_text)){
-        insert_highlightElement_fragement(target_text,node,element,index_highlightElement,highlightElement_length,groupId,color)
-        break;
-      }
-    }
+  // console.log(`[debug] target_text in loop_textNode: ${target_text}`);
+  // console.log(`[debug] target_node.textContent in loop_textNode: ${target_node.textContent}`);
+  // console.log(`[debug] element.innerText in loop_textNode: ${element.innerText}`);
+  // console.log(`[debug] index_highlightElement in loop_textNode: ${index_highlightElement}`);
+  // console.log(`[debug] highlightElement_length in loop_textNode: ${highlightElement_length}`);
+  // let count = 0;
+  // for (let node of nodes){
+  //   if (node.nodeType === Node.ELEMENT_NODE){
+  //     node = find_textNode(node,target_text);
+  //   }
+  //   if (node.nodeType === Node.TEXT_NODE){
+  //     console.log(`[debug] node.textContent in loop_textNode: ${node.textContent}`);
+  //     if (node.textContent.includes(target_text)){
+  //       insert_highlightElement(target_text,index_highlightElement,highlightElement_length,color,groupId,node);
+  //       return true;
+  //     }
+  //     if (count+node.textContent.length > index_highlightElement){
+  //       if (node.textContent.includes(target_text)){
+  //       const pre_index = index_highlightElement-count;
+  //       if (pre_index < 0){
+  //         console.error(`[debug] pre_index is less than 0`);
+  //       }
+  //       if (pre_index+node.textContent.length <= highlightElement_length){
+  //         const length_text = node.textContent.length-pre_index;
+  //       }
+  //       insert_highlightElement(target_text,pre_index,length_text,color,groupId,node);
+  //       return true;
+  //     }
+  //   }
+  //   }
+
+  //   count += node.textContent.length;
+
     
+  // }
+  const string_content  = element.innerText;
+  const text_node = document.createTextNode(string_content);
+  for (const node of nodes){
+    element.removeChild(node);
   }
+  element.appendChild(text_node);
+  if (element.innerText.includes(target_text)){
+    insert_highlightElement(target_text,index_highlightElement,highlightElement_length,color,groupId,text_node);
+    return true;
+  }
+  return false;
 }
 function insert_highlightElement_fragement(target_text,target_node,element,index_highlightElement,highlightElement_length,groupId,color){
   const highlightSpan = createHighlightSpanWithColor(color,groupId,0);
@@ -1391,5 +1431,14 @@ function insert_highlightElement_fragement(target_text,target_node,element,index
     element.removeChild(target_node);
     return;
   }
+}
+function find_textNode_in_element(target_node){
+  if (target_node.nodeType === Node.ELEMENT_NODE){
+    return target_node;
+  }
+  else {
+    return find_textNode_in_element(target_node.parentNode);
+  }
+  
 }
 
