@@ -1164,26 +1164,42 @@ function searchAndInsertHighlightElement(groupId, highlightElement_dataSet, note
         const highlightElement_length = highlightElement_dataSet.length;
         const target_text = highlightElement_dataSet.highlightElement_text;
         console.log(`[debug] element.outerHTML: ${element.outerHTML}`);
-        const target_node = find_textNode(element,target_text);
-        if (target_node===null){
-          console.error(`[debug] target_node is null`);
-          return;
-        }
+        // const target_node = find_textNode(element,target_text);
+        // if (target_node===null){
+        //   console.error(`[debug] target_node is null`);
+        //   return;
+        // }
         if (element.innerText.substring(index_highlightElement,index_highlightElement+highlightElement_length).includes(target_text)){
-          if (target_node.textContent.substring(index_highlightElement,index_highlightElement+highlightElement_length+1).includes(target_text)){
-            console.log(`[debug] target_node.textContent: ${target_node.textContent}`);
-            insert_highlightElement(target_text,index_highlightElement,highlightElement_length,color,groupId,target_node);
-            
-            return;
+          for (const node of element.childNodes){
+            const target_node = find_textNode(node,target_text);
+            if (target_node===null){
+              console.error(`[debug] target_node is null`);
+              return;
+            }
+            if (target_node.textContent.includes(target_text)){
+              console.log(`[debug] target_node.textContent: ${target_node.textContent}`);
+              const index_target_text = target_node.textContent.indexOf(target_text);
+              insert_highlightElement(target_text,index_target_text,target_node.textContent.length-index_target_text,color,groupId,target_node);
+              console.log(`[debug] target_node.textContent: ${target_node.textContent}`);
+              return;
+            }
+            else{
+              continue;
           }
-          else if (loop_textNode(target_text,target_node,element,index_highlightElement,highlightElement_length,groupId,color)){
-            return;
-          }
-          else{
-            console.log(`[debug] target text :${target_text}`)
-            console.error(`[debug] target_node.textContent.substring(index_highlightElement,index_highlightElement+highlightElement_length) is not equal to target_text: ${target_text, element.innerText}`);
+          // else if (loop_textNode(target_text,target_node,element,index_highlightElement,highlightElement_length,groupId,color)){
+          //   return;
+          // }
           }
 
+          // const string_content = element.innerText;
+          // const text_node = document.createTextNode(string_content);
+          // for (const node of element.childNodes){
+          //   element.removeChild(node);
+          // }
+          // element.appendChild(text_node);
+          // console.log(`target_text in searchAndInsertHighlightElement: ${target_text}`);
+          // insert_highlightElement(target_text,index_highlightElement,highlightElement_length,color,groupId,text_node);
+          // return;
         }
         else{
           console.log(`[debug] target text :${target_text}`)
