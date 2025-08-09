@@ -1260,10 +1260,12 @@ function insert_highlightElement(target_text,index_highlightElement,highlightEle
   }
   highlightSpan.setAttribute('data-group-id',groupId);
   element.insertBefore(highlightSpan,target_node);
-  console.log(`index_highlightElement+highlightElement_length: ${index_highlightElement+highlightElement_length}`);
-  console.log(`target_node.textContent.length: ${target_node.textContent.length}`);
-  if (index_highlightElement+highlightElement_length < element.innerText.indexOf(target_node.textContent)+target_node.textContent.length){// there is after text
-    const after_text = target_node.textContent.substring(index_highlightElement+highlightElement_length);
+  console.log(`index_highlightElement+highlightElement_length: ${element.innerText.indexOf(target_node.textContent)+target_node.textContent.length}`);
+  console.log(`target_node.textContent.length: ${element.innerText.length}`);
+  console.log(`targetNode.textContent: ${target_node.textContent}`);
+  console.log(`element.innerText: ${element.innerText}`);
+  if (element.innerText.indexOf(target_node.textContent)+highlightElement_length < element.innerText.length){// there is after text
+    const after_text = element.innerText.substring(element.innerText.indexOf(target_node.textContent)+highlightElement_length);
     const after_node = document.createTextNode(after_text);
     element.insertBefore(after_node,highlightSpan.nextSibling);
     console.log(`[debug] after_node: ${after_node.textContent}`);
