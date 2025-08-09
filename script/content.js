@@ -1264,8 +1264,14 @@ function insert_highlightElement(target_text,index_highlightElement,highlightEle
   console.log(`target_node.textContent.length: ${element.innerText.length}`);
   console.log(`targetNode.textContent: ${target_node.textContent}`);
   console.log(`element.innerText: ${element.innerText}`);
-  if (element.innerText.indexOf(target_node.textContent)+highlightElement_length < element.innerText.length){// there is after text
-    const after_text = element.innerText.substring(element.innerText.indexOf(target_node.textContent)+highlightElement_length);
+  // if (element.innerText.indexOf(target_node.textContent)+highlightElement_length < element.innerText.length){// there is after text
+  //   const after_text = element.innerText.substring(element.innerText.indexOf(target_node.textContent)+highlightElement_length);
+  //   const after_node = document.createTextNode(after_text);
+  //   element.insertBefore(after_node,highlightSpan.nextSibling);
+  //   console.log(`[debug] after_node: ${after_node.textContent}`);
+  // }
+  if (target_node.textContent.indexOf(target_text)+target_text.length < target_node.textContent.length){
+    const after_text = target_node.textContent.substring(target_node.textContent.indexOf(target_text)+target_text.length);
     const after_node = document.createTextNode(after_text);
     element.insertBefore(after_node,highlightSpan.nextSibling);
     console.log(`[debug] after_node: ${after_node.textContent}`);
