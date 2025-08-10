@@ -1164,6 +1164,7 @@ function searchAndInsertHighlightElement(groupId, highlightElement_dataSet, note
         const highlightElement_length = highlightElement_dataSet.length;
         const target_text = highlightElement_dataSet.highlightElement_text;
         console.log(`[debug] element.outerHTML: ${element.outerHTML}`);
+        console.log(`[debug] target_text: ${target_text}`);
         // const target_node = find_textNode(element,target_text);
         // if (target_node===null){
         //   console.error(`[debug] target_node is null`);
@@ -1191,15 +1192,16 @@ function searchAndInsertHighlightElement(groupId, highlightElement_dataSet, note
           // }
           }
 
-          // const string_content = element.innerText;
-          // const text_node = document.createTextNode(string_content);
-          // for (const node of element.childNodes){
-          //   element.removeChild(node);
-          // }
-          // element.appendChild(text_node);
-          // console.log(`target_text in searchAndInsertHighlightElement: ${target_text}`);
-          // insert_highlightElement(target_text,index_highlightElement,highlightElement_length,color,groupId,text_node);
-          // return;
+          const string_content = element.innerText;
+          const text_node = document.createTextNode(string_content);
+          for (const node of element.childNodes){
+            element.removeChild(node);
+          }
+          element.innerHTML = '';
+          element.appendChild(text_node);
+          console.log(`target_text in searchAndInsertHighlightElement: ${target_text}`);
+          insert_highlightElement(target_text,text_node.textContent.indexOf(target_text),target_text.length,color,groupId,text_node);
+          return;
         }
         else{
           console.log(`[debug] target text :${target_text}`)
@@ -1208,7 +1210,7 @@ function searchAndInsertHighlightElement(groupId, highlightElement_dataSet, note
         }
       }
       else{
-       
+        // TODO: missing case 
         //console.log(`[debug] element.innerHTML: ${element.innerHTML}`);
       }
     }
@@ -1256,14 +1258,15 @@ function insert_highlightElement(target_text,index_highlightElement,highlightEle
   if (index_highlightElement > 0 && element.querySelectorAll('data-group-id').length === 0){// there is before text
     const before_text = target_node.textContent.substring(0,index_highlightElement);
     const before_node = document.createTextNode(before_text);
+    // console.log(`[debug] before_node: ${before_node.textContent}`);
     element.insertBefore(before_node,target_node);
   }
   highlightSpan.setAttribute('data-group-id',groupId);
   element.insertBefore(highlightSpan,target_node);
-  console.log(`index_highlightElement+highlightElement_length: ${element.innerText.indexOf(target_node.textContent)+target_node.textContent.length}`);
-  console.log(`target_node.textContent.length: ${element.innerText.length}`);
-  console.log(`targetNode.textContent: ${target_node.textContent}`);
-  console.log(`element.innerText: ${element.innerText}`);
+  // console.log(`index_highlightElement+highlightElement_length: ${element.innerText.indexOf(target_node.textContent)+target_node.textContent.length}`);
+  // console.log(`target_node.textContent.length: ${element.innerText.length}`);
+  // console.log(`targetNode.textContent: ${target_node.textContent}`);
+  // console.log(`element.innerText: ${element.innerText}`);
   // if (element.innerText.indexOf(target_node.textContent)+highlightElement_length < element.innerText.length){// there is after text
   //   const after_text = element.innerText.substring(element.innerText.indexOf(target_node.textContent)+highlightElement_length);
   //   const after_node = document.createTextNode(after_text);
@@ -1274,12 +1277,12 @@ function insert_highlightElement(target_text,index_highlightElement,highlightEle
     const after_text = target_node.textContent.substring(target_node.textContent.indexOf(target_text)+target_text.length);
     const after_node = document.createTextNode(after_text);
     element.insertBefore(after_node,highlightSpan.nextSibling);
-    console.log(`[debug] after_node: ${after_node.textContent}`);
+    // console.log(`[debug] after_node: ${after_node.textContent}`);
   }
-  console.log(`[debug] element.removeChild(target_node): ${target_node.textContent}`);
+  // console.log(`[debug] element.removeChild(target_node): ${target_node.textContent}`);
   
   element.removeChild(target_node);
-  console.log(`element.innerHTML: ${element.innerHTML}`);
+  // console.log(`element.innerHTML: ${element.innerHTML}`);
   
 
 }
