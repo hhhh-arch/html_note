@@ -16,6 +16,7 @@ class HTMLNoteHighlighter {
     // 创建工具栏
     //this.createToolbar();
     load_groupId_list(window.location.href);
+    show_loose_highlightElement(window.location.href);
   }
 
 
@@ -1114,7 +1115,7 @@ function load_groupId_list(pageUrl){
     const groupId_list = result[pageUrl];
     if (groupId_list){
       console.log(`load_groupId_list: ${groupId_list}`);
-      load_groupId_list_Handler(groupId_list);
+      load_groupId_list_Handler(groupId_list,pageUrl);
       
     }
     else{
@@ -1124,29 +1125,37 @@ function load_groupId_list(pageUrl){
   })
   
 }
-function load_highilightElement_data_Structure(groupId){
+function load_highilightElement_data_Structure(groupId,pageUrl){
   console.log(`load_highlightElement_data_Structure:`);
   chrome.storage.local.get(groupId, function(result){
     //const next_priority_parentNode =searchAndInsertHighlightElement(groupId, result[groupId].highlightElements[0], result[groupId].note,result[groupId].color,null); 
     // for (i = 1; i < result[groupId].highlightElements.length; i++) {
     //   searchAndInsertHighlightElement(groupId, result[groupId].highlightElements[i], result[groupId].note,result[groupId].color,null);
     // }
+
+
     console.log(`[debug] length of result[groupId].highlightElements: ${result[groupId].highlightElements.length}`);
-    result[groupId].highlightElements.forEach(highlightElement_dataSet=>{
+    for (const highlightElement_dataSet of result[groupId].highlightElements){
       console.log(`[debug] highlightElement_dataSet: ${highlightElement_dataSet}`);
-      searchAndInsertHighlightElement(groupId, highlightElement_dataSet, result[groupId].note,result[groupId].color,null);
-    })
+      const loose_flag = searchAndInsertHighlightElement(groupId, highlightElement_dataSet, result[groupId].note,result[groupId].color,null);
+      if (!loose_flag){
+        console.log(`[debug] storage_loose_highlightElement: ${loose_flag}`);
+        storage_loose_highlightElement(pageUrl, 1);
+        break;
+      }
+    }
 
   })
 }
-function load_groupId_list_Handler(groupId_list){
+function load_groupId_list_Handler(groupId_list,pageUrl){
  
   if (groupId_list){
     console.log(`[debug] groupId_list: ${groupId_list}`);
     groupId_list.forEach(groupId=>{
-      load_highilightElement_data_Structure(groupId);
+      load_highilightElement_data_Structure(groupId,pageUrl);
     })
   }
+  show_loose_highlightElement(pageUrl);
 }
 function searchAndInsertHighlightElement(groupId, highlightElement_dataSet, note,color,next_priority_parentNode){
     console.log(`[debug] load_highilightElement_data_Handler: ${highlightElement_dataSet}`);
@@ -1154,7 +1163,7 @@ function searchAndInsertHighlightElement(groupId, highlightElement_dataSet, note
     const all_elements = document.querySelectorAll(parent_tag);
     if (all_elements.length === 0){
       console.log(`[debug] all_elements is empty for parent_tag: ${parent_tag}`);
-      return;
+      return false;
     }
     for (const element of all_elements) {
       const element_hash = highlightElement_data_hash(element);
@@ -1175,14 +1184,14 @@ function searchAndInsertHighlightElement(groupId, highlightElement_dataSet, note
             const target_node = find_textNode(node,target_text);
             if (target_node===null){
               console.error(`[debug] target_node is null`);
-              return;
+              return false;
             }
             if (target_node.textContent.includes(target_text)){
               console.log(`[debug] target_node.textContent: ${target_node.textContent}`);
               const index_target_text = target_node.textContent.indexOf(target_text);
               insert_highlightElement(target_text,index_target_text,target_node.textContent.length-index_target_text,color,groupId,target_node);
               console.log(`[debug] target_node.textContent: ${target_node.textContent}`);
-              return;
+              return true;
             }
             else{
               continue;
@@ -1201,12 +1210,12 @@ function searchAndInsertHighlightElement(groupId, highlightElement_dataSet, note
           element.appendChild(text_node);
           console.log(`target_text in searchAndInsertHighlightElement: ${target_text}`);
           insert_highlightElement(target_text,text_node.textContent.indexOf(target_text),target_text.length,color,groupId,text_node);
-          return;
+          return true;
         }
         else{
           console.log(`[debug] target text :${target_text}`)
           console.error(`[debug] target_node.textContent.substring(index_highlightElement,index_highlightElement+highlightElement_length) is not equal to target_text: ${target_node.textContent.substring(index_highlightElement,index_highlightElement+highlightElement_length)}`);
-        
+          return false;
         }
       }
       else{
@@ -1490,4 +1499,34 @@ function find_textNode_in_element(target_node){
   }
   
 }
+function storage_loose_highlightElement(pageUrl, loose_amount){
+  const string_loose_key =  'loose_highlightElement'+pageUrl;
+  chrome.storage.local.get(string_loose_key, function(result){
+    if (result){
+      const current_loose_amount = result[string_loose_key]+loose_amount;
+      chrome.storage.local.set({
+        [string_loose_key]: current_loose_amount
+      })
+    }
+    else{// if there is no loose key
+      chrome.storage.local.set({
+        [string_loose_key]: 0
+      })
+    }
 
+    
+  })
+}
+function show_loose_highlightElement(pageUrl){
+  const string_loose_key =  'loose_highlightElement'+pageUrl;
+  chrome.storage.local.get(string_loose_key, function(result){
+    if (result){
+     if (result[string_loose_key] > 0){
+      console.log(`[debug] show_loose_highlightElement: ${result[string_loose_key]}`);
+      window.showNotification(`[debug] show_loose_highlightElement: ${result[string_loose_key]}`);
+     }
+
+    }
+  })
+
+}
