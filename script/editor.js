@@ -318,7 +318,7 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
         return; // 如果焦点转移到了tag输入框，不关闭编辑器
       }
 
-      const note = textArea.innerHTML;
+      const note = document.querySelectorAll('.html-note-highlight[data-group-id="' + groupId + '"]')[0].querySelector('.markdown-temp').getAttribute('mardown-data');
       //console.log("note",note);
       const tagsValue = tags.value.trim();
       
@@ -329,17 +329,15 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
       }
       
       if (groupId) {
-        if (note != ''||currentNote!='') {
+        if (note.length > 0) {
+          console.log(`[debug] note in onblur: ${note}`);
           document.querySelectorAll('.html-note-highlight[data-group-id="' + groupId + '"]').forEach(span => {
-            span.setAttribute('data-note', loadAllMarkdown(textArea));
+            const notes = loadAllMarkdown(textArea);
+            console.log(`[debug] notes in onblur: ${notes}`);
+            span.setAttribute('data-note', notes);
             //span.title = note ;
           });
 
-        }
-      } else {
-        if (note != ''||currentNote!='') {
-          highlightElement.setAttribute('data-note', loadAllMarkdown(textArea));
-          //highlightElement.title = note ;
         }
       }
       
@@ -486,7 +484,7 @@ function saveNotesContent(textArea,tags,groupId,currentPageUrl,currentNote){
     }
 
     const note = loadAllMarkdown(textArea);
-    //console.log("note",note);
+    console.log(`[debug] note in saveNotesContent: ${note}`);
     const tagsValue = tags.value.trim();
     
     // 保存tags到本地存储

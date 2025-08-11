@@ -263,6 +263,11 @@ function monitorKeyDown(temp,textArea){
 }
 function loadAllMarkdown(textArea){
     console.log("[debug] loadAllMarkdown");
+    const all_editing_containers = textArea.querySelectorAll(".note-editor-textarea-div");
+    all_editing_containers.forEach((container) => {
+        container.classList.add('markdown-temp');
+        container.setAttribute('mardown-data',container.innerText);
+    });
     const allTemps = textArea.querySelectorAll(".markdown-temp");
     let markdown = "";
     console.log("loadAllMarkdown")
