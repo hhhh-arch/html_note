@@ -499,6 +499,7 @@ function saveNotesContent(textArea,tags,groupId,currentPageUrl,currentNote){
       if (note != ""||currentNote!='') {
         document.querySelectorAll('.html-note-highlight[data-group-id="' + groupId + '"]').forEach(span => {
           span.setAttribute('data-note', note);
+          update_storage_note(groupId,note);
           //span.title = note ;
         });
 
@@ -506,6 +507,7 @@ function saveNotesContent(textArea,tags,groupId,currentPageUrl,currentNote){
     } else {
       if (note != ""||currentNote!='') {
         highlightElement.setAttribute('data-note', note);
+        update_storage_note(groupId,note);
         //highlightElement.title = note ;
       }
     }
@@ -526,4 +528,15 @@ function removeListener(textArea){
     child.removeEventListener("click", (e) => {});
   });
 
+}
+function update_storage_note(groupId,note){
+  console.log(`[debug] update_storage_note: ${note}`);
+  chrome.storage.local.get(groupId, function(result){
+    if (result){
+      result[groupId].note = note;
+      chrome.storage.local.set({
+        [groupId]: result[groupId]
+      })
+    }
+  })
 }

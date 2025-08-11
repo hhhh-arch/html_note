@@ -583,6 +583,8 @@ class HTMLNoteHighlighter {
         toolbar.remove();
         // 同时移除编辑器
         document.querySelectorAll('.note-editor').forEach(el => el.remove());
+        console.log(`[debug] fuck u ')}`);
+       
         // 移除颜色选择器
         document.querySelectorAll('.color-picker-float').forEach(el => el.remove());
         // 移除事件监听器
@@ -1188,7 +1190,7 @@ function searchAndInsertHighlightElement(groupId, highlightElement_dataSet, note
             if (target_node.textContent.includes(target_text)){
               console.log(`[debug] target_node.textContent: ${target_node.textContent}`);
               const index_target_text = target_node.textContent.indexOf(target_text);
-              insert_highlightElement(target_text,index_target_text,target_node.textContent.length-index_target_text,color,groupId,target_node);
+              insert_highlightElement(target_text,index_target_text,target_node.textContent.length-index_target_text,color,groupId,target_node,note);
               console.log(`[debug] target_node.textContent: ${target_node.textContent}`);
               return true;
             }
@@ -1208,7 +1210,7 @@ function searchAndInsertHighlightElement(groupId, highlightElement_dataSet, note
           element.innerHTML = '';
           element.appendChild(text_node);
           console.log(`target_text in searchAndInsertHighlightElement: ${target_text}`);
-          insert_highlightElement(target_text,text_node.textContent.indexOf(target_text),target_text.length,color,groupId,text_node);
+          insert_highlightElement(target_text,text_node.textContent.indexOf(target_text),target_text.length,color,groupId,text_node,note);
           return true;
         }
         else{
@@ -1254,9 +1256,10 @@ function find_textNode(element,text){
   }
   return null;
 }
-function insert_highlightElement(target_text,index_highlightElement,highlightElement_length,color,groupId,target_node){
+function insert_highlightElement(target_text,index_highlightElement,highlightElement_length,color,groupId,target_node,note){
   const highlightSpan = createHighlightSpanWithColor(color,groupId,0);
   highlightSpan.textContent = target_text;
+  highlightSpan.setAttribute('data-note',note);
   const element = target_node.parentNode;
   if (!element){
     console.error(`[debug] element is null`);
