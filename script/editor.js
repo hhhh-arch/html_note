@@ -160,7 +160,7 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
   // 在编辑器添加到文档后，再处理内容
   const textArea = editor.querySelector('.note-editor-textarea');
   if (currentNote!=''){
-    console.log("currentNote",currentNote);
+//     console.log("currentNote",currentNote);
     const allTemps = parseAllDataNote(currentNote,textArea);
     
     const newContainer = createAnNewContainer(textArea);
@@ -330,10 +330,10 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
       
       if (groupId) {
         if (note.length > 0) {
-          console.log(`[debug] note in onblur: ${note}`);
+//           console.log(`[debug] note in onblur: ${note}`);
           document.querySelectorAll('.html-note-highlight[data-group-id="' + groupId + '"]').forEach(span => {
             const notes = loadAllMarkdown(textArea);
-            console.log(`[debug] notes in onblur: ${notes}`);
+//             console.log(`[debug] notes in onblur: ${notes}`);
             span.setAttribute('data-note', notes);
             //span.title = note ;
           });
@@ -363,7 +363,7 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
     const isInColorPicker = ev.target.closest('.color-picker-float');
     
     if (!editor.contains(ev.target) && !isInToolbar && !isInColorPicker) {
-      console.log("[debug] if it can chekc the editor");
+//       console.log("[debug] if it can chekc the editor");
        saveNotesContent(textArea,tags,groupId,currentPageUrl,currentNote);
        editor.remove();
        document.removeEventListener('mousedown', onDocMouseDown);
@@ -400,7 +400,7 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
       selection.removeAllRanges();
       selection.addRange(range);
     } catch (error) {
-      console.warn('设置焦点位置失败:', error);
+//       console.warn('设置焦点位置失败:', error);
     }
   };
   const tagsBar = editor.querySelector('.note-editor-header');
@@ -415,7 +415,7 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
  */
 function saveTagsToStorage(pageUrl, tags) {
   if (!pageUrl || !tags || !Array.isArray(tags)) {
-    console.error('saveTagsToStorage: 参数无效');
+//     console.error('saveTagsToStorage: 参数无效');
     return;
   }
   
@@ -428,9 +428,9 @@ function saveTagsToStorage(pageUrl, tags) {
   
   chrome.storage.local.set({ [storageKey]: tagsData }, () => {
     if (chrome.runtime.lastError) {
-      console.error('保存tags失败:', chrome.runtime.lastError);
+//       console.error('保存tags失败:', chrome.runtime.lastError);
     } else {
-      console.log('tags已保存到本地存储:', tags);
+//       console.log('tags已保存到本地存储:', tags);
     }
   });
 }
@@ -441,7 +441,7 @@ function saveTagsToStorage(pageUrl, tags) {
  */
 function loadTagsFromStorage(pageUrl, callback) {
   if (!pageUrl || typeof callback !== 'function') {
-    console.error('loadTagsFromStorage: 参数无效');
+//     console.error('loadTagsFromStorage: 参数无效');
     callback([]);
     return;
   }
@@ -450,17 +450,17 @@ function loadTagsFromStorage(pageUrl, callback) {
   
   chrome.storage.local.get([storageKey], (result) => {
     if (chrome.runtime.lastError) {
-      console.error('读取tags失败:', chrome.runtime.lastError);
+//       console.error('读取tags失败:', chrome.runtime.lastError);
       callback([]);
       return;
     }
     
     const tagsData = result[storageKey];
     if (tagsData && tagsData.tags && Array.isArray(tagsData.tags)) {
-      console.log('从本地存储读取到tags:', tagsData.tags);
+//       console.log('从本地存储读取到tags:', tagsData.tags);
       callback(tagsData.tags);
     } else {
-      console.log('未找到保存的tags');
+//       console.log('未找到保存的tags');
       callback([]);
     }
   });
@@ -526,7 +526,6 @@ function removeListener(textArea){
 
 }
 function update_storage_note(groupId,note){
-  console.log(`[debug] update_storage_note: ${note}`);
   chrome.storage.local.get(groupId, function(result){
     if (result){
       result[groupId].note = note;

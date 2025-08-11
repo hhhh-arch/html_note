@@ -2,14 +2,14 @@
 
 function markdownInputMonitor(textArea,newContainer) {
     try {
-        console.log("textArea", textArea);
+//         console.log("textArea", textArea);
         
         if (!textArea) {
-            console.error("textArea is null or undefined");
+//             console.error("textArea is null or undefined");
             return;
         }
         if (!newContainer) {
-            console.error("newContainer is null or undefined");
+//             console.error("newContainer is null or undefined");
             return;
         }
         removeListenerEventEnter(newContainer);
@@ -32,7 +32,7 @@ function markdownInputMonitor(textArea,newContainer) {
     }
 
     catch (e) {
-        console.error("Markdown 渲染失败", e);
+//         console.error("Markdown 渲染失败", e);
     }
 }
 function removeListenerEventEnter(temp){
@@ -82,11 +82,11 @@ function showOriginalMarkdown(temp,textArea){
     // console.log("[debug] temp.parentNode",temp.parentNode);
 //     console.log("[debug] textArea in showOriginalMarkdown 1",textArea);
     if (!newContainer){
-        console.log("[debug] newContainer is null");
+//         console.log("[debug] newContainer is null");
         return;
     }
     if (temp.parentNode != textArea){
-        console.log("[debug] temp.parentNode != textArea");
+//         console.log("[debug] temp.parentNode != textArea");
         return;
     }
     textArea.insertBefore(newContainer,temp);
@@ -131,7 +131,7 @@ function renderMarkdown(textArea,child,onMarkdownChange){
                 return;
             }
             if (child.parentNode != textArea){
-                console.log("child.parentNode != textArea");
+//                 console.log("child.parentNode != textArea");
                 return;
             }
             if (!checkPackage()){
@@ -168,7 +168,7 @@ function renderMarkdown(textArea,child,onMarkdownChange){
 
         }
         catch (e) {
-            console.error("Error rendering markdown:", e);
+//             console.error("Error rendering markdown:", e);
         }
     }, 100);
 }
@@ -227,7 +227,7 @@ function cleanupMarkdownListeners(textArea) {
 
 function monitorInsertIn(temp,textArea) {
     //TODO: add remove event listener function
-    console.log("[debug] monitorInsertIn");
+//     console.log("[debug] monitorInsertIn");
 
     
 
@@ -235,13 +235,13 @@ function monitorInsertIn(temp,textArea) {
         temp.removeEventListener('click', (e) => {
             const newContainer = showOriginalMarkdown(temp,textArea);
             markdownInputMonitor(textArea,newContainer);
-            console.log("[debug] temp clicked");
+//             console.log("[debug] temp clicked");
         });
 
         temp.addEventListener('click', (e) => {
             const newContainer = showOriginalMarkdown(temp,textArea);
             markdownInputMonitor(textArea,newContainer);
-            console.log("[debug] temp clicked");
+//             console.log("[debug] temp clicked");
         });
         temp.setAttribute('inputEventLiscener','true');
         
@@ -262,7 +262,7 @@ function monitorKeyDown(temp,textArea){
     });
 }
 function loadAllMarkdown(textArea){
-    console.log("[debug] loadAllMarkdown");
+//     console.log("[debug] loadAllMarkdown");
     const all_editing_containers = textArea.querySelectorAll(".note-editor-textarea-div");
     all_editing_containers.forEach((container) => {
         container.classList.add('markdown-temp');
@@ -270,8 +270,8 @@ function loadAllMarkdown(textArea){
     });
     const allTemps = textArea.querySelectorAll(".markdown-temp");
     let markdown = "";
-    console.log("loadAllMarkdown")
-    console.log("[debug] textArea",textArea);
+//     console.log("loadAllMarkdown")
+//     console.log("[debug] textArea",textArea);
     if (allTemps.length === 0){
         return "";
     }
@@ -301,7 +301,7 @@ function parseAllDataNote(currentNote,textArea){
 
     lines.forEach((line) => {
         // if line is not empty, parse it
-        console.log("line",line);
+//         console.log("line",line);
 
         if (line.trim() == ''){
             const temp = document.createElement('div');
@@ -316,17 +316,17 @@ function parseAllDataNote(currentNote,textArea){
             try {
                 markdownModify();
                 const PurifiedNote = window.marked.parse(line);
-                console.log("PurifiedNote",PurifiedNote);
+//                 console.log("PurifiedNote",PurifiedNote);
                 const temp = document.createElement('div');
                 const newDOMElement = createNewDOMElement(PurifiedNote,line);
                 textArea.appendChild(newDOMElement);
                 markdownInputMonitor(textArea,newDOMElement);
                 monitorInsertIn(newDOMElement,textArea);
-                console.debug("newDOMElement 's textArea",textArea);
-                console.debug("[debug] newDOMElement",newDOMElement);
+//                 console.debug("newDOMElement 's textArea",textArea);
+//                 console.debug("[debug] newDOMElement",newDOMElement);
                 
             } catch (error) {
-                console.error("Error parsing markdown line:", line, error);
+//                 console.error("Error parsing markdown line:", line, error);
                 // 如果解析失败，直接添加原始文本
                 const temp = document.createElement('div');
                 temp.innerHTML = line;
@@ -338,7 +338,7 @@ function parseAllDataNote(currentNote,textArea){
             }
         }
        
-        console.log("debug textArea",textArea);
+//         console.log("debug textArea",textArea);
     });
     const allTemps = textArea.querySelectorAll(".markdown-temp");
 //     console.log("parseAllDataNote完成，找到", allTemps.length, "个markdown-temp元素");
@@ -366,7 +366,7 @@ function newLineForReloading(textArea,lastLine){
         return newLine;
     }
     else{
-        console.log("[debug] lastLine.innerHTML == '' or '<br>'");
+//         console.log("[debug] lastLine.innerHTML == '' or '<br>'");
         lastLine.innerHTML = '<br>';
         lastLine.tabIndex = 0;
         lastLine.contentEditable = true;
@@ -375,11 +375,11 @@ function newLineForReloading(textArea,lastLine){
 }
 function checkPackage(){
     if (typeof marked === 'undefined') {
-        console.error("marked.js is not loaded");
+//         console.error("marked.js is not loaded");
         return false;
     }
     if (typeof DOMPurify === 'undefined') {
-        console.error("DOMPurify is not loaded");
+//         console.error("DOMPurify is not loaded");
         return false;
     }
     else{
@@ -403,20 +403,20 @@ function markdownModify(){
     window.marked.use({ renderer });
 }
 function editingMarkdownMonitor(newContainer,textArea){
-    console.log("[debug] newContainer in editingMarkdownMonitor 1",textArea);
+//     console.log("[debug] newContainer in editingMarkdownMonitor 1",textArea);
     if (!newContainer){
-        console.log("[debug] newContainer is null");
+//         console.log("[debug] newContainer is null");
         return;
     }
     if (newContainer.parentNode != textArea){
-        console.log("[debug] newContainer.parentNode != textArea");
+//         console.log("[debug] newContainer.parentNode != textArea");
         return;
     }
     removeListenerEventEnter(newContainer);
     newContainer.addEventListener("keydown", (e) => {
         if (e.key === 'Enter') {
             e.preventDefault();
-            console.log("[debug] newContainer in editingMarkdownMonitor",textArea);
+//             console.log("[debug] newContainer in editingMarkdownMonitor",textArea);
             
             renderMarkdown(textArea,newContainer,newDOMElement=>{
                 //console.log("temp",temp)
@@ -429,7 +429,7 @@ function editingMarkdownMonitor(newContainer,textArea){
                 nextContainer.focus();
               });
 
-              console.log('🔴 textArea in editingMarkdownMonitor',textArea);
+//               console.log('🔴 textArea in editingMarkdownMonitor',textArea);
         }
         if (e.key === 'Backspace'){
             // check if selection is before the text[0], delete the container and add text to the previous container 
@@ -465,7 +465,7 @@ function checkSelectionPositionStart(element){
 }
 function checkSelectionPositionEnd(element){
     if (!element){
-        console.error("[debug] element is null");
+//         console.error("[debug] element is null");
         return null;
     }
 
@@ -496,9 +496,9 @@ function deleteContainerAndAddTextToPreviousContainer(newContainer,textArea){
 }
 function enterKeyHandler(e,newContainer,textArea){
     const caretPosition = checkSelectionPositionEnd(newContainer);
-    console.log("[debug] caretPosition",caretPosition);
+//     console.log("[debug] caretPosition",caretPosition);
     if (caretPosition == null){
-        console.log("[debug] caretPosition is null");
+//         console.log("[debug] caretPosition is null");
         return;
     }
 
@@ -533,10 +533,10 @@ function enterKeyHandler(e,newContainer,textArea){
     else if (caretPosition > 0 && caretPosition < newContainer.innerText.length){
         e.preventDefault();
         splitContainer(newContainer,caretPosition,textArea);
-        console.log("[debug] splitContainer textArea",textArea);
+//         console.log("[debug] splitContainer textArea",textArea);
     }
     else{
-        console.error("[debug] caretPosition is out of range,caretPosition",caretPosition);
+//         console.error("[debug] caretPosition is out of range,caretPosition",caretPosition);
     }
 }
 function splitContainer(newContainer,caretPosition,textArea){
