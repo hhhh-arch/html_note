@@ -1543,3 +1543,24 @@ function update_storage_color(groupId,color){
     }
   })
 }
+function groupId_generator(highlightElement){
+  const key_groupId = 'groupId';
+  chrome.storage.local.get(key_groupId, function(result){
+    if (result){
+      const groupId_current = result[key_groupId] +1;
+      highlightElement.setAttribute('data-group-id',groupId_current);
+      chrome.storage.local.set({
+        [key_groupId]: groupId_current
+      })
+      return groupId_current;
+    }
+    else {
+      const groupId_current = 0;
+      highlightElement.setAttribute('data-group-id',groupId_current);
+      chrome.storage.local.set({
+        [key_groupId]: groupId_current
+      })
+      return groupId_current;
+    }
+  })
+}
