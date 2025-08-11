@@ -1260,6 +1260,7 @@ function insert_highlightElement(target_text,index_highlightElement,highlightEle
   const highlightSpan = createHighlightSpanWithColor(color,groupId,0);
   highlightSpan.textContent = target_text;
   highlightSpan.setAttribute('data-note',note);
+  console.log(`[debug] highlightSpan.getAttribute('data-note'): ${highlightSpan.getAttribute('data-note')}`);
   const element = target_node.parentNode;
   if (!element){
     console.error(`[debug] element is null`);

@@ -309,6 +309,7 @@ function parseAllDataNote(currentNote,textArea){
         }
         else{
             try {
+                markdownModify();
                 const PurifiedNote = window.marked.parse(line);
                 console.log("PurifiedNote",PurifiedNote);
                 const temp = document.createElement('div');
