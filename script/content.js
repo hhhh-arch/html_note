@@ -934,7 +934,7 @@ function changeColorbyGroupId(color, groupId) {
     highlightElement.setAttribute('data-color', color);
   });
   
-  
+  update_storage_color(groupId,color);
 }
   // editor.js
   function showNoteEditor(highlightElement, groupId, mouseEvent) {
@@ -1056,7 +1056,6 @@ function highlightElement_data(highlightElement){
       length: highlightElement.innerText.length,
       highlightElement_tag: highlightElement.tagName,
       parentNode_tag: parentNode.tagName,
-      color: color,
     }
   }
   else{
@@ -1529,4 +1528,14 @@ function show_loose_highlightElement(pageUrl){
     }
   })
 
+}
+function update_storage_color(groupId,color){
+  chrome.storage.local.get(groupId, function(result){
+    if (result){
+      result[groupId].color = color;
+      chrome.storage.local.set({
+        [groupId]: result[groupId]
+      })
+    }
+  })
 }
