@@ -475,7 +475,6 @@ function loadTagsFromStorage(pageUrl, callback) {
 
 
 function saveNotesContent(textArea,tags,groupId,currentPageUrl,currentNote){
-  console.log("[debug] saveNotesContent");
   setTimeout(() => {
     // 检查是否是因为点击了tag输入框而导致的失焦
     const activeElement = document.activeElement;
@@ -484,7 +483,6 @@ function saveNotesContent(textArea,tags,groupId,currentPageUrl,currentNote){
     }
 
     const note = loadAllMarkdown(textArea);
-    console.log(`[debug] note in saveNotesContent: ${note}`);
     const tagsValue = tags.value.trim();
     
     // 保存tags到本地存储
