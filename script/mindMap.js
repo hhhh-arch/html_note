@@ -74,6 +74,7 @@ function showMindMapPanel() {
       nodeData: {
         id: 'root',
         topic: title,
+        style: { fontSize: '32', color: '#3298db', background: '#ffeb3b',border: '0' },
         children: [
           {
             direction: 0,
