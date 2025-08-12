@@ -69,7 +69,7 @@ function showMindMapPanel() {
       console.error(`checkPackage failed`);
       return;
     }
-    const style_html = '`' + createDangerousHtml(title,quote,notes) + '`';
+    const style_html = createDangerousHtml(title,quote,notes);
     const data = {
       nodeData: {
         id: 'root',
@@ -102,6 +102,7 @@ function showMindMapPanel() {
     const quote_style = document.createElement('p');
     quote_style.className = 'quote-style';
     quote_style.innerHTML = quote;
+    quote_container.appendChild(quote_style); // 修复：添加quote_style到容器
     note_card.appendChild(quote_container);
     const notes_container = document.createElement('div');
     notes_container.className = 'notes-container';
@@ -112,5 +113,4 @@ function showMindMapPanel() {
     note_card.appendChild(notes_container);
     temp_html.appendChild(note_card);
     return temp_html.innerHTML;
-
   }
