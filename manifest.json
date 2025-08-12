@@ -17,10 +17,13 @@
       "libs/css-selector-generator.min.js",
       "libs/crypto-js.min.js",
       "libs/mind-elixir/MindElixir.js",
+      "libs/mind-elixir/node-menu.js",
       "script/content.js", 
       "script/editor.js",
-      "script/markdownSupport.js"],
-      "css": ["libs/mind-elixir/MindElixir.css","style.css"]
+      "script/markdownSupport.js",
+      "script/mindMap.js"],
+      
+      "css": ["libs/mind-elixir/MindElixir.css","style.css","script/mindMap.css"]
     }
   ],
   "icons": {
