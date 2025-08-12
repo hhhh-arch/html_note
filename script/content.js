@@ -74,6 +74,12 @@ class HTMLNoteHighlighter {
     document.addEventListener('mouseout',(e)=>{
       highlightElement_mouseOutHandler(e);
     })
+    document.addEventListener('click', (e) => {
+      const marginWidth = 50; // 假设右侧50px是触发区域
+      if (window.innerWidth - e.clientX < marginWidth) {
+        showMindMapPanel();
+      }
+    });
 
 
   }

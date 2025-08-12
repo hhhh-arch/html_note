@@ -16,14 +16,14 @@
       "libs/marked.min.js",
       "libs/css-selector-generator.min.js",
       "libs/crypto-js.min.js",
-      "libs/mind-elixir/MindElixir.js",
-      "libs/mind-elixir/node-menu.js",
+      "libs/mind-elixir/MindElixirUmb.js",
+      "libs/mind-elixir/node-menuUmb.js",
       "script/content.js", 
       "script/editor.js",
       "script/markdownSupport.js",
       "script/mindMap.js"],
       
-      "css": ["libs/mind-elixir/MindElixir.css","style.css","script/mindMap.css"]
+      "css": ["libs/mind-elixir/style.css","style.css","script/mindMap.css"]
     }
   ],
   "icons": {
