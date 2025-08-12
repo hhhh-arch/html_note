@@ -52,7 +52,7 @@ function showMindMapPanel() {
     
     // create new map data
     const data = initNoteCard('new topic','quote','notes');
-    console.log(`data`);
+    console.log(`data:`,MindElixir.new('new topic'));
     // or `example`
     // or the data return from `.getData()`
     mind.init(data);
@@ -71,17 +71,18 @@ function showMindMapPanel() {
     }
     const style_html = '`' + createDangerousHtml(title,quote,notes) + '`';
     const data = {
-      children: [
-        {
-          direction: 0,
-          id: 'd34338c074901546',
-          topic: 'new node',
-        },
-      ],
-      dangerouslySetInnerHTML:  style_html,
-      id: 'root',
-      root: true,
-      topic: title,
+      nodeData: {
+        id: 'root',
+        topic: title,
+        children: [
+          {
+            direction: 0,
+            id: 'd34338c074901546',
+            topic: 'new node',
+          },
+        ],
+        dangerouslySetInnerHTML: style_html,
+      }
     }
     return data;
   }

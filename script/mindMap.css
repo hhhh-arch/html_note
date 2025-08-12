@@ -13,7 +13,7 @@
   /* 整体卡片样式 */
   width: 300px;
   background: #ffeb3b;
-  border-radius: 12px;
+  border-radius: 1px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
