@@ -17,6 +17,11 @@ function showMindMapPanel() {
     document.body.appendChild(panel);
     console.log('MindElixir:', window.MindElixir);
     const MindElixir = window.MindElixir.default;
+    initMindMap(MindElixir);
+      
+      
+  }
+  function initMindMap(MindElixir){
     let options = {
       el: '#map', // or HTMLDivElement
       direction: MindElixir.LEFT,
@@ -56,11 +61,6 @@ function showMindMapPanel() {
     // or `example`
     // or the data return from `.getData()`
     mind.init(data);
-
-      
-      
-  }
-  function initMindMap(MindElixir){
 
 
   }
