@@ -74,12 +74,24 @@ function showMindMapPanel() {
       nodeData: {
         id: 'root',
         topic: title,
-        style: { fontSize: '32', color: '#3298db', background: '#ffeb3b',border: '0' },
+        style: { 
+          fontSize: '16', 
+          color: '#2c3e50', 
+          background: 'transparent',
+          border: 'none',
+          boxShadow: 'none',
+          width: '300px',
+          padding: '0',
+          margin: '0'
+        },
+        // 添加自定义类名，方便CSS选择器
+        className: 'custom-note-card',
         children: [
           {
             direction: 0,
             id: 'd34338c074901546',
             topic: 'new node',
+            dangerouslySetInnerHTML: style_html,
           },
         ],
         dangerouslySetInnerHTML: style_html,

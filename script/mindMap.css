@@ -9,6 +9,25 @@
   z-index: 999999;
 }
 
+/* 使用自定义类名选择器，更灵活 */
+#mindmap-panel #map .map-container me-tpc.custom-note-card {
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  width: auto !important;
+  min-width: auto !important;
+  max-width: none !important;
+}
+
+/* 确保note-card在MindElixir容器中正确显示 */
+#mindmap-panel #map .map-container me-tpc.custom-note-card .note-card {
+  display: block !important;
+  width: 300px !important;
+  margin: 0 auto !important;
+}
+
 .note-card {
   /* 整体卡片样式 */
   width: 300px;
