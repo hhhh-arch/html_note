@@ -77,7 +77,7 @@ class HTMLNoteHighlighter {
     document.addEventListener('click', (e) => {
       const marginWidth = 50; // 假设右侧50px是触发区域
       if (window.innerWidth - e.clientX < marginWidth) {
-        showMindMapPanel();
+        showMindMapPanel(window.location.href);
       }
     });
 

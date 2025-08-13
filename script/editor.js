@@ -1,411 +1,407 @@
-
 function showNoteEditor(highlightElement, groupId, mouseEvent) {
-  document.querySelectorAll('.note-editor').forEach(el => el.remove());
-  // 取同组第一个的 data-note
-  let currentNote = highlightElement.getAttribute('data-note') || '';
-  let tagsString = highlightElement.getAttribute('data-tags') || '';
-  if (groupId) {
-    const first = document.querySelector('.html-note-highlight[data-group-id="' + groupId + '"]');
-    if (first) currentNote = first.getAttribute('data-note') || '';
-    if (first) tagsString = first.getAttribute('data-tags') || '';
+    document.querySelectorAll('.note-editor').forEach(el => el.remove());
+    // 取同组第一个的 data-note
+    let currentNote = highlightElement.getAttribute('data-note') || '';
+    let tagsString = highlightElement.getAttribute('data-tags') || '';
+    if (groupId) {
+        const first = document.querySelector('.html-note-highlight[data-group-id="' + groupId + '"]');
+        if (first) currentNote = first.getAttribute('data-note') || '';
+        if (first) tagsString = first.getAttribute('data-tags') || '';
 
-  }
-  // if (currentNote!=''){
-  //   const PurifiedNote = window.marked.parse(currentNote);
-  //   currentNote = PurifiedNote;
-  //   console.log("currentNote",currentNote);
-  //   parseAllDataNote(currentNote);
-  // }
-  // 创建tag bubble的辅助函数
-  function createTagBubble(tagText, tagsBar, highlightElement, groupId) {
-    const tagBubble = document.createElement('div');
-    tagBubble.className = 'tag-bubble';
-    tagBubble.innerHTML = tagText;
-    
-    // 创建删除按钮
-    const deleteBtn = document.createElement('button');
-    deleteBtn.className = 'tag-delete-btn';
-    deleteBtn.title = '删除标签';
-    
-    // 添加删除功能
-    deleteBtn.addEventListener('click', (e) => {
-      e.stopPropagation(); // 阻止事件冒泡
-      
-      // 从DOM中移除tag bubble
-      tagBubble.remove();
-      
-      // 更新tagsString
-      const currentPageUrl = window.location.href;
-      const currentTags = tagsString ? tagsString.split(',').filter(tag => tag.trim() !== '') : [];
-      const tagIndex = currentTags.indexOf(tagText);
-      if (tagIndex > -1) {
-        currentTags.splice(tagIndex, 1);
-        tagsString = currentTags.join(',');
-        
-        // 更新highlight element的data-tags属性
-        if (groupId) {
-          document.querySelectorAll('.html-note-highlight[data-group-id="' + groupId + '"]').forEach(span => {
-            span.setAttribute('data-tags', tagsString);
-          });
-        } else {
-          highlightElement.setAttribute('data-tags', tagsString);
-        }
-        
-        // 保存到存储
-        if (currentTags.length > 0) {
-          saveTagsToStorage(currentPageUrl, currentTags);
-        } else {
-          // 如果没有tags了，清除存储
-          const storageKey = `html_note_tags_${currentPageUrl}`;
-          chrome.storage.local.remove([storageKey]);
-        }
-        
-        //console.log('[debug] 删除tag后，tagsString:', tagsString);
-      }
-    });
-    
-    tagBubble.appendChild(deleteBtn);
-    return tagBubble;
-  }
+    }
+    // if (currentNote!=''){
+    //   const PurifiedNote = window.marked.parse(currentNote);
+    //   currentNote = PurifiedNote;
+    //   console.log("currentNote",currentNote);
+    //   parseAllDataNote(currentNote);
+    // }
+    // 创建tag bubble的辅助函数
+    function createTagBubble(tagText, tagsBar, highlightElement, groupId) {
+        const tagBubble = document.createElement('div');
+        tagBubble.className = 'tag-bubble';
+        tagBubble.innerHTML = tagText;
 
-  const editor = document.createElement('div');
-  editor.className = 'note-editor';
-  if (currentNote=='') {
-    if (tagsString=='') {
-    editor.innerHTML = `
+        // 创建删除按钮
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'tag-delete-btn';
+        deleteBtn.title = '删除标签';
+
+        // 添加删除功能
+        deleteBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); // 阻止事件冒泡
+
+            // 从DOM中移除tag bubble
+            tagBubble.remove();
+
+            // 更新tagsString
+            const currentPageUrl = window.location.href;
+            const currentTags = tagsString ? tagsString.split(',').filter(tag => tag.trim() !== '') : [];
+            const tagIndex = currentTags.indexOf(tagText);
+            if (tagIndex > -1) {
+                currentTags.splice(tagIndex, 1);
+                tagsString = currentTags.join(',');
+
+                // 更新highlight element的data-tags属性
+                if (groupId) {
+                    document.querySelectorAll('.html-note-highlight[data-group-id="' + groupId + '"]').forEach(span => {
+                        span.setAttribute('data-tags', tagsString);
+                    });
+                } else {
+                    highlightElement.setAttribute('data-tags', tagsString);
+                }
+
+                // 保存到存储
+                if (currentTags.length > 0) {
+                    saveTagsToStorage(currentPageUrl, currentTags);
+                } else {
+                    // 如果没有tags了，清除存储
+                    const storageKey = `html_note_tags_${currentPageUrl}`;
+                    chrome.storage.local.remove([storageKey]);
+                }
+
+                //console.log('[debug] 删除tag后，tagsString:', tagsString);
+            }
+        });
+
+        tagBubble.appendChild(deleteBtn);
+        return tagBubble;
+    }
+
+    const editor = document.createElement('div');
+    editor.className = 'note-editor';
+    if (currentNote == '') {
+        if (tagsString == '') {
+            editor.innerHTML = `
       <div class="note-editor-header" >
         <input type="text" class="note-editor-tags" placeholder="Tags" />
       </div>
       <div class="note-editor-textarea"></div>
     `;
-    }
-    else {
-      editor.innerHTML = `
+        } else {
+            editor.innerHTML = `
       <div class="note-editor-header" >
         <input type="text" class="note-editor-tags" placeholder="Tags" />
       </div>
       <div class="note-editor-textarea" ></div>
     `;
-      const tagsBar = editor.querySelector('.note-editor-header');
-      //console.log('[debug] display tagsString:', tagsString);
-      tagsString.split(',').forEach(tag => {
-        if (tag.trim() !== '') {
-          const tagBubble = createTagBubble(tag.trim(), tagsBar, highlightElement, groupId);
-          tagsBar.insertBefore(tagBubble, tagsBar.firstChild);
+            const tagsBar = editor.querySelector('.note-editor-header');
+            //console.log('[debug] display tagsString:', tagsString);
+            tagsString.split(',').forEach(tag => {
+                if (tag.trim() !== '') {
+                    const tagBubble = createTagBubble(tag.trim(), tagsBar, highlightElement, groupId);
+                    tagsBar.insertBefore(tagBubble, tagsBar.firstChild);
+                }
+            });
+
+
         }
-    });
-
-
-    }
-  }
-  else {
-    if (tagsString=='') {
-    editor.innerHTML = `
+    } else {
+        if (tagsString == '') {
+            editor.innerHTML = `
       <div class="note-editor-header" >
         <input type="text" class="note-editor-tags" placeholder="Tags" />
       </div>
       <div class="note-editor-textarea"></div>
     `;
 
-    }
-    else {
-      editor.innerHTML = `
+        } else {
+            editor.innerHTML = `
       <div class="note-editor-header" >
         <input type="text" class="note-editor-tags" placeholder="Tags" />
       </div>
       <div class="note-editor-textarea" ></div>
     `;
-    const tagsBar = editor.querySelector('.note-editor-header');
-    tagsString.split(',').forEach(tag => {
-      if (tag.trim() !== '') {
-        const tagBubble = createTagBubble(tag.trim(), tagsBar, highlightElement, groupId);
-        tagsBar.insertBefore(tagBubble, tagsBar.firstChild);
-      }
+            const tagsBar = editor.querySelector('.note-editor-header');
+            tagsString.split(',').forEach(tag => {
+                if (tag.trim() !== '') {
+                    const tagBubble = createTagBubble(tag.trim(), tagsBar, highlightElement, groupId);
+                    tagsBar.insertBefore(tagBubble, tagsBar.firstChild);
+                }
+            });
+
+        }
+
+    }
+    // 获取高亮元素相对于视口的位置，并加上滚动偏移
+    const rect = highlightElement.getBoundingClientRect();
+    const scrollX = window.pageXOffset || document.documentElement.scrollLeft;
+    const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+
+    // 计算编辑器的最终位置
+    let left, top;
+    if (mouseEvent) {
+        // 使用鼠标点击位置，编辑器中心对准点击位置
+        left = mouseEvent.clientX + scrollX - 170; // 170 = editor宽度一半
+        top = mouseEvent.clientY + scrollY + 15;
+    } else {
+        // 使用高亮元素位置，编辑器中心对准高亮元素中心
+        left = rect.left + scrollX + rect.width / 2 - 170;
+        top = rect.bottom + scrollY + 10;
+    }
+
+    // 添加调试信息
+    // console.log('[debug] 编辑器位置计算:', {
+    //   rect: { left: rect.left, top: rect.top, bottom: rect.bottom, width: rect.width },
+    //   scroll: { x: scrollX, y: scrollY },
+    //   mouseEvent: mouseEvent ? { clientX: mouseEvent.clientX, clientY: mouseEvent.clientY } : null,
+    //   calculated: { left, top }
+    // });
+
+    // 设置编辑器初始位置（向下偏移，准备滑动）
+    editor.style.left = `${left}px`;
+    editor.style.top = `${top}px`;
+    editor.style.position = 'absolute';
+    document.body.appendChild(editor);
+
+    // 在编辑器添加到文档后，再处理内容
+    const textArea = editor.querySelector('.note-editor-textarea');
+    if (currentNote != '') {
+        console.log("currentNote", currentNote);
+        const allTemps = parseAllDataNote(currentNote, textArea);
+
+        const newContainer = createAnNewContainer(textArea);
+        markdownInputMonitor(textArea, newContainer);
+
+        // // 确保元素在文档中后再设置选择范围
+        // if (lastLine && document.contains(lastLine)) {
+        //     lastLine.contentEditable = true;
+        //     //const lastLine_new = newLineForReloading(textArea,lastLine);
+        //     console.log("[debug] lastLine_new",lastLine);
+        //     console.log("[debug] lastLine_new.innerHTML",lastLine.innerHTML);
+        //   if (lastLine && document.contains(lastLine)){
+        //     try {
+        //       const range = document.createRange();
+
+        //       // 检查 lastLine_new 是否有子节点
+        //       if (lastLine.childNodes.length > 0) {
+        //         // 如果有子节点，将光标设置在最后一个子节点之后
+        //         const lastChild = lastLine.lastChild;
+        //         if (lastChild.nodeType === Node.TEXT_NODE) {
+        //           range.setStartAfter(lastChild);
+        //         } else {
+        //           range.setStartAfter(lastChild);
+        //         }
+        //       } else {
+        //         // 如果没有子节点，直接设置在元素内部
+        //         range.setStart(lastLine, 0);
+        //       }
+
+        //       range.collapse(true);
+        //       const selection = window.getSelection();
+        //       selection.removeAllRanges();
+        //       selection.addRange(range);
+
+        //       // 在设置选择范围后，确保元素获得焦点
+        //       lastLine.focus();
+        //     } catch (error) {
+        //       console.warn('设置选择范围失败:', error);
+        //     }
+        //     }
+        //     else{
+        //         console.log("lastLine_new is not in the document");
+        //     }
+    }
+        //   else{
+        //     window.alert("error on reloading the notes");
+        //   }
+    // }
+    else {
+        const newContainer = createAnNewContainer(textArea);
+        markdownInputMonitor(textArea, newContainer);
+
+    }
+
+    // 使用 requestAnimationFrame 确保DOM已渲染，然后添加滑动特效
+    requestAnimationFrame(() => {
+        editor.classList.add('show');
     });
 
-    }
+    //const textArea = editor.querySelector('.note-editor-textarea');
+    const tags = editor.querySelector('.note-editor-tags');
 
-  }
-  // 获取高亮元素相对于视口的位置，并加上滚动偏移
-  const rect = highlightElement.getBoundingClientRect();
-  const scrollX = window.pageXOffset || document.documentElement.scrollLeft;
-  const scrollY = window.pageYOffset || document.documentElement.scrollTop;
-  
-  // 计算编辑器的最终位置
-  let left, top;
-  if (mouseEvent) {
-    // 使用鼠标点击位置，编辑器中心对准点击位置
-    left = mouseEvent.clientX + scrollX - 170; // 170 = editor宽度一半
-    top = mouseEvent.clientY + scrollY + 15;
-  } else {
-    // 使用高亮元素位置，编辑器中心对准高亮元素中心
-    left = rect.left + scrollX + rect.width / 2 - 170;
-    top = rect.bottom + scrollY + 10;
-  }
-  
-  // 添加调试信息
-  // console.log('[debug] 编辑器位置计算:', {
-  //   rect: { left: rect.left, top: rect.top, bottom: rect.bottom, width: rect.width },
-  //   scroll: { x: scrollX, y: scrollY },
-  //   mouseEvent: mouseEvent ? { clientX: mouseEvent.clientX, clientY: mouseEvent.clientY } : null,
-  //   calculated: { left, top }
-  // });  
-  
-  // 设置编辑器初始位置（向下偏移，准备滑动）
-  editor.style.left = `${left}px`;
-  editor.style.top = `${top}px`;
-  editor.style.position = 'absolute';
-  document.body.appendChild(editor);
-  
-  // 在编辑器添加到文档后，再处理内容
-  const textArea = editor.querySelector('.note-editor-textarea');
-  if (currentNote!=''){
-    console.log("currentNote",currentNote);
-    const allTemps = parseAllDataNote(currentNote,textArea);
-    
-    const newContainer = createAnNewContainer(textArea);
-    markdownInputMonitor(textArea,newContainer);
-    
-    // // 确保元素在文档中后再设置选择范围
-    // if (lastLine && document.contains(lastLine)) {
-    //     lastLine.contentEditable = true;
-    //     //const lastLine_new = newLineForReloading(textArea,lastLine);
-    //     console.log("[debug] lastLine_new",lastLine);
-    //     console.log("[debug] lastLine_new.innerHTML",lastLine.innerHTML);
-    //   if (lastLine && document.contains(lastLine)){
-    //     try {
-    //       const range = document.createRange();
-          
-    //       // 检查 lastLine_new 是否有子节点
-    //       if (lastLine.childNodes.length > 0) {
-    //         // 如果有子节点，将光标设置在最后一个子节点之后
-    //         const lastChild = lastLine.lastChild;
-    //         if (lastChild.nodeType === Node.TEXT_NODE) {
-    //           range.setStartAfter(lastChild);
-    //         } else {
-    //           range.setStartAfter(lastChild);
-    //         }
-    //       } else {
-    //         // 如果没有子节点，直接设置在元素内部
-    //         range.setStart(lastLine, 0);
-    //       }
-          
-    //       range.collapse(true);
-    //       const selection = window.getSelection();
-    //       selection.removeAllRanges();
-    //       selection.addRange(range);
-          
-    //       // 在设置选择范围后，确保元素获得焦点
-    //       lastLine.focus();
-    //     } catch (error) {
-    //       console.warn('设置选择范围失败:', error);
-    //     }
-    //     }
-    //     else{
-    //         console.log("lastLine_new is not in the document");
-    //     }
-    }
-  //   else{
-  //     window.alert("error on reloading the notes");
-  //   }
-  // }
-  else{
-    const newContainer = createAnNewContainer(textArea);
-    markdownInputMonitor(textArea,newContainer);
-   
-  }
-  
-  // 使用 requestAnimationFrame 确保DOM已渲染，然后添加滑动特效
-  requestAnimationFrame(() => {
-    editor.classList.add('show');
-  });
+    // // 自定义placeholder功能
+    // function updatePlaceholder() {
+    //   if (textArea.textContent.trim() === '') {
+    //     textArea.classList.add('placeholder-active');
 
-  //const textArea = editor.querySelector('.note-editor-textarea');
-  const tags = editor.querySelector('.note-editor-tags');
-  
-  // // 自定义placeholder功能
-  // function updatePlaceholder() {
-  //   if (textArea.textContent.trim() === '') {
-  //     textArea.classList.add('placeholder-active');
-      
-  //   } else {
-  //     textArea.classList.remove('placeholder-active');
-  //   }
-  // }
-  
+    //   } else {
+    //     textArea.classList.remove('placeholder-active');
+    //   }
+    // }
 
-  // updatePlaceholder();
-  
-  // // 监听输入事件来更新placeholder
-  // textArea.addEventListener('input', updatePlaceholder);
-  // textArea.addEventListener('focus', updatePlaceholder);
-  // textArea.addEventListener('blur', updatePlaceholder);
 
-  // 初始化placeholder状态
-  // 为tag输入框添加事件处理，防止编辑器意外关闭
-  tags.addEventListener('mousedown', (ev) => {
-    ev.stopPropagation(); // 阻止事件冒泡
-  });
-  
-  // 加载已保存的tags到输入框
-  const currentPageUrl = window.location.href;
+    // updatePlaceholder();
 
-  tags.addEventListener('click', (ev) => {
-    const tagsBar = editor.querySelector('.note-editor-header');
-    const tagsInput = tagsBar.querySelector('.note-editor-tags'); 
-    tagsInput.focus();
-    //console.log('[debug] addTags');
-    tagsInput.addEventListener('keydown', (ev) => {
-      if (ev.key === 'Enter') {
-        const tagsValue = tagsInput.value.trim();
-        // make tagsValue into a tag bubble
-        if (tagsValue) {
-        if(tagsString == '') {
-          const tagBubble = createTagBubble(tagsValue, tagsBar, highlightElement, groupId);
-          tagsBar.insertBefore(tagBubble, tagsBar.firstChild);
-        }
-        else {
-          const previousTag = tagsBar.querySelector('.tag-bubble');
-          const tagBubble = createTagBubble(tagsValue, tagsBar, highlightElement, groupId);
-          // place tagbubble after previousTag
-          tagsBar.insertBefore(tagBubble, previousTag.nextSibling);
-        }
-        // 更新 tagsString，确保格式正确
-        const currentTags = tagsString ? tagsString.split(',').filter(tag => tag.trim() !== '') : [];
-        currentTags.push(tagsValue);
-        tagsString = currentTags.join(',');
-        //console.log('[debug] tagsString:', tagsString);
-        saveTagsToStorage(currentPageUrl, tagsValue);
-        // clear the tag input box
-        // save the tag bubble for the highlight element
-        highlightElement.setAttribute('data-tags', tagsString);
-        tagsInput.value = '';
-        }
-      }
+    // // 监听输入事件来更新placeholder
+    // textArea.addEventListener('input', updatePlaceholder);
+    // textArea.addEventListener('focus', updatePlaceholder);
+    // textArea.addEventListener('blur', updatePlaceholder);
+
+    // 初始化placeholder状态
+    // 为tag输入框添加事件处理，防止编辑器意外关闭
+    tags.addEventListener('mousedown', (ev) => {
+        ev.stopPropagation(); // 阻止事件冒泡
     });
-  });
-  tags.onblur = () => {
-    // 移除之前可能存在的input事件监听器
-    if (textArea._inputHandler) {
-      textArea.removeEventListener('input', textArea._inputHandler);
+
+    // 加载已保存的tags到输入框
+    const currentPageUrl = window.location.href;
+
+    tags.addEventListener('click', (ev) => {
+        const tagsBar = editor.querySelector('.note-editor-header');
+        const tagsInput = tagsBar.querySelector('.note-editor-tags');
+        tagsInput.focus();
+        //console.log('[debug] addTags');
+        tagsInput.addEventListener('keydown', (ev) => {
+            if (ev.key === 'Enter') {
+                const tagsValue = tagsInput.value.trim();
+                // make tagsValue into a tag bubble
+                if (tagsValue) {
+                    if (tagsString == '') {
+                        const tagBubble = createTagBubble(tagsValue, tagsBar, highlightElement, groupId);
+                        tagsBar.insertBefore(tagBubble, tagsBar.firstChild);
+                    } else {
+                        const previousTag = tagsBar.querySelector('.tag-bubble');
+                        const tagBubble = createTagBubble(tagsValue, tagsBar, highlightElement, groupId);
+                        // place tagbubble after previousTag
+                        tagsBar.insertBefore(tagBubble, previousTag.nextSibling);
+                    }
+                    // 更新 tagsString，确保格式正确
+                    const currentTags = tagsString ? tagsString.split(',').filter(tag => tag.trim() !== '') : [];
+                    currentTags.push(tagsValue);
+                    tagsString = currentTags.join(',');
+                    //console.log('[debug] tagsString:', tagsString);
+                    saveTagsToStorage(currentPageUrl, tagsValue);
+                    // clear the tag input box
+                    // save the tag bubble for the highlight element
+                    highlightElement.setAttribute('data-tags', tagsString);
+                    tagsInput.value = '';
+                }
+            }
+        });
+    });
+    tags.onblur = () => {
+        // 移除之前可能存在的input事件监听器
+        if (textArea._inputHandler) {
+            textArea.removeEventListener('input', textArea._inputHandler);
+        }
+
+        // 创建新的input事件处理函数
+        textArea._inputHandler = () => {
+            //renderMarkdown(textArea)
+            textArea.style.height = 'auto'; // 先清空高度
+            textArea.style.height = textArea.scrollHeight + 'px'; // 根据内容撑开
+        };
+
+        textArea.addEventListener('input', textArea._inputHandler);
+
+        //如果textarea有内容，则自动展开
+        if (currentNote != '') {
+            textArea.style.height = 'auto'; // 先清空高度
+            textArea.style.height = textArea.scrollHeight + 'px'; // 根据内容撑开
+        }
+
+        // 失焦时保存内容
+        // 初始化markdown渲染
     }
-    
-    // 创建新的input事件处理函数
-    textArea._inputHandler = () => {
-      //renderMarkdown(textArea)
-      textArea.style.height = 'auto'; // 先清空高度
-      textArea.style.height = textArea.scrollHeight + 'px'; // 根据内容撑开
+
+    textArea.onblur = () => {
+        // 使用setTimeout延迟检查，确保事件处理的正确性
+        setTimeout(() => {
+            // 检查是否是因为点击了tag输入框而导致的失焦
+            const activeElement = document.activeElement;
+            if (activeElement && activeElement.classList.contains('note-editor-tags')) {
+                return; // 如果焦点转移到了tag输入框，不关闭编辑器
+            }
+
+            const note = document.querySelectorAll('.html-note-highlight[data-group-id="' + groupId + '"]')[0].querySelector('.markdown-temp').getAttribute('mardown-data');
+            //console.log("note",note);
+            const tagsValue = tags.value.trim();
+
+            // 保存tags到本地存储
+            if (tagsValue) {
+                const tagsArray = tagsValue.split(',').map(tag => tag.trim()).filter(Boolean);
+                saveTagsToStorage(currentPageUrl, tagsArray);
+            }
+
+            if (groupId) {
+                if (note.length > 0) {
+                    console.log(`[debug] note in onblur: ${note}`);
+                    document.querySelectorAll('.html-note-highlight[data-group-id="' + groupId + '"]').forEach(span => {
+                        const notes = loadAllMarkdown(textArea);
+                        console.log(`[debug] notes in onblur: ${notes}`);
+                        span.setAttribute('data-note', notes);
+                        //span.title = note ;
+                    });
+
+                }
+            }
+
+            // 清理markdown相关的事件监听器
+            if (typeof cleanupMarkdownListeners === 'function') {
+                cleanupMarkdownListeners(textArea);
+            }
+
+            editor.remove();
+            document.removeEventListener('mousedown', onDocMouseDown);
+        }, 10); // 延迟10ms检查
+    }
+
+    // 点击外部关闭编辑器
+    function onDocMouseDown(ev) {
+        // 检查点击的目标是否在editor内，包括tag输入框和删除按钮
+        // 如果点击的是tag输入框或删除按钮，不要关闭编辑器
+        if (ev.target.classList.contains('note-editor-tags') || ev.target.classList.contains('tag-delete-btn')) {
+            return; // 如果点击的是tag输入框或删除按钮，不关闭编辑器
+        }
+
+        // 检查是否点击了工具栏或颜色选择器
+        const isInToolbar = ev.target.closest('.html-note-toolbar-float');
+        const isInColorPicker = ev.target.closest('.color-picker-float');
+
+        if (!editor.contains(ev.target) && !isInToolbar && !isInColorPicker) {
+            console.log("[debug] if it can chekc the editor");
+            saveNotesContent(textArea, tags, groupId, currentPageUrl, currentNote);
+            editor.remove();
+            document.removeEventListener('mousedown', onDocMouseDown);
+        }
+    }
+
+    document.addEventListener('mousedown', onDocMouseDown);
+    // renderMarkdown(textArea,allTemps=>{
+    //   //console.log("temp",temp)
+
+    //   monitorInsertIn(allTemps,textArea);
+    // });
+    textArea.focus();
+    //textarea.selectionStart = textarea.selectionEnd = textarea.value.length;
+    textArea.onfocus = () => {
+        // 对于 contenteditable 元素，使用 Range API 而不是 selectionStart/selectionEnd
+        try {
+            const range = document.createRange();
+            const selection = window.getSelection();
+
+            // 将光标移动到文本末尾
+            if (textArea.childNodes.length > 0) {
+                const lastChild = textArea.lastChild;
+                if (lastChild.nodeType === Node.TEXT_NODE) {
+                    range.setStart(lastChild, lastChild.textContent.length);
+                } else {
+                    range.setStartAfter(lastChild);
+                }
+            } else {
+                range.setStart(textArea, 0);
+            }
+
+            range.collapse(true);
+            selection.removeAllRanges();
+            selection.addRange(range);
+        } catch (error) {
+            console.warn('设置焦点位置失败:', error);
+        }
     };
-    
-    textArea.addEventListener('input', textArea._inputHandler);
+    const tagsBar = editor.querySelector('.note-editor-header');
+    //const textArea = editor.querySelector('.note-editor-textarea');
 
-    //如果textarea有内容，则自动展开
-    if (currentNote!='') {
-      textArea.style.height = 'auto'; // 先清空高度
-      textArea.style.height = textArea.scrollHeight + 'px'; // 根据内容撑开
-    }
-
-    // 失焦时保存内容
-    // 初始化markdown渲染
-  }
-
-  textArea.onblur = () => {
-    // 使用setTimeout延迟检查，确保事件处理的正确性
-    setTimeout(() => {
-      // 检查是否是因为点击了tag输入框而导致的失焦
-      const activeElement = document.activeElement;
-      if (activeElement && activeElement.classList.contains('note-editor-tags')) {
-        return; // 如果焦点转移到了tag输入框，不关闭编辑器
-      }
-
-      const note = document.querySelectorAll('.html-note-highlight[data-group-id="' + groupId + '"]')[0].querySelector('.markdown-temp').getAttribute('mardown-data');
-      //console.log("note",note);
-      const tagsValue = tags.value.trim();
-      
-      // 保存tags到本地存储
-      if (tagsValue) {
-        const tagsArray = tagsValue.split(',').map(tag => tag.trim()).filter(Boolean);
-        saveTagsToStorage(currentPageUrl, tagsArray);
-      }
-      
-      if (groupId) {
-        if (note.length > 0) {
-          console.log(`[debug] note in onblur: ${note}`);
-          document.querySelectorAll('.html-note-highlight[data-group-id="' + groupId + '"]').forEach(span => {
-            const notes = loadAllMarkdown(textArea);
-            console.log(`[debug] notes in onblur: ${notes}`);
-            span.setAttribute('data-note', notes);
-            //span.title = note ;
-          });
-
-        }
-      }
-      
-      // 清理markdown相关的事件监听器
-      if (typeof cleanupMarkdownListeners === 'function') {
-        cleanupMarkdownListeners(textArea);
-      }
-      
-      editor.remove();
-      document.removeEventListener('mousedown', onDocMouseDown);
-    }, 10); // 延迟10ms检查
-  }
-  // 点击外部关闭编辑器
-  function onDocMouseDown(ev) {
-    // 检查点击的目标是否在editor内，包括tag输入框和删除按钮
-    // 如果点击的是tag输入框或删除按钮，不要关闭编辑器
-    if (ev.target.classList.contains('note-editor-tags') || ev.target.classList.contains('tag-delete-btn')) {
-      return; // 如果点击的是tag输入框或删除按钮，不关闭编辑器
-    }
-    
-    // 检查是否点击了工具栏或颜色选择器
-    const isInToolbar = ev.target.closest('.html-note-toolbar-float');
-    const isInColorPicker = ev.target.closest('.color-picker-float');
-    
-    if (!editor.contains(ev.target) && !isInToolbar && !isInColorPicker) {
-      console.log("[debug] if it can chekc the editor");
-       saveNotesContent(textArea,tags,groupId,currentPageUrl,currentNote);
-       editor.remove();
-       document.removeEventListener('mousedown', onDocMouseDown);
-    }
-  }
-
-  document.addEventListener('mousedown', onDocMouseDown);
-  // renderMarkdown(textArea,allTemps=>{
-  //   //console.log("temp",temp)
-
-  //   monitorInsertIn(allTemps,textArea);
-  // });
-  textArea.focus();
-  //textarea.selectionStart = textarea.selectionEnd = textarea.value.length;
-  textArea.onfocus = () => {
-    // 对于 contenteditable 元素，使用 Range API 而不是 selectionStart/selectionEnd
-    try {
-      const range = document.createRange();
-      const selection = window.getSelection();
-      
-      // 将光标移动到文本末尾
-      if (textArea.childNodes.length > 0) {
-        const lastChild = textArea.lastChild;
-        if (lastChild.nodeType === Node.TEXT_NODE) {
-          range.setStart(lastChild, lastChild.textContent.length);
-        } else {
-          range.setStartAfter(lastChild);
-        }
-      } else {
-        range.setStart(textArea, 0);
-      }
-      
-      range.collapse(true);
-      selection.removeAllRanges();
-      selection.addRange(range);
-    } catch (error) {
-      console.warn('设置焦点位置失败:', error);
-    }
-  };
-  const tagsBar = editor.querySelector('.note-editor-header');
-  //const textArea = editor.querySelector('.note-editor-textarea');
-  
 }
 
 /**
@@ -414,56 +410,57 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
  * @param {Array} tags - 要保存的tags数组
  */
 function saveTagsToStorage(pageUrl, tags) {
-  if (!pageUrl || !tags || !Array.isArray(tags)) {
-    console.error('saveTagsToStorage: 参数无效');
-    return;
-  }
-  
-  const storageKey = `html_note_tags_${pageUrl}`;
-  const tagsData = {
-    url: pageUrl,
-    tags: tags,
-    timestamp: Date.now()
-  };
-  
-  chrome.storage.local.set({ [storageKey]: tagsData }, () => {
-    if (chrome.runtime.lastError) {
-      console.error('保存tags失败:', chrome.runtime.lastError);
-    } else {
-      console.log('tags已保存到本地存储:', tags);
+    if (!pageUrl || !tags || !Array.isArray(tags)) {
+        console.error('saveTagsToStorage: 参数无效');
+        return;
     }
-  });
+
+    const storageKey = `html_note_tags_${pageUrl}`;
+    const tagsData = {
+        url: pageUrl,
+        tags: tags,
+        timestamp: Date.now()
+    };
+
+    chrome.storage.local.set({[storageKey]: tagsData}, () => {
+        if (chrome.runtime.lastError) {
+            console.error('保存tags失败:', chrome.runtime.lastError);
+        } else {
+            console.log('tags已保存到本地存储:', tags);
+        }
+    });
 }
+
 /**
  * 从Chrome本地存储读取tags
  * @param {string} pageUrl - 当前页面URL，用作存储键的一部分
  * @param {Function} callback - 回调函数，参数为读取到的tags数组
  */
 function loadTagsFromStorage(pageUrl, callback) {
-  if (!pageUrl || typeof callback !== 'function') {
-    console.error('loadTagsFromStorage: 参数无效');
-    callback([]);
-    return;
-  }
-  
-  const storageKey = `html_note_tags_${pageUrl}`;
-  
-  chrome.storage.local.get([storageKey], (result) => {
-    if (chrome.runtime.lastError) {
-      console.error('读取tags失败:', chrome.runtime.lastError);
-      callback([]);
-      return;
+    if (!pageUrl || typeof callback !== 'function') {
+        console.error('loadTagsFromStorage: 参数无效');
+        callback([]);
+        return;
     }
-    
-    const tagsData = result[storageKey];
-    if (tagsData && tagsData.tags && Array.isArray(tagsData.tags)) {
-      console.log('从本地存储读取到tags:', tagsData.tags);
-      callback(tagsData.tags);
-    } else {
-      console.log('未找到保存的tags');
-      callback([]);
-    }
-  });
+
+    const storageKey = `html_note_tags_${pageUrl}`;
+
+    chrome.storage.local.get([storageKey], (result) => {
+        if (chrome.runtime.lastError) {
+            console.error('读取tags失败:', chrome.runtime.lastError);
+            callback([]);
+            return;
+        }
+
+        const tagsData = result[storageKey];
+        if (tagsData && tagsData.tags && Array.isArray(tagsData.tags)) {
+            console.log('从本地存储读取到tags:', tagsData.tags);
+            callback(tagsData.tags);
+        } else {
+            console.log('未找到保存的tags');
+            callback([]);
+        }
+    });
 }
 
 // /**
@@ -474,65 +471,70 @@ function loadTagsFromStorage(pageUrl, callback) {
 // function addTags(currentPageUrl, editor) {
 
 
-function saveNotesContent(textArea,tags,groupId,currentPageUrl,currentNote){
-  setTimeout(() => {
-    // 检查是否是因为点击了tag输入框而导致的失焦
-    const activeElement = document.activeElement;
-    if (activeElement && activeElement.classList.contains('note-editor-tags')) {
-      return; // 如果焦点转移到了tag输入框，不关闭编辑器
-    }
+function saveNotesContent(textArea, tags, groupId, currentPageUrl, currentNote) {
+    setTimeout(() => {
+        // 检查是否是因为点击了tag输入框而导致的失焦
+        const activeElement = document.activeElement;
+        if (activeElement && activeElement.classList.contains('note-editor-tags')) {
+            return; // 如果焦点转移到了tag输入框，不关闭编辑器
+        }
 
-    const note = loadAllMarkdown(textArea);
-    const tagsValue = tags.value.trim();
-    
-    // 保存tags到本地存储
-    if (tagsValue) {
-      const tagsArray = tagsValue.split(',').map(tag => tag.trim()).filter(Boolean);
-      saveTagsToStorage(currentPageUrl, tagsArray);
-    }
-    
-    if (groupId) {
-      if (note != ""||currentNote!='') {
-        document.querySelectorAll('.html-note-highlight[data-group-id="' + groupId + '"]').forEach(span => {
-          span.setAttribute('data-note', note);
-          update_storage_note(groupId,note);
-          //span.title = note ;
-        });
+        const note = loadAllMarkdown(textArea);
+        const tagsValue = tags.value.trim();
 
-      }
-    } else {
-      if (note != ""||currentNote!='') {
-        highlightElement.setAttribute('data-note', note);
-        update_storage_note(groupId,note);
-        //highlightElement.title = note ;
-      }
-    }
-    
-    // 清理markdown相关的事件监听器
-    removeListener(textArea);
-    
+        // 保存tags到本地存储
+        if (tagsValue) {
+            const tagsArray = tagsValue.split(',').map(tag => tag.trim()).filter(Boolean);
+            saveTagsToStorage(currentPageUrl, tagsArray);
+        }
 
-  }, 10); // 延迟10ms检查
+        if (groupId) {
+            if (note != "" || currentNote != '') {
+                document.querySelectorAll('.html-note-highlight[data-group-id="' + groupId + '"]').forEach(span => {
+                    span.setAttribute('data-note', note);
+                    update_storage_note(groupId, note);
+                    //span.title = note ;
+                });
+
+            }
+        } else {
+            if (note != "" || currentNote != '') {
+                highlightElement.setAttribute('data-note', note);
+                update_storage_note(groupId, note);
+                //highlightElement.title = note ;
+            }
+        }
+
+        // 清理markdown相关的事件监听器
+        removeListener(textArea);
+
+
+    }, 10); // 延迟10ms检查
 }
-function loadNotesContent(textArea){
+
+function loadNotesContent(textArea) {
 }
+
 // it is going to remove all the listeners of the child elements of textArea
-function removeListener(textArea){
-  const allChildren = textArea.querySelectorAll("markdown-temp");
-  allChildren.forEach((child) => {
-    child.removeEventListener("keydown", (e) => {});
-    child.removeEventListener("click", (e) => {});
-  });
+function removeListener(textArea) {
+    const allChildren = textArea.querySelectorAll("markdown-temp");
+    allChildren.forEach((child) => {
+        child.removeEventListener("keydown", (e) => {
+        });
+        child.removeEventListener("click", (e) => {
+        });
+    });
 
 }
-function update_storage_note(groupId,note){
-  console.log(`[debug] update_storage_note: ${note}`);
-  chrome.storage.local.get(groupId, function(result){
-    if (result){
-      result[groupId].note = note;
-      chrome.storage.local.set({
-        [groupId]: result[groupId]
-      })
-    }
-  })
+
+function update_storage_note(groupId, note) {
+    console.log(`[debug] update_storage_note: ${note}`);
+    chrome.storage.local.get(groupId, function (result) {
+        if (result) {
+            result[groupId].note = note;
+            chrome.storage.local.set({
+                [groupId]: result[groupId]
+            })
+        }
+    })
 }

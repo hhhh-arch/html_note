@@ -1,10 +1,10 @@
-function showMindMapPanel() {
+function showMindMapPanel(pageUrl) {
     // 如果已存在面板则直接返回
     if (document.querySelector('#mindmap-panel')) return;
-  
+
     const panel = document.createElement('div');
     panel.id = 'mindmap-panel';
-    
+
     panel.innerHTML = `<div id="mindmap-container">
     <div id="map"></div>
 <style>
@@ -17,89 +17,122 @@ function showMindMapPanel() {
     document.body.appendChild(panel);
     console.log('MindElixir:', window.MindElixir);
     const MindElixir = window.MindElixir.default;
-    initMindMap(MindElixir);
-      
-      
-  }
-  function initMindMap(MindElixir){
+    const mind = initMindMap(MindElixir, pageUrl);
+    loadNoteCard(pageUrl, mind);
+
+}
+
+function initMindMap(MindElixir, pageUrl) {
     let options = {
-      el: '#map', // or HTMLDivElement
-      direction: MindElixir.LEFT,
-      draggable: true, // default true
-      contextMenu: true, // default true
-      toolBar: true, // default true
-      nodeMenu: true, // default true
-      keypress: true, // default true
-      locale: 'en', // [zh_CN,zh_TW,en,ja,pt,ru] waiting for PRs
-      overflowHidden: false, // default false
-      mainLinkStyle: 2, // [1,2] default 1
-      mouseSelectionButton: 0, // 0 for left button, 2 for right button, default 0
-      contextMenuOption: {
-        focus: true,
-        link: true,
-        extend: [
-          {
-            name: 'Node edit',
-            onclick: () => {
-              alert('extend menu')
-            },
-          },
-        ],
-      },
-      before: {
-        insertSibling(type, obj) {
-          return true
+        el: '#map', // or HTMLDivElement
+        direction: MindElixir.LEFT,
+        draggable: true, // default true
+        contextMenu: true, // default true
+        toolBar: true, // default true
+        nodeMenu: true, // default true
+        keypress: true, // default true
+        locale: 'en', // [zh_CN,zh_TW,en,ja,pt,ru] waiting for PRs
+        overflowHidden: false, // default false
+        mainLinkStyle: 2, // [1,2] default 1
+        mouseSelectionButton: 0, // 0 for left button, 2 for right button, default 0
+        contextMenuOption: {
+            focus: true,
+            link: true,
+            extend: [
+                {
+                    name: 'Node edit',
+                    onclick: () => {
+                        alert('extend menu')
+                    },
+                },
+            ],
         },
-      },
+        before: {
+            insertSibling(type, obj) {
+                return true
+            },
+        },
     }
     let mind = new MindElixir(options);
     //mind.install(window.NodeMenu) // install your plugin
-    
-    // create new map data
-    const data = initNoteCard('new topic','quote','notes');
-    console.log(`data:`,MindElixir.new('new topic'));
-    // or `example`
-    // or the data return from `.getData()`
-    mind.init(data);
+    return mind;
+    // // create new map data
+    // const data = initNoteCard('new topic','quote','notes');
+    // console.log(`data:`,MindElixir.new('new topic'));
+    // // or `example`
+    // // or the data return from `.getData()`
+    // mind.init(data);
 
 
-  }
-  function initNoteCard(title,quote,notes){
-    if(!checkPackage()){
-      console.error(`checkPackage failed`);
-      return;
+}
+
+function loadNoteCard(pageUrl, mind) {
+    chrome.storage.local.get(pageUrl, (result) => {
+        const groupId_list = result[pageUrl];
+        if (groupId_list) {
+            groupId_list.forEach(groupId => {
+                chrome.storage.local.get(groupId, (result) => {
+                    const highlightElement_structure = result[groupId];
+                    if (highlightElement_structure) {
+                        const color = highlightElement_structure.color;
+                        const quote = find_quotes(highlightElement_structure.highlightElement);
+                        const notes = highlightElement_structure.note;
+                        const title = highlightElement_structure.title;
+                        const data = initNoteCard(title, quote, notes);
+                        mind.init(data);
+                    }
+                });
+            });
+        }
+    });
+}
+
+function find_quotes(highlightElement) {
+    const quotes = '';
+    highlightElement.forEach(element => {
+        quotes += element.highlightElement_text;
+
+    });
+    return quotes;
+}
+
+function initNoteCard(title, quote, notes) {
+    if (!checkPackage()) {
+        console.error(`checkPackage failed`);
+        return;
     }
-    const style_html = createDangerousHtml(title,quote,notes);
+    const style_html = createDangerousHtml(title, quote, notes);
     const data = {
-      nodeData: {
-        id: 'root',
-        topic: title,
-        style: { 
-          fontSize: '16', 
-          color: '#2c3e50', 
-          background: 'transparent',
-          border: 'none',
-          boxShadow: 'none',
-          width: '300px',
-          padding: '0',
-          margin: '0'
-        },
-        // 添加自定义类名，方便CSS选择器
-        className: 'custom-note-card',
-        children: [
-          {
-            direction: 0,
-            id: 'd34338c074901546',
-            topic: 'new node',
+        nodeData: {
+            id: 'root',
+            topic: title,
+            style: {
+                fontSize: '16',
+                color: '#2c3e50',
+                background: 'transparent',
+                border: 'none',
+                boxShadow: 'none',
+                width: '300px',
+                padding: '0',
+                margin: '0'
+            },
+            // 添加自定义类名，方便CSS选择器
+            className: 'custom-note-card',
+            children: [
+                {
+                    direction: 0,
+                    id: 'd34338c074901546',
+                    topic: 'new node',
+                    dangerouslySetInnerHTML: style_html,
+                },
+            ],
             dangerouslySetInnerHTML: style_html,
-          },
-        ],
-        dangerouslySetInnerHTML: style_html,
-      }
+        }
     }
     return data;
-  }
-  function createDangerousHtml(title,quote,notes){
+}
+
+function createDangerousHtml(title, quote, notes) {
     const temp_html = document.createElement('div');
     const note_card = document.createElement('div');
     note_card.className = 'note-card';
@@ -126,4 +159,4 @@ function showMindMapPanel() {
     note_card.appendChild(notes_container);
     temp_html.appendChild(note_card);
     return temp_html.innerHTML;
-  }
+}
