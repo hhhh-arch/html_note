@@ -140,7 +140,14 @@ function refresh_NoteCard(root_noteCard,children_noteCard,mind){
     }
   }
   console.log('root_noteCard:',root_noteCard);
-  mind.refresh(root_noteCard);
+  const dataToRefresh = {
+    nodeData: root_noteCard,
+    arrows: [],
+    summaries: []
+  };
+  mind.refresh(dataToRefresh);
+  console.log('mind.getData():',mind.getData());
+  console.log('mind.getData().children:',mind.getData().children);
   return root_noteCard;
 }
 function generate_children_noteCard(title,quote, note, color, groupId){
@@ -149,8 +156,8 @@ function generate_children_noteCard(title,quote, note, color, groupId){
     id: groupId,
     topic: quote,
     dangerouslySetInnerHTML: createDangerousHtml(title,quote,note,color),
-    className: 'custom-note-card',
-    parent:'root',
+    // className: 'custom-note-card',
+    // parent:'root',
   }
   return child_noteCard;
 }
