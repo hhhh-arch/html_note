@@ -31,7 +31,7 @@
 .note-card {
   /* 整体卡片样式 */
   width: 300px;
-  background: #ffeb3b;
+  /* background: #ffeb3b; */
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   overflow: hidden;
@@ -49,7 +49,7 @@
 
 .title-container {
   /* 标题容器 - 黄色背景，圆角底部 */
-  background: #ffeb3b;
+  /* background: #ffeb3b; */
   padding: 16px 20px 20px 20px;
   border-bottom-left-radius: 12px;
   border-bottom-right-radius: 12px;

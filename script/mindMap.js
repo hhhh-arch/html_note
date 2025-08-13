@@ -18,7 +18,8 @@ function showMindMapPanel(pageUrl) {
     console.log('MindElixir:', window.MindElixir);
     const MindElixir = window.MindElixir.default;
     const mind = initMindMap(MindElixir, pageUrl);
-    loadNoteCard(pageUrl, mind);
+    const root_noteCard = mind.getData();
+    loadNoteCard(pageUrl, mind,root_noteCard);
 
 }
 
@@ -55,6 +56,8 @@ function initMindMap(MindElixir, pageUrl) {
     }
     let mind = new MindElixir(options);
     //mind.install(window.NodeMenu) // install your plugin
+    const data = initNoteCard(pageUrl);
+    mind.init(data);
     return mind;
     // // create new map data
     // const data = initNoteCard('new topic','quote','notes');
@@ -66,73 +69,93 @@ function initMindMap(MindElixir, pageUrl) {
 
 }
 
-function loadNoteCard(pageUrl, mind) {
+function loadNoteCard(pageUrl, mind,root_noteCard) {
     chrome.storage.local.get(pageUrl, (result) => {
         const groupId_list = result[pageUrl];
         if (groupId_list) {
+
             groupId_list.forEach(groupId => {
                 chrome.storage.local.get(groupId, (result) => {
                     const highlightElement_structure = result[groupId];
                     if (highlightElement_structure) {
+                      console.log('highlightElement_structure:',highlightElement_structure);
                         const color = highlightElement_structure.color;
-                        const quote = find_quotes(highlightElement_structure.highlightElement);
+                        const quote = find_quotes(highlightElement_structure.highlightElements);
                         const notes = highlightElement_structure.note;
-                        const title = highlightElement_structure.title;
-                        const data = initNoteCard(title, quote, notes);
-                        mind.init(data);
+                        //const data = initNoteCard(title, quote, notes);
+                        const title = quote;
+                        const data = generate_children_noteCard(title,quote,notes,color,groupId);
+                        if(data){
+                          refresh_NoteCard(root_noteCard,data,mind);
+                        }
+                        else{
+                          window.alert('No note card found');
+                        }
                     }
                 });
             });
+
         }
     });
 }
 
 function find_quotes(highlightElement) {
-    const quotes = '';
+  console.log('highlightElement:',highlightElement);
+    let quotes = '';
     highlightElement.forEach(element => {
         quotes += element.highlightElement_text;
 
     });
     return quotes;
 }
-
-function initNoteCard(title, quote, notes) {
+function initNoteCard(pageUrl) {
     if (!checkPackage()) {
         console.error(`checkPackage failed`);
         return;
     }
-    const style_html = createDangerousHtml(title, quote, notes);
+    
     const data = {
         nodeData: {
-            id: 'root',
-            topic: title,
-            style: {
-                fontSize: '16',
-                color: '#2c3e50',
-                background: 'transparent',
-                border: 'none',
-                boxShadow: 'none',
-                width: '300px',
-                padding: '0',
-                margin: '0'
-            },
-            // 添加自定义类名，方便CSS选择器
-            className: 'custom-note-card',
-            children: [
-                {
-                    direction: 0,
-                    id: 'd34338c074901546',
-                    topic: 'new node',
-                    dangerouslySetInnerHTML: style_html,
-                },
-            ],
-            dangerouslySetInnerHTML: style_html,
+            id :'root',
+            topic: 'root',
+            hyperLink: pageUrl,
+
+            expanded: true,
+            root: true,
         }
     }
     return data;
 }
+function refresh_NoteCard(root_noteCard,children_noteCard,mind){
 
-function createDangerousHtml(title, quote, notes) {
+  if (children_noteCard){
+    let children_noteCard_list = mind.getData().children;
+    if (children_noteCard_list){
+      console.log('children_noteCard:',children_noteCard);
+      children_noteCard_list.push(children_noteCard);
+      root_noteCard.children = children_noteCard_list;
+    }
+    else{
+      root_noteCard.children = [children_noteCard];
+    }
+  }
+  console.log('root_noteCard:',root_noteCard);
+  mind.refresh(root_noteCard);
+  return root_noteCard;
+}
+function generate_children_noteCard(title,quote, note, color, groupId){
+  const child_noteCard = {
+    direction:0,
+    id: groupId,
+    topic: quote,
+    dangerouslySetInnerHTML: createDangerousHtml(title,quote,note,color),
+    className: 'custom-note-card',
+    parent:'root',
+  }
+  return child_noteCard;
+}
+
+function createDangerousHtml(title, quote, notes,color) {
     const temp_html = document.createElement('div');
     const note_card = document.createElement('div');
     note_card.className = 'note-card';
@@ -158,5 +181,7 @@ function createDangerousHtml(title, quote, notes) {
     notes_container.appendChild(notes_style);
     note_card.appendChild(notes_container);
     temp_html.appendChild(note_card);
+    note_card.style.backgroundColor = color;
+    title_container.style.backgroundColor = color;
     return temp_html.innerHTML;
 }
