@@ -86,7 +86,7 @@ function loadNoteCard(pageUrl, mind,root_noteCard) {
                         const title = quote;
                         const data = generate_children_noteCard(title,quote,notes,color,groupId);
                         if(data){
-                          refresh_NoteCard(root_noteCard,data,mind);
+                          refresh_NoteCard(initNoteCard(pageUrl),data,mind);
                         }
                         else{
                           window.alert('No note card found');
@@ -133,19 +133,19 @@ function refresh_NoteCard(root_noteCard,children_noteCard,mind){
     if (children_noteCard_list){
       console.log('children_noteCard:',children_noteCard);
       children_noteCard_list.push(children_noteCard);
-      root_noteCard.children = children_noteCard_list;
+      root_noteCard.nodeData.children = children_noteCard_list;
     }
     else{
-      root_noteCard.children = [children_noteCard];
+      root_noteCard.nodeData.children = [children_noteCard];
     }
   }
   console.log('root_noteCard:',root_noteCard);
-  const dataToRefresh = {
-    nodeData: root_noteCard,
-    arrows: [],
-    summaries: []
-  };
-  mind.refresh(dataToRefresh);
+  // const dataToRefresh = {
+  //   nodeData: root_noteCard,
+  //   arrows: [],
+  //   summaries: []
+  // };
+  mind.refresh(root_noteCard);
   console.log('mind.getData():',mind.getData());
   console.log('mind.getData().children:',mind.getData().children);
   return root_noteCard;
