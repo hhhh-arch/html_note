@@ -18,8 +18,28 @@ function showMindMapPanel(pageUrl) {
     console.log('MindElixir:', window.MindElixir);
     const MindElixir = window.MindElixir.default;
     const mind = initMindMap(MindElixir, pageUrl);
+    (function overide_node_edit(mind){
+      console.log("overide_node_edit:")
+      if (!mind || typeof mind.beginEdit !== 'function') return;
+      const _beginEdit = mind.beginEdit.bind(mind);
+      mind.beginEdit = function (el) {
+        const nodeEle = el || mind.currentNode
+        if (!nodeEle) return
+        if (nodeEle.nodeObj.dangerouslySetInnerHTML) {
+          //showNoteCardEditor(nodeEle);
+          console.log("overide_node_edit:")
+          return;
+        }
+        return _beginEdit(el);
+      }
+    })(mind);
     const root_noteCard = mind.getData();
     loadNoteCard(pageUrl, mind,root_noteCard);
+    console.log('note card :',panel.querySelectorAll('tpc'));
+    mind.bus.addListener('operation', operation => {
+      console.log("operation:", operation);
+    });
+   
 
 }
 
@@ -192,3 +212,7 @@ function createDangerousHtml(title, quote, notes,color) {
     title_container.style.backgroundColor = color;
     return temp_html.innerHTML;
 }
+//TODO: double click to edit the note card
+
+
+//TODO: storage the mind map data
