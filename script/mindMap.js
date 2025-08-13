@@ -129,7 +129,7 @@ function initNoteCard(pageUrl) {
 function refresh_NoteCard(root_noteCard,children_noteCard,mind){
 
   if (children_noteCard){
-    let children_noteCard_list = mind.getData().children;
+    let children_noteCard_list = mind.getData().nodeData.children;
     if (children_noteCard_list){
       console.log('children_noteCard:',children_noteCard);
       children_noteCard_list.push(children_noteCard);
@@ -147,7 +147,7 @@ function refresh_NoteCard(root_noteCard,children_noteCard,mind){
   // };
   mind.refresh(root_noteCard);
   console.log('mind.getData():',mind.getData());
-  console.log('mind.getData().children:',mind.getData().children);
+  console.log('mind.getData().nodeData.children:',mind.getData().nodeData.children);
   return root_noteCard;
 }
 function generate_children_noteCard(title,quote, note, color, groupId){
