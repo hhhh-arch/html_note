@@ -28,18 +28,14 @@ function showMindMapPanel(pageUrl) {
         if (nodeEle.nodeObj.dangerouslySetInnerHTML) {
           //
           console.log("overide_node_edit:")
-          showNoteCardEditor(nodeEle,panel,mind);
+          showNoteCardEditor(nodeEle,panel,mind,pageUrl);
           return;
         }
         return _beginEdit(el);
       }
     })(mind);
-    const root_noteCard = mind.getData();
-    loadNoteCard(pageUrl, mind,root_noteCard);
-    console.log('note card :',panel.querySelectorAll('tpc'));
-    mind.bus.addListener('operation', operation => {
-      console.log("operation:", operation);
-    });
+
+    get_mindMap_data(pageUrl,mind);
    
 
 }
@@ -220,7 +216,7 @@ function createDangerousHtml(title, quote, notes,color) {
     return temp_html.innerHTML;
 }
 //TODO: double click to edit the note card
-function showNoteCardEditor(nodeEle,panel,mind){
+function showNoteCardEditor(nodeEle,panel,mind,pageUrl){
   console.log("showNoteCardEditor:",nodeEle);
   const title = nodeEle.nodeObj.dataset.title;
   const quote = nodeEle.nodeObj.dataset.quote;
@@ -245,18 +241,18 @@ function showNoteCardEditor(nodeEle,panel,mind){
   panel.appendChild(note_card_editor);  
   note_card_editor.addEventListener('mouseleave',(event)=>{
     if (note_card_editor.contains(event.target)){
-     hideNoteCardEditor(panel,note_card_editor,nodeEle,note_card_editor,mind);
+     hideNoteCardEditor(panel,note_card_editor,nodeEle,note_card_editor,mind,pageUrl);
     }
  })
 }
-function hideNoteCardEditor(panel,note_card_editor,nodeEle,note_card_editor,mind){
+function hideNoteCardEditor(panel,note_card_editor,nodeEle,note_card_editor,mind,pageUrl){
   console.log("hideNoteCardEditor:",note_card_editor);
   if (note_card_editor){
-    updateNoteCard(nodeEle,panel,note_card_editor,mind);
+    updateNoteCard(nodeEle,panel,note_card_editor,mind,pageUrl);
     note_card_editor.remove();
   }
 }
-function updateNoteCard(nodeEle,panel,note_card_editor,mind){
+function updateNoteCard(nodeEle,panel,note_card_editor,mind,pageUrl){
   console.log("updateNoteCard:",note_card_editor);
   const title = note_card_editor.querySelector('.title-style').innerHTML;
   const quote = note_card_editor.querySelector('.quote-style').innerHTML;
@@ -276,6 +272,7 @@ function updateNoteCard(nodeEle,panel,note_card_editor,mind){
   const currentdata = mind.getData();
   console.log("currentdata:",currentdata);
   mind.refresh(currentdata);
+  storage_mindMap_data(mind, pageUrl);
   // mind.refresh(nodeEle);
 }
 //TODO: storage the mind map data
@@ -284,4 +281,23 @@ function check_empty_container(text){
     return false;
   }
   return true;
+}
+function storage_mindMap_data(mind, pageUrl){
+  const data = mind.getData();
+  const key_mindMap = 'mindMap'+ pageUrl;
+  chrome.storage.local.set({[key_mindMap]: data});
+}
+function get_mindMap_data(pageUrl,mind){
+  const key_mindMap = 'mindMap'+ pageUrl;
+  chrome.storage.local.get(key_mindMap, (result) => {
+    const data_mindMap = result[key_mindMap];
+    if (data_mindMap){
+      mind.init(data_mindMap);
+    }
+    else{
+      const root_noteCard = mind.getData();
+      loadNoteCard(pageUrl, mind,root_noteCard);
+      storage_mindMap_data(mind, pageUrl);
+    }
+  });
 }
