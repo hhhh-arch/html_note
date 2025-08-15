@@ -34,7 +34,13 @@ function showMindMapPanel(pageUrl) {
         return _beginEdit(el);
       }
     })(mind);
-
+    panel.addEventListener('mouseleave',(event)=>{
+      console.log("mouseleave:",event);
+      if (panel.contains(event.target)){
+        storage_mindMap_data(mind, pageUrl);
+        panel.remove();
+      }
+    });
     get_mindMap_data(pageUrl,mind);
    
 
@@ -260,6 +266,7 @@ function updateNoteCard(nodeEle,panel,note_card_editor,mind,pageUrl){
   if (!check_empty_container(title)&&!check_empty_container(quote)&&!check_empty_container(note)){
     console.log("remove nodeEle:",nodeEle);
     mind.removeNodes([mind.currentNode]);
+    remove_storage_mindMap_data(pageUrl);
     return;
   }
   nodeEle.nodeObj.dataset.title = title||quote;
@@ -283,6 +290,7 @@ function check_empty_container(text){
   return true;
 }
 function storage_mindMap_data(mind, pageUrl){
+  console.log("storage_mindMap_data:",mind.getData());
   const data = mind.getData();
   const key_mindMap = 'mindMap'+ pageUrl;
   chrome.storage.local.set({[key_mindMap]: data});
@@ -291,7 +299,9 @@ function get_mindMap_data(pageUrl,mind){
   const key_mindMap = 'mindMap'+ pageUrl;
   chrome.storage.local.get(key_mindMap, (result) => {
     const data_mindMap = result[key_mindMap];
+    console.log("data_mindMap:",data_mindMap);
     if (data_mindMap){
+      console.log("data_mindMap:",data_mindMap);
       mind.init(data_mindMap);
     }
     else{
@@ -300,4 +310,8 @@ function get_mindMap_data(pageUrl,mind){
       storage_mindMap_data(mind, pageUrl);
     }
   });
+}
+function remove_storage_mindMap_data(pageUrl){
+  const key_mindMap = 'mindMap'+ pageUrl;
+  chrome.storage.local.remove(key_mindMap);
 }
