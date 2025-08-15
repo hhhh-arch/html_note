@@ -26,8 +26,9 @@ function showMindMapPanel(pageUrl) {
         const nodeEle = el || mind.currentNode
         if (!nodeEle) return
         if (nodeEle.nodeObj.dangerouslySetInnerHTML) {
-          //showNoteCardEditor(nodeEle);
+          //
           console.log("overide_node_edit:")
+          showNoteCardEditor(nodeEle,panel,mind);
           return;
         }
         return _beginEdit(el);
@@ -176,6 +177,12 @@ function generate_children_noteCard(title,quote, note, color, groupId){
     id: groupId,
     topic: quote,
     dangerouslySetInnerHTML: createDangerousHtml(title,quote,note,color),
+    dataset:{
+      title:title,
+      quote:quote,
+      note:note,
+      color:color,
+    }
     // className: 'custom-note-card',
     // parent:'root',
   }
@@ -213,6 +220,57 @@ function createDangerousHtml(title, quote, notes,color) {
     return temp_html.innerHTML;
 }
 //TODO: double click to edit the note card
-
-
+function showNoteCardEditor(nodeEle,panel,mind){
+  console.log("showNoteCardEditor:",nodeEle);
+  const title = nodeEle.nodeObj.dataset.title;
+  const quote = nodeEle.nodeObj.dataset.quote;
+  const note = nodeEle.nodeObj.dataset.note;
+  const note_card_editor = document.createElement('div');
+  note_card_editor.className = 'note-card-editor';
+  const title_style = document.createElement('h3');
+  title_style.className = 'title-style';
+  title_style.innerHTML = title;
+  title_style.contentEditable = 'true';
+  note_card_editor.appendChild(title_style);
+  const quote_style = document.createElement('p');
+  quote_style.className = 'quote-style';
+  quote_style.innerHTML = quote;
+  quote_style.contentEditable = 'true';
+  note_card_editor.appendChild(quote_style);
+  const notes_style = document.createElement('p');
+  notes_style.className = 'notes-style';
+  notes_style.innerHTML = note;
+  notes_style.contentEditable = 'true';
+  note_card_editor.appendChild(notes_style);
+  panel.appendChild(note_card_editor);  
+  note_card_editor.addEventListener('mouseleave',(event)=>{
+    if (note_card_editor.contains(event.target)){
+     hideNoteCardEditor(panel,note_card_editor,nodeEle,note_card_editor,mind);
+    }
+ })
+}
+function hideNoteCardEditor(panel,note_card_editor,nodeEle,note_card_editor,mind){
+  console.log("hideNoteCardEditor:",note_card_editor);
+  if (note_card_editor){
+    updateNoteCard(nodeEle,panel,note_card_editor,mind);
+    note_card_editor.remove();
+  }
+}
+function updateNoteCard(nodeEle,panel,note_card_editor,mind){
+  console.log("updateNoteCard:",note_card_editor);
+  const title = note_card_editor.querySelector('.title-style').innerHTML;
+  const quote = note_card_editor.querySelector('.quote-style').innerHTML;
+  const note = note_card_editor.querySelector('.notes-style').innerHTML;
+  nodeEle.nodeObj.dataset.title = title||quote;
+  nodeEle.nodeObj.dataset.quote = quote;
+  nodeEle.nodeObj.dataset.note = note;
+  const color = nodeEle.nodeObj.dataset.color;
+  nodeEle.nodeObj.dangerouslySetInnerHTML = createDangerousHtml(title,quote,note,color);
+  nodeEle.nodeObj.topic = title||quote;
+  console.log("nodeEle.nodeObj:",nodeEle.nodeObj);
+  const currentdata = mind.getData();
+  console.log("currentdata:",currentdata);
+  mind.refresh(currentdata);
+  // mind.refresh(nodeEle);
+}
 //TODO: storage the mind map data
