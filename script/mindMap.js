@@ -261,6 +261,11 @@ function updateNoteCard(nodeEle,panel,note_card_editor,mind){
   const title = note_card_editor.querySelector('.title-style').innerHTML;
   const quote = note_card_editor.querySelector('.quote-style').innerHTML;
   const note = note_card_editor.querySelector('.notes-style').innerHTML;
+  if (!check_empty_container(title)&&!check_empty_container(quote)&&!check_empty_container(note)){
+    console.log("remove nodeEle:",nodeEle);
+    mind.removeNodes([mind.currentNode]);
+    return;
+  }
   nodeEle.nodeObj.dataset.title = title||quote;
   nodeEle.nodeObj.dataset.quote = quote;
   nodeEle.nodeObj.dataset.note = note;
@@ -274,3 +279,9 @@ function updateNoteCard(nodeEle,panel,note_card_editor,mind){
   // mind.refresh(nodeEle);
 }
 //TODO: storage the mind map data
+function check_empty_container(text){
+  if (text ==''||text ==null||text ==undefined||text == '<br>'||text == '<br/>'){
+    return false;
+  }
+  return true;
+}
