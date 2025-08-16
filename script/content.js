@@ -537,7 +537,7 @@ class HTMLNoteHighlighter {
     noteBtn.innerHTML = '<svg width="22" height="22" viewBox="0 0 22 22"><rect x="4" y="4" width="14" height="14" rx="4" fill="#fff" stroke="#bfc4d1" stroke-width="1.5"/><text x="11" y="16" text-anchor="middle" font-size="12" fill="#bfc4d1">"</text></svg>';
     noteBtn.onclick = (ev) => {
       ev.stopPropagation();
-      showNoteEditor(highlightElement, groupId);
+      add_noteCard_to_mindMap(window.location.href,groupId);
     };
     // 删除按钮
     const delBtn = document.createElement('button');

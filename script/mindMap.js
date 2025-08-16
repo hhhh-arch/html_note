@@ -17,7 +17,7 @@ function showMindMapPanel(pageUrl) {
     document.body.appendChild(panel);
     console.log('MindElixir:', window.MindElixir);
     const MindElixir = window.MindElixir.default;
-    const mind = initMindMap(MindElixir, pageUrl);
+    const mind = initMindMap(MindElixir, pageUrl,null);
     (function overide_node_edit(mind){
       console.log("overide_node_edit:")
       if (!mind || typeof mind.beginEdit !== 'function') return;
@@ -46,7 +46,7 @@ function showMindMapPanel(pageUrl) {
 
 }
 
-function initMindMap(MindElixir, pageUrl) {
+function initMindMap(MindElixir, pageUrl,init_data) {
     let options = {
         el: '#map', // or HTMLDivElement
         direction: MindElixir.LEFT,
@@ -79,7 +79,7 @@ function initMindMap(MindElixir, pageUrl) {
     }
     let mind = new MindElixir(options);
     //mind.install(window.NodeMenu) // install your plugin
-    const data = initNoteCard(pageUrl);
+    const data = init_data||initNoteCard(pageUrl);
     mind.init(data);
     return mind;
     // // create new map data
@@ -314,4 +314,49 @@ function get_mindMap_data(pageUrl,mind){
 function remove_storage_mindMap_data(pageUrl){
   const key_mindMap = 'mindMap'+ pageUrl;
   chrome.storage.local.remove(key_mindMap);
+}
+function add_noteCard_to_mindMap(pageUrl,groupId){
+  const key_mindMap = 'mindMap'+ pageUrl;
+  chrome.storage.local.get(key_mindMap, (result) => {
+    const data_mindMap = result[key_mindMap];
+    if (data_mindMap){
+      
+      chrome.storage.local.get(groupId, (result) => {
+        const data = convertHightlightElementToNoteCard(result[groupId]);
+        if (data_mindMap.nodeData.children){
+          data_mindMap.nodeData.children.push(data);
+        }
+        else{
+          data_mindMap.nodeData.children = [data];
+        }
+        chrome.storage.local.set({[key_mindMap]: data_mindMap},()=>{
+          if (!check_if_panel_exist()){
+            return;
+          }
+          const MindElixir = window.MindElixir.default;
+          const mind = initMindMap(MindElixir, pageUrl,data_mindMap);
+          refresh_NoteCard(data_mindMap,data,mind);
+        });
+      });
+      
+    }
+  });
+}
+function convertHightlightElementToNoteCard(highlightElement_structure){
+  const groupId = highlightElement_structure.groupId;
+  const color = highlightElement_structure.color;
+  const quote = find_quotes(highlightElement_structure.highlightElements);
+  const notes = highlightElement_structure.note;
+  const title = highlightElement_structure.title;
+  const data = generate_children_noteCard(title,quote,notes,color,groupId);
+  return data;
+}
+function add_noteCard_to_mindMap_data(data){
+
+}
+function check_if_panel_exist(){
+  if (document.querySelector('#mindmap-panel')){
+    return true;
+  }
+  return false;
 }

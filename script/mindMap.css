@@ -8,6 +8,9 @@
   box-shadow: -2px 0 8px rgba(0,0,0,0.2);
   z-index: 999999;
 }
+#mindmap-panel hidden{
+  display: none;
+}
 
 /* 使用自定义类名选择器，更灵活 */
 #mindmap-panel #map .map-container me-tpc.custom-note-card {
