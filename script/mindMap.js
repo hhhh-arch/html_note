@@ -174,10 +174,13 @@ function refresh_NoteCard(root_noteCard,children_noteCard,mind){
   return root_noteCard;
 }
 function generate_children_noteCard(title,quote, note, color, groupId){
+  if (!check_empty_container(title)&&!check_empty_container(quote)&&!check_empty_container(note)){
+    return null;
+  }
   const child_noteCard = {
     direction:0,
     id: groupId,
-    topic: quote,
+    topic: quote||title||note,
     dangerouslySetInnerHTML: createDangerousHtml(title,quote,note,color),
     dataset:{
       title:title,
@@ -199,21 +202,36 @@ function createDangerousHtml(title, quote, notes,color) {
     title_container.className = 'title-container';
     const title_style = document.createElement('h3');
     title_style.className = 'title-style';
-    title_style.innerHTML = title;
+    if (!check_empty_container(title)){
+      title_style.innerHTML = '<br>';
+    }
+    else{
+      title_style.innerHTML = title;
+    }
     title_container.appendChild(title_style);
     note_card.appendChild(title_container);
     const quote_container = document.createElement('div');
     quote_container.className = 'quote-container';
     const quote_style = document.createElement('p');
     quote_style.className = 'quote-style';
-    quote_style.innerHTML = quote;
+    if (!check_empty_container(quote)){
+      quote_style.innerHTML = '<br>';
+    }
+    else{
+      quote_style.innerHTML = quote;
+    }
     quote_container.appendChild(quote_style); // 修复：添加quote_style到容器
     note_card.appendChild(quote_container);
     const notes_container = document.createElement('div');
     notes_container.className = 'notes-container';
     const notes_style = document.createElement('p');
     notes_style.className = 'notes-style';
-    notes_style.innerHTML = notes;
+    if (!check_empty_container(notes)){
+      notes_style.innerHTML = '<br>';
+    }
+    else{
+      notes_style.innerHTML = notes;
+    }
     notes_container.appendChild(notes_style);
     note_card.appendChild(notes_container);
     temp_html.appendChild(note_card);
