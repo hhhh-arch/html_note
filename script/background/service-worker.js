@@ -44,8 +44,28 @@ chrome.runtime.onMessage.addListener((message, sender) => {
           enabled: true
         });
       }
+      if (message.type === 'close_side_panel') {
+        await chrome.sidePanel.setOptions({
+          tabId: sender.tab.id,
+          enabled: false
+        });
+      }
     })();
   });
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.type === 'init_mindmap') {
+    // 发送消息给 Side Panel
+    chrome.tabs.sendMessage(sender.tab.id, {
+      type: 'init_mindmap',
+      pageUrl: message.pageUrl
+    });
+  }
+  
+  if (message.type === 'side_panel_ready') {
+    // Side Panel 告诉 Service Worker 它已经准备好了
+    console.log('Side Panel is ready');
+  }
+});
 // chrome.runtime.onInstalled.addListener(() => {
 //     chrome.contextMenus.create({
 //       id: 'openSidePanel',

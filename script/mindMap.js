@@ -1,8 +1,18 @@
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.type === 'init_mindmap') {
+    // 调用你的初始化函数
+    showMindMapPanel(message.pageUrl);
+  }
+});
 function showMindMapPanel(pageUrl) {
     // 如果已存在面板则直接返回
-    if (document.querySelector('#mindmap-panel')) return;
+    if (document.querySelector('mindmap-panel')) return;
+    if (!pageUrl){
+      console.error('pageUrl not found');
+      return;
+    }
     chrome.runtime.sendMessage({ type: 'open_side_panel' });
-    const panel = document.querySelector('#mindmap-panel');
+    const panel = document.querySelector('mindmap-panel');
     console.log('MindElixir:', window.MindElixir);
     const MindElixir = window.MindElixir.default;
     if (!panel){
