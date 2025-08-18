@@ -1,22 +1,14 @@
 function showMindMapPanel(pageUrl) {
     // 如果已存在面板则直接返回
     if (document.querySelector('#mindmap-panel')) return;
-
-    const panel = document.createElement('div');
-    panel.id = 'mindmap-panel';
-
-    panel.innerHTML = `<div id="mindmap-container">
-    <div id="map"></div>
-<style>
-  #map {
-    height: 500px;
-    width: 100%;
-  }
-</style>
-    </div>`;
-    document.body.appendChild(panel);
+    chrome.runtime.sendMessage({ type: 'open_side_panel' });
+    const panel = document.querySelector('#mindmap-panel');
     console.log('MindElixir:', window.MindElixir);
     const MindElixir = window.MindElixir.default;
+    if (!panel){
+      console.error('panel not found');
+      return;
+    }
     const mind = initMindMap(MindElixir, pageUrl,null);
     (function overide_node_edit(mind){
       console.log("overide_node_edit:")
