@@ -33,6 +33,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     showMindMapPanel(message.pageUrl);
     
   }
+  if (message.type === 'close_side_panel') {
+    storage_mindMap_data(mind);
+
+  }
 });
 function showMindMapPanel(pageUrl) {
    
@@ -75,6 +79,7 @@ function showMindMapPanel(pageUrl) {
    
 
 }
+
 
 function initMindMap(MindElixir, pageUrl,init_data) {
     let options = {
@@ -328,7 +333,7 @@ function updateNoteCard(nodeEle,panel,note_card_editor,mind,pageUrl){
   const currentdata = mind.getData();
   console.log("currentdata:",currentdata);
   mind.refresh(currentdata);
-  storage_mindMap_data(mind, pageUrl);
+  storage_mindMap_data(mind);
   // mind.refresh(nodeEle);
 }
 //TODO: storage the mind map data
@@ -338,9 +343,11 @@ function check_empty_container(text){
   }
   return true;
 }
-function storage_mindMap_data(mind, pageUrl){
+function storage_mindMap_data(){
   console.log("storage_mindMap_data:",mind.getData());
+  
   const data = mind.getData();
+  const pageUrl = data.nodeData.hyperLink;
   const key_mindMap = 'mindMap'+ pageUrl;
   chrome.storage.local.set({[key_mindMap]: data});
 }
@@ -356,7 +363,7 @@ function get_mindMap_data(pageUrl,mind){
     else{
       const root_noteCard = mind.getData();
       loadNoteCard(pageUrl, mind,root_noteCard);
-      storage_mindMap_data(mind, pageUrl);
+      storage_mindMap_data(mind);
     }
   });
 }

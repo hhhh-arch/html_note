@@ -45,6 +45,9 @@ chrome.runtime.onMessage.addListener((message, sender) => {
         });
       }
       if (message.type === 'close_side_panel') {
+        await chrome.tabs.sendMessage(sender.tab.id, {
+          type: 'close_side_panel'
+        });
         await chrome.sidePanel.setOptions({
           tabId: sender.tab.id,
           enabled: false
