@@ -30,7 +30,7 @@
       "script/markdownSupport.js"
 ],
       
-      "css": ["libs/mind-elixir/style.css","style.css","script/mindMap.css"]
+      "css": ["style.css"]
     }
   ],
   "icons": {

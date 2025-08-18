@@ -2,8 +2,8 @@
   position: fixed;
   top: 0;
   right: 0;
-  width: 400px;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
   background: white;
   box-shadow: -2px 0 8px rgba(0,0,0,0.2);
   z-index: 999999;
@@ -12,7 +12,7 @@
   display: none;
 }
 
-/* 使用自定义类名选择器，更灵活 */
+使用自定义类名选择器，更灵活
 #mindmap-panel #map .map-container me-tpc.custom-note-card {
   background-color: transparent !important;
   border: none !important;
@@ -25,11 +25,11 @@
 }
 
 /* 确保note-card在MindElixir容器中正确显示 */
-#mindmap-panel #map .map-container me-tpc.custom-note-card .note-card {
+/* #mindmap-panel #map .map-container me-tpc.custom-note-card .note-card {
   display: block !important;
   width: 300px !important;
   margin: 0 auto !important;
-}
+} */
 
 .note-card {
   /* 整体卡片样式 */

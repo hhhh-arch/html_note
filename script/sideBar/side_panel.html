@@ -3,6 +3,8 @@
 <html>
   <head>
     <title>My Sidepanel</title>
+    <link rel="stylesheet" href="../../libs/mind-elixir/style.css">
+    <link rel="stylesheet" href="../../script/mindMap.css">
   </head>
   <body> 
     <div id="mindmap-panel">
@@ -10,13 +12,13 @@
             <div id="map"></div>
             <style>
                 #map {
-                    height: 500px;
+                    height: 100%;
                     width: 100%;
                 }
             </style>
         </div>
     </div>
-    <script src="../../libs/mind-elixir/MindElixir.umd.js"></script>
-    <script src="../../script/mindMap.js"></script>
+    <script type="module" src="../../libs/mind-elixir/MindElixir.js"></script>
+    <script type="module"  src="../../script/mindMap.js"></script>
   </body>
 </html>

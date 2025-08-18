@@ -17,6 +17,7 @@
 //     enabled: true
 //   });
 // });
+import MindElixir from '../../libs/mind-elixir/MindElixir.js'
 document.addEventListener('DOMContentLoaded', function() {
   //send message to service worker, ask for pageUrl
   chrome.runtime.sendMessage({type: 'side_panel_ready'},(response)=>{
@@ -35,13 +36,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 });
 function showMindMapPanel(pageUrl) {
    
-    if (!pageUrl){
-      console.error('pageUrl not found');
-      return;
-    }
-    const panel = document.querySelector('#mindmap-panel');
-    console.log('MindElixir:', window.MindElixir);
-    const MindElixir = window.MindElixir.default;
+    // if (!pageUrl){
+    //   console.error('pageUrl not found');
+    //   return;
+    // }
+    const panel = document.querySelector('#map');
+    console.log('MindElixir:', MindElixir);
+    // const MindElixir = window.MindElixir;
     if (!panel){
       console.error('panel not found');
       return;
@@ -63,13 +64,13 @@ function showMindMapPanel(pageUrl) {
         return _beginEdit(el);
       }
     })(mind);
-    panel.addEventListener('mouseleave',(event)=>{
-      console.log("mouseleave:",event);
-      if (panel.contains(event.target)){
-        storage_mindMap_data(mind, pageUrl);
-        panel.remove();
-      }
-    });
+    // panel.addEventListener('mouseleave',(event)=>{
+    //   console.log("mouseleave:",event);
+    //   if (panel.contains(event.target)){
+    //     storage_mindMap_data(mind, pageUrl);
+    //     panel.remove();
+    //   }
+    // });
     get_mindMap_data(pageUrl,mind);
    
 
@@ -323,6 +324,7 @@ function updateNoteCard(nodeEle,panel,note_card_editor,mind,pageUrl){
   nodeEle.nodeObj.dangerouslySetInnerHTML = createDangerousHtml(title,quote,note,color);
   nodeEle.nodeObj.topic = title||quote;
   console.log("nodeEle.nodeObj:",nodeEle.nodeObj);
+  console.log("mind.getData():",mind.getData());
   const currentdata = mind.getData();
   console.log("currentdata:",currentdata);
   mind.refresh(currentdata);
