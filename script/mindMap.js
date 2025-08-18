@@ -161,10 +161,10 @@ function find_quotes(highlightElement) {
     return quotes;
 }
 function initNoteCard(pageUrl) {
-    if (!checkPackage()) {
-        console.error(`checkPackage failed`);
-        return;
-    }
+    // if (!checkPackage()) {
+    //     console.error(`checkPackage failed`);
+    //     return;
+    // }
     
     const data = {
         nodeData: {
