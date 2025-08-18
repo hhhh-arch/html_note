@@ -7,7 +7,7 @@
   "action": {
     "default_popup": "popup.html",
     "default_title": "HTML Note Highlighter"
-    
+
   },
   "side_panel": {
     "default_path": "script/sideBar/side_panel.html"
@@ -24,12 +24,11 @@
       "libs/marked.min.js",
       "libs/css-selector-generator.min.js",
       "libs/crypto-js.min.js",
-      "libs/mind-elixir/MindElixir.umd.js",
-      "libs/mind-elixir/node-menu.umd.js",
+
       "script/content.js", 
       "script/editor.js",
-      "script/markdownSupport.js",
-      "script/mindMap.js"],
+      "script/markdownSupport.js"
+],
       
       "css": ["libs/mind-elixir/style.css","style.css","script/mindMap.css"]
     }

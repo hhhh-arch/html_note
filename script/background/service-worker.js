@@ -62,8 +62,16 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
   
   if (message.type === 'side_panel_ready') {
+    sendResponse({status: 'received'});
     // Side Panel 告诉 Service Worker 它已经准备好了
-    console.log('Side Panel is ready');
+    // service worker send message to content script, tell it to send pageUrl to side panel
+    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+      if (tabs[0] && tabs[0].id) {
+        chrome.tabs.sendMessage(tabs[0].id, {
+          type: 'side_panel_ready'
+        });
+      }
+    });
   }
 });
 // chrome.runtime.onInstalled.addListener(() => {

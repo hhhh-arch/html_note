@@ -1,18 +1,45 @@
+// document.addEventListener('DOMContentLoaded', function() {
+//   // 在这里执行你的初始化代码
+//   console.log('document:',document.innerHTML);
+// });
+// const [tab] = await chrome.tabs.query({
+//   active: true,
+//   lastFocusedWindow: true
+// });
+
+// const tabId = tab.id;
+// const button = document.getElementById('openSidePanel');
+// button.addEventListener('click', async () => {
+//   await chrome.sidePanel.open({ tabId });
+//   await chrome.sidePanel.setOptions({
+//     tabId,
+//     path: 'sidepanel-tab.html',
+//     enabled: true
+//   });
+// });
+document.addEventListener('DOMContentLoaded', function() {
+  //send message to service worker, ask for pageUrl
+  chrome.runtime.sendMessage({type: 'side_panel_ready'},(response)=>{
+    console.log('response:',response);
+  });
+});
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === 'init_mindmap') {
-    // 调用你的初始化函数
+    // console.log('pageUrl:',message.pageUrl);
+    // console.log('document:',document.innerHTML);
+    // console.log('document.getElementById("mindmap-panel"):',document.getElementById('mindmap-panel'));
+    console.log('message:',message);
     showMindMapPanel(message.pageUrl);
+    
   }
 });
 function showMindMapPanel(pageUrl) {
-    // 如果已存在面板则直接返回
-    if (document.querySelector('mindmap-panel')) return;
+   
     if (!pageUrl){
       console.error('pageUrl not found');
       return;
     }
-    chrome.runtime.sendMessage({ type: 'open_side_panel' });
-    const panel = document.querySelector('mindmap-panel');
+    const panel = document.querySelector('#mindmap-panel');
     console.log('MindElixir:', window.MindElixir);
     const MindElixir = window.MindElixir.default;
     if (!panel){
@@ -271,7 +298,7 @@ function showNoteCardEditor(nodeEle,panel,mind,pageUrl){
     }
  })
 }
-function hideNoteCardEditor(panel,note_card_editor,nodeEle,note_card_editor,mind,pageUrl){
+function hideNoteCardEditor(panel,note_card_editor,nodeEle,mind,pageUrl){
   console.log("hideNoteCardEditor:",note_card_editor);
   if (note_card_editor){
     updateNoteCard(nodeEle,panel,note_card_editor,mind,pageUrl);
