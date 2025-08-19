@@ -86,6 +86,12 @@ class HTMLNoteHighlighter {
         });
       }
     });
+    chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+      console.log('message:',message);
+      if (message.type === 'sync_mindMap_data') {
+        chrome.runtime.sendMessage({ type: 'sync_mindMap_data_ready', pageUrl: window.location.href });
+      }
+    });
 
 
   }

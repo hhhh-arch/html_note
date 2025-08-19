@@ -90,6 +90,18 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       }
     });
   }
+  if (message.type === 'sync_mindMap_data') {
+    chrome.tabs.sendMessage(sender.tab.id, {
+      type: 'sync_mindMap_data',
+      
+    });
+  }
+  if (message.type === 'sync_mindMap_data_ready') {
+    chrome.tabs.sendMessage(sender.tab.id, {
+      type: 'sync_mindMap_data_ready',
+      pageUrl: message.pageUrl
+    });
+  }
 });
 // chrome.runtime.onInstalled.addListener(() => {
 //     chrome.contextMenus.create({

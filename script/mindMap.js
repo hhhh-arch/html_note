@@ -33,6 +33,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === 'add_noteCard_to_mindMap') {
     add_noteCard_to_mindMap(message.pageUrl,message.groupId);
   }
+  if (message.type === 'sync_mindMap_data_ready') {
+    console.log('message:',message);
+    loadNoteCard(message.pageUrl,getMind(),getMind().getData());
+  }
 });
 function showMindMapPanel(pageUrl) {
    
@@ -47,6 +51,7 @@ function showMindMapPanel(pageUrl) {
       console.error('panel not found');
       return;
     }
+    create_mindMap_button(panel);
     const mind = initMindMap(MindElixir, pageUrl,null);
     (function overide_node_edit(mind){
       console.log("overide_node_edit:")
@@ -419,4 +424,16 @@ function check_if_panel_exist(){
     return true;
   }
   return false;
+}
+function create_mindMap_button(panel){
+  const button = document.createElement('button');
+  button.className = 'sync-mindMap-button';
+  button.style.top = '10px';
+  button.style.right = '10px';
+  console.log('button:',button);
+  button.innerHTML = 'sync All highlight elements';
+  button.addEventListener('click',()=>{
+    chrome.runtime.sendMessage({type: 'sync_mindMap_data'});
+  });
+  panel.appendChild(button);
 }

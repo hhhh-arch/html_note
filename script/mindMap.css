@@ -107,3 +107,13 @@
   z-index: 999999;
 }
 
+.sync-mindMap-button{/*sync mind map button on the right top corner*/
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 50px;
+  height: 50px;
+  background: #f3f2f0;
+  color: #2c3e50;
+  z-index: 999999;
+}
