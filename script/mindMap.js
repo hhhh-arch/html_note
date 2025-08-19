@@ -89,6 +89,10 @@ function showMindMapPanel(pageUrl) {
     //     panel.remove();
     //   }
     // });
+    mind.bus.addListener('operation', operation => {
+      console.log(operation)
+      storage_mindMap_data();
+    });
     get_mindMap_data(pageUrl,getMind());
    
 
