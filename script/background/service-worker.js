@@ -53,6 +53,20 @@ chrome.runtime.onMessage.addListener((message, sender) => {
           enabled: false
         });
       }
+      if (message.type === 'add_noteCard_to_mindMap') {
+        await chrome.sidePanel.open({ tabId: sender.tab.id });
+        await chrome.sidePanel.setOptions({
+          tabId: sender.tab.id,
+          path: 'script/sideBar/side_panel.html',
+          enabled: true
+        });
+        await chrome.tabs.sendMessage(sender.tab.id, {
+          type: 'add_noteCard_to_mindMap',
+          pageUrl: message.pageUrl,
+          groupId: message.groupId,
+        });
+
+      }
     })();
   });
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {

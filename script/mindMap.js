@@ -18,6 +18,20 @@
 //   });
 // });
 import MindElixir from '../../libs/mind-elixir/MindElixir.js'
+
+// 全局 mind 变量管理
+let _mind = null;
+
+// mind 的 setter
+function setMind(mindInstance) {
+    _mind = mindInstance;
+}
+
+// mind 的 getter
+function getMind() {
+    return _mind;
+}
+
 document.addEventListener('DOMContentLoaded', function() {
   //send message to service worker, ask for pageUrl
   chrome.runtime.sendMessage({type: 'side_panel_ready'},(response)=>{
@@ -33,9 +47,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     showMindMapPanel(message.pageUrl);
     
   }
-  if (message.type === 'close_side_panel') {
-    storage_mindMap_data(mind);
 
+  if (message.type === 'add_noteCard_to_mindMap') {
+    add_noteCard_to_mindMap(message.pageUrl,message.groupId);
   }
 });
 function showMindMapPanel(pageUrl) {
@@ -62,7 +76,7 @@ function showMindMapPanel(pageUrl) {
         if (nodeEle.nodeObj.dangerouslySetInnerHTML) {
           //
           console.log("overide_node_edit:")
-          showNoteCardEditor(nodeEle,panel,mind,pageUrl);
+          showNoteCardEditor(nodeEle,panel,getMind(),pageUrl);
           return;
         }
         return _beginEdit(el);
@@ -71,11 +85,11 @@ function showMindMapPanel(pageUrl) {
     // panel.addEventListener('mouseleave',(event)=>{
     //   console.log("mouseleave:",event);
     //   if (panel.contains(event.target)){
-    //     storage_mindMap_data(mind, pageUrl);
+    //     storage_mindMap_data(pageUrl);
     //     panel.remove();
     //   }
     // });
-    get_mindMap_data(pageUrl,mind);
+    get_mindMap_data(pageUrl,getMind());
    
 
 }
@@ -116,6 +130,10 @@ function initMindMap(MindElixir, pageUrl,init_data) {
     //mind.install(window.NodeMenu) // install your plugin
     const data = init_data||initNoteCard(pageUrl);
     mind.init(data);
+    
+    // 设置全局 mind 实例
+    setMind(mind);
+    
     return mind;
     // // create new map data
     // const data = initNoteCard('new topic','quote','notes');
@@ -144,7 +162,7 @@ function loadNoteCard(pageUrl, mind,root_noteCard) {
                         const title = quote;
                         const data = generate_children_noteCard(title,quote,notes,color,groupId);
                         if(data){
-                          refresh_NoteCard(initNoteCard(pageUrl),data,mind);
+                          refresh_NoteCard(initNoteCard(pageUrl),data,getMind());
                         }
                         else{
                           window.alert('No note card found');
@@ -187,7 +205,7 @@ function initNoteCard(pageUrl) {
 function refresh_NoteCard(root_noteCard,children_noteCard,mind){
 
   if (children_noteCard){
-    let children_noteCard_list = mind.getData().nodeData.children;
+    let children_noteCard_list = getMind().getData().nodeData.children;
     if (children_noteCard_list){
       console.log('children_noteCard:',children_noteCard);
       children_noteCard_list.push(children_noteCard);
@@ -203,9 +221,9 @@ function refresh_NoteCard(root_noteCard,children_noteCard,mind){
   //   arrows: [],
   //   summaries: []
   // };
-  mind.refresh(root_noteCard);
-  console.log('mind.getData():',mind.getData());
-  console.log('mind.getData().nodeData.children:',mind.getData().nodeData.children);
+  getMind().refresh(root_noteCard);
+  console.log('mind.getData():',getMind().getData());
+  console.log('mind.getData().nodeData.children:',getMind().getData().nodeData.children);
   return root_noteCard;
 }
 function generate_children_noteCard(title,quote, note, color, groupId){
@@ -318,7 +336,7 @@ function updateNoteCard(nodeEle,panel,note_card_editor,mind,pageUrl){
   const note = note_card_editor.querySelector('.notes-style').innerHTML;
   if (!check_empty_container(title)&&!check_empty_container(quote)&&!check_empty_container(note)){
     console.log("remove nodeEle:",nodeEle);
-    mind.removeNodes([mind.currentNode]);
+    getMind().removeNodes([getMind().currentNode]);
     remove_storage_mindMap_data(pageUrl);
     return;
   }
@@ -329,11 +347,11 @@ function updateNoteCard(nodeEle,panel,note_card_editor,mind,pageUrl){
   nodeEle.nodeObj.dangerouslySetInnerHTML = createDangerousHtml(title,quote,note,color);
   nodeEle.nodeObj.topic = title||quote;
   console.log("nodeEle.nodeObj:",nodeEle.nodeObj);
-  console.log("mind.getData():",mind.getData());
-  const currentdata = mind.getData();
+  console.log("mind.getData():",getMind().getData());
+  const currentdata = getMind().getData();
   console.log("currentdata:",currentdata);
-  mind.refresh(currentdata);
-  storage_mindMap_data(mind);
+  getMind().refresh(currentdata);
+  storage_mindMap_data();
   // mind.refresh(nodeEle);
 }
 //TODO: storage the mind map data
@@ -344,9 +362,9 @@ function check_empty_container(text){
   return true;
 }
 function storage_mindMap_data(){
-  console.log("storage_mindMap_data:",mind.getData());
+  console.log("storage_mindMap_data:",getMind().getData());
   
-  const data = mind.getData();
+  const data = getMind().getData();
   const pageUrl = data.nodeData.hyperLink;
   const key_mindMap = 'mindMap'+ pageUrl;
   chrome.storage.local.set({[key_mindMap]: data});
@@ -358,12 +376,12 @@ function get_mindMap_data(pageUrl,mind){
     console.log("data_mindMap:",data_mindMap);
     if (data_mindMap){
       console.log("data_mindMap:",data_mindMap);
-      mind.init(data_mindMap);
+      getMind().init(data_mindMap);
     }
     else{
-      const root_noteCard = mind.getData();
-      loadNoteCard(pageUrl, mind,root_noteCard);
-      storage_mindMap_data(mind);
+      const root_noteCard = getMind().getData();
+      loadNoteCard(pageUrl, getMind(),root_noteCard);
+      storage_mindMap_data();
     }
   });
 }
@@ -391,7 +409,7 @@ function add_noteCard_to_mindMap(pageUrl,groupId){
           }
           const MindElixir = window.MindElixir.default;
           const mind = initMindMap(MindElixir, pageUrl,data_mindMap);
-          refresh_NoteCard(data_mindMap,data,mind);
+          refresh_NoteCard(data_mindMap,data,getMind());
         });
       });
       
