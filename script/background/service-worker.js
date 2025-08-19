@@ -99,7 +99,15 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       }
     });
   }
-
+  if (message.type === 'toggle_fullscreen') {
+    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+      if (tabs[0] && tabs[0].id) {
+        chrome.tabs.sendMessage(tabs[0].id, {
+          type: 'toggle_fullscreen',
+        });
+      }
+    });
+  }
   if (message.type === 'sync_mindMap_data_ready') {
     chrome.tabs.sendMessage(sender.tab.id, {
           type: 'sync_mindMap_data_ready',

@@ -91,6 +91,9 @@ class HTMLNoteHighlighter {
       if (message.type === 'sync_mindMap_data') {
         chrome.runtime.sendMessage({ type: 'sync_mindMap_data_ready', pageUrl: window.location.href });
       }
+      if (message.type === 'toggle_fullscreen') {
+        toggleFullscreen(window.location.href);
+    }
     });
 
 

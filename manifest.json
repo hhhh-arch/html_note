@@ -24,13 +24,14 @@
       "libs/marked.min.js",
       "libs/css-selector-generator.min.js",
       "libs/crypto-js.min.js",
-
+      "libs/mind-elixir/indElixir.umd.js",
       "script/content.js", 
       "script/editor.js",
-      "script/markdownSupport.js"
+      "script/markdownSupport.js",
+      "script/fullScreenMindMap/mindMapFullscreen.js"
 ],
       
-      "css": ["style.css"]
+      "css": ["style.css","script/mindMap.css"]
     }
   ],
   "icons": {

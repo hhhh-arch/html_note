@@ -440,6 +440,9 @@ function create_fullscreen_btn(){
   fullscreenBtn.className = 'toolbar-btn fullscreen-btn';
   fullscreenBtn.title = 'Toggle Fullscreen';
   fullscreenBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16"><path d="M1.5 1.5v3.5h1v-2.5h2.5v-1h-3.5zm0 8.5v3.5h3.5v-1h-2.5v-2.5h-1zm8.5-8.5h-1v2.5h-2.5v1h3.5v-3.5zm0 8.5v-1h-2.5v-2.5h-1v3.5h3.5z" fill="currentColor"/></svg>';
+  fullscreenBtn.addEventListener('click',()=>{
+    chrome.runtime.sendMessage({type: 'toggle_fullscreen'});
+  });
   return fullscreenBtn;
 }
 function create_convert_btn(){
