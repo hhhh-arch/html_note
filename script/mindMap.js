@@ -425,44 +425,52 @@ function check_if_panel_exist(){
   }
   return false;
 }
-function create_mindMap_button(panel){
-  const button = document.createElement('button');
-  button.className = 'sync-mindMap-button';
-  button.style.top = '10px';
-  button.style.right = '10px';
-  console.log('button:',button);
-  button.innerHTML = 'sync All highlight elements';
-  button.addEventListener('click',()=>{
-    chrome.runtime.sendMessage({type: 'sync_mindMap_data'});
-  });
-  panel.appendChild(button);
-}
-function create_mindMap_toolbar(panel){// on the right top corner and fix 
-  const toolbar = document.createElement('div');
-  toolbar.className = 'mindmap-toolbar';
-
-  // Sync button
+function create_sync_btn(){
   const syncBtn = document.createElement('button');
   syncBtn.className = 'toolbar-btn sync-btn';
   syncBtn.title = 'Sync Mind Map';
   syncBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16"><path d="M8 3a5 5 0 0 0-5 5H1l3.5 3.5L7.5 8H6a2 2 0 1 1 2 2v2a4 4 0 1 0-4-4H2a6 6 0 1 1 6 6v-2a4 4 0 0 0 0-8z" fill="currentColor"/></svg>';
-
-  // Fullscreen button
+  syncBtn.addEventListener('click',()=>{
+    chrome.runtime.sendMessage({type: 'sync_mindMap_data'});
+  });
+  return syncBtn;
+}
+function create_fullscreen_btn(){
   const fullscreenBtn = document.createElement('button');
   fullscreenBtn.className = 'toolbar-btn fullscreen-btn';
   fullscreenBtn.title = 'Toggle Fullscreen';
   fullscreenBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16"><path d="M1.5 1.5v3.5h1v-2.5h2.5v-1h-3.5zm0 8.5v3.5h3.5v-1h-2.5v-2.5h-1zm8.5-8.5h-1v2.5h-2.5v1h3.5v-3.5zm0 8.5v-1h-2.5v-2.5h-1v3.5h3.5z" fill="currentColor"/></svg>';
-
-  // Convert to note list button
+  return fullscreenBtn;
+}
+function create_convert_btn(){
   const convertBtn = document.createElement('button');
   convertBtn.className = 'toolbar-btn convert-btn';
   convertBtn.title = 'Convert to Note List';
   convertBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16"><path d="M2 2h12v2H2V2zm0 4h12v2H2V6zm0 4h12v2H2v-2zm0 4h8v2H2v-2z" fill="currentColor"/></svg>';
+  return convertBtn;
+}
+function create_mindMap_toolbar(){// on the right top corner and fix 
+  const mindMap_container = document.querySelector('#mindmap-container');
+  if (!mindMap_container){
+    console.error('mindMap_container not found');
+    return;
+  }
+  const toolbar = document.createElement('div');
+  toolbar.className = 'mindmap-toolbar';
+
+  // Sync button
+  const syncBtn = create_sync_btn();
+
+  // Fullscreen button
+  const fullscreenBtn = create_fullscreen_btn();
+
+  // Convert to note list button
+  const convertBtn = create_convert_btn();
 
   // Add buttons to toolbar
   toolbar.appendChild(syncBtn);
   toolbar.appendChild(fullscreenBtn);
   toolbar.appendChild(convertBtn);
 
-  panel.appendChild(toolbar);
+  mindMap_container.appendChild(toolbar);
 }
