@@ -1,33 +1,15 @@
-// document.addEventListener('DOMContentLoaded', function() {
-//   // 在这里执行你的初始化代码
-//   console.log('document:',document.innerHTML);
-// });
-// const [tab] = await chrome.tabs.query({
-//   active: true,
-//   lastFocusedWindow: true
-// });
 
-// const tabId = tab.id;
-// const button = document.getElementById('openSidePanel');
-// button.addEventListener('click', async () => {
-//   await chrome.sidePanel.open({ tabId });
-//   await chrome.sidePanel.setOptions({
-//     tabId,
-//     path: 'sidepanel-tab.html',
-//     enabled: true
-//   });
-// });
 import MindElixir from '../../libs/mind-elixir/MindElixir.js'
 
-// 全局 mind 变量管理
+
 let _mind = null;
 
-// mind 的 setter
+
 function setMind(mindInstance) {
     _mind = mindInstance;
 }
 
-// mind 的 getter
+
 function getMind() {
     return _mind;
 }
@@ -135,7 +117,7 @@ function initMindMap(MindElixir, pageUrl,init_data) {
     const data = init_data||initNoteCard(pageUrl);
     mind.init(data);
     
-    // 设置全局 mind 实例
+
     setMind(mind);
     
     return mind;
