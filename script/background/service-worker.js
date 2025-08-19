@@ -91,18 +91,22 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     });
   }
   if (message.type === 'sync_mindMap_data') {
-    chrome.tabs.sendMessage(sender.tab.id, {
-      type: 'sync_mindMap_data',
-      
+    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+      if (tabs[0] && tabs[0].id) {
+        chrome.tabs.sendMessage(tabs[0].id, {
+          type: 'sync_mindMap_data',
+        });
+      }
     });
   }
+
   if (message.type === 'sync_mindMap_data_ready') {
     chrome.tabs.sendMessage(sender.tab.id, {
-      type: 'sync_mindMap_data_ready',
-      pageUrl: message.pageUrl
+          type: 'sync_mindMap_data_ready',
+          pageUrl: message.pageUrl
+        });
+      }
     });
-  }
-});
 // chrome.runtime.onInstalled.addListener(() => {
 //     chrome.contextMenus.create({
 //       id: 'openSidePanel',
