@@ -36,6 +36,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === 'sync_mindMap_data_ready') {
     console.log('message:',message);
     loadNoteCard(message.pageUrl,getMind(),getMind().getData());
+    storage_mindMap_data();
   }
 });
 function showMindMapPanel(pageUrl) {
@@ -354,10 +355,11 @@ function check_empty_container(text){
 }
 function storage_mindMap_data(){
   console.log("storage_mindMap_data:",getMind().getData());
-  
   const data = getMind().getData();
+  console.log("data:",data);
   const pageUrl = data.nodeData.hyperLink;
   const key_mindMap = 'mindMap'+ pageUrl;
+  console.log("key_mindMap:",key_mindMap);
   chrome.storage.local.set({[key_mindMap]: data});
 }
 function get_mindMap_data(pageUrl,mind){

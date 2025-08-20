@@ -1,24 +1,22 @@
 function toggleFullscreen(pageUrl) {
-   const div = document.createElement('div');
-   div.id = 'mindmap-fullscreen';
-   div.innerHTML = `<div id="mindmap-container">
-   <div id="map">
+    if (document.querySelector('#mindmap-panel')) return;
 
-    </div>
-       <style>
-    #mindmap-container {
-      width: 100%;
-      height: 100%;
-      background-color: #f0f0f0;
-      border: 1px solid #ccc;
-      border-radius: 10px;
-    }
+    const panel = document.createElement('div');
+    panel.id = 'mindmap-panel';
+
+    panel.innerHTML = `<div id="mindmap-container">
     
-   </style>
-   </div>`;
-   document.body.appendChild(div);
+    <div id="map"></div>
+<style>
+  #map {
+    height: 500px;
+    width: 100%;
+  }
+</style>
+    </div>`;
+    document.body.appendChild(panel);
 
-   const panel = document.querySelector('#map');
+
    const MindElixir = window.MindElixir.default;
    const mind = initMindMap(MindElixir, pageUrl,null);
    (function overide_node_edit(mind){
