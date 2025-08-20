@@ -107,6 +107,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         });
       }
     });
+
+  }
+  if (message.type === 'close_side_panel') {
+    chrome.sidePanel.close({ windowId: chrome.windows.WINDOW_ID_CURRENT });
   }
   if (message.type === 'sync_mindMap_data_ready') {
     chrome.tabs.sendMessage(sender.tab.id, {
