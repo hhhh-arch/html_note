@@ -213,7 +213,8 @@ function refresh_NoteCard(root_noteCard,children_noteCard,mind){
   //   arrows: [],
   //   summaries: []
   // };
-  getMind().refresh(root_noteCard);
+  setMind(getMind().refresh(root_noteCard));
+  
   console.log('mind.getData():',getMind().getData());
   console.log('mind.getData().nodeData.children:',getMind().getData().nodeData.children);
   return root_noteCard;
@@ -400,8 +401,7 @@ function add_noteCard_to_mindMap(pageUrl,groupId){
           if (!check_if_panel_exist()){
             return;
           }
-          const MindElixir = window.MindElixir.default;
-          const mind = initMindMap(MindElixir, pageUrl,data_mindMap);
+
           refresh_NoteCard(data_mindMap,data,getMind());
         });
       });
