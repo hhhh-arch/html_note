@@ -1,3 +1,15 @@
+let _mind = null;
+
+
+function setMind(mindInstance) {
+    _mind = mindInstance;
+}
+
+
+function getMind() {
+    return _mind;
+}
+
 function toggleFullscreen(pageUrl) {
     if (document.querySelector('#mindmap-panel')) return;
 
@@ -35,8 +47,9 @@ function toggleFullscreen(pageUrl) {
        return _beginEdit(el);
      }
    })(mind);
+   setMind(mind);
    create_mindMap_toolbar(pageUrl);
-   get_mindMap_data(pageUrl,mind);
+   get_mindMap_data(pageUrl,getMind());
   
 
 }
@@ -163,7 +176,7 @@ function refresh_NoteCard(root_noteCard,children_noteCard,mind){
  //   arrows: [],
  //   summaries: []
  // };
- mind.refresh(root_noteCard);
+ setMind(mind.refresh(root_noteCard));
  console.log('mind.getData():',mind.getData());
  console.log('mind.getData().nodeData.children:',mind.getData().nodeData.children);
  return root_noteCard;
@@ -291,7 +304,7 @@ function updateNoteCard(nodeEle,panel,note_card_editor,mind,pageUrl){
  console.log("nodeEle.nodeObj:",nodeEle.nodeObj);
  const currentdata = mind.getData();
  console.log("currentdata:",currentdata);
- mind.refresh(currentdata);
+ setMind(mind.refresh(currentdata));
  storage_mindMap_data(mind, pageUrl);
  // mind.refresh(nodeEle);
 }
@@ -374,13 +387,14 @@ function check_if_panel_exist(){
  return false;
 }
     
-function create_sync_btn(){
+function create_sync_btn(pageUrl){
     const syncBtn = document.createElement('button');
     syncBtn.className = 'toolbar-btn sync-btn';
     syncBtn.title = 'Sync Mind Map';
     syncBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16"><path d="M8 3a5 5 0 0 0-5 5H1l3.5 3.5L7.5 8H6a2 2 0 1 1 2 2v2a4 4 0 1 0-4-4H2a6 6 0 1 1 6 6v-2a4 4 0 0 0 0-8z" fill="currentColor"/></svg>';
     syncBtn.addEventListener('click',()=>{
-      chrome.runtime.sendMessage({type: 'sync_mindMap_data'});
+        loadNoteCard(pageUrl,getMind(),getMind().getData());
+        storage_mindMap_data(getMind(),pageUrl);
     });
     return syncBtn;
   }
@@ -420,7 +434,7 @@ function create_sync_btn(){
     toolbar.className = 'mindmap-toolbar';
   
     // Sync button
-    const syncBtn = create_sync_btn();
+    const syncBtn = create_sync_btn(pageUrl);
   
     // Fullscreen button
     const switchSideBarBtn = create_switch_sideBar_btn(pageUrl);
