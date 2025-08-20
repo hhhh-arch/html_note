@@ -550,7 +550,7 @@ function update_note_list_toolbar(){
       console.error('mindMap_container not found');
       return;
     }
-    
+
     mindMap_container.appendChild(map);
     map.style.width = '100%';
     map.style.height = '100%';
@@ -571,7 +571,12 @@ function create_note_list(){
     if (data_mindMap){
       const note_data = data_mindMap.nodeData.children;
       note_data.forEach(note => {
-        const note_card = create_note_card(note.topic,note.quote,note.note,note.color);
+        const note_data_set = note.dataset; 
+        if (!note_data_set){
+          console.error('note_data_set not found');
+          return;
+        }
+        const note_card = create_note_card(note_data_set.title,note_data_set.quote,note_data_set.note,note_data_set.color);
         note_card.style.width = '100%';
         note_list.appendChild(note_card);
       });
