@@ -79,6 +79,7 @@ function showMindMapPanel(pageUrl) {
         return _beginEdit(el);
       }
     })(mind);
+    mind.nodeData.children_list = ['root'];
     // panel.addEventListener('mouseleave',(event)=>{
     //   console.log("mouseleave:",event);
     //   if (panel.contains(event.target)){
@@ -87,6 +88,22 @@ function showMindMapPanel(pageUrl) {
     //   }
     // });
     mind.bus.addListener('operation', operation => {
+      console.log("operation:",operation);
+      if (operation.name == 'removeNodes'){
+        console.log("removeNodes:",operation);
+        const children_list = mind.getData().nodeData.children_list;
+        const affected_nodes = operation.objs;
+        affected_nodes.forEach(node => {
+          children_list.splice(children_list.indexOf(node.id),1);
+        });
+        const new_data = mind.getData();
+        new_data.nodeData.children_list = children_list;
+        mind.refresh(new_data);
+
+        // mind.getData().nodeData.children_list = children_list;
+        // console.log("mind.getData().nodeData.children_list:",mind.getData().nodeData.children_list);
+      }
+
       console.log(operation)
       storage_mindMap_data();
     });
@@ -196,7 +213,7 @@ function initNoteCard(pageUrl) {
             id :'root',
             topic: 'root',
             hyperLink: pageUrl,
-
+            children_list:['root'],
             expanded: true,
             root: true,
         }
@@ -213,10 +230,25 @@ function refresh_NoteCard(root_noteCard,children_noteCard,mind){
     let children_noteCard_list = getMind().getData().nodeData.children;
     if (children_noteCard_list){
       console.log('children_noteCard:',children_noteCard);
-      children_noteCard_list.push(children_noteCard);
-      root_noteCard.nodeData.children = children_noteCard_list;
+      const children_list = getMind().getData().nodeData.children_list;
+      if (!children_list.includes(children_noteCard.id)){
+        children_list.push(children_noteCard.id);
+        root_noteCard.nodeData.children_list = children_list;
+        children_noteCard_list.push(children_noteCard);
+        root_noteCard.nodeData.children = children_noteCard_list;
+      }
+      else{
+        root_noteCard.nodeData.children_list = children_list;
+        root_noteCard.nodeData.children = children_noteCard_list;
+      }
+
     }
     else{
+      const children_list = root_noteCard.nodeData.children_list;
+      
+      children_list.push(children_noteCard.id);
+      root_noteCard.nodeData.children_list = children_list;
+      
       root_noteCard.nodeData.children = [children_noteCard];
     }
   }
@@ -232,6 +264,7 @@ function refresh_NoteCard(root_noteCard,children_noteCard,mind){
   console.log('mind.getData().nodeData.children:',getMind().getData().nodeData.children);
   return root_noteCard;
 }
+
 function generate_children_noteCard(title,quote, note, color, groupId){
   if (!check_empty_container(title)&&!check_empty_container(quote)&&!check_empty_container(note)){
     return null;
