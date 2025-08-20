@@ -3,16 +3,24 @@ import MindElixir from '../../libs/mind-elixir/MindElixir.js'
 
 
 let _mind = null;
-
+let _pageUrl = null;
 
 function setMind(mindInstance) {
     _mind = mindInstance;
 }
 
+function setPageUrl(pageUrl) {
+  _pageUrl = pageUrl;
+}
 
 function getMind() {
     return _mind;
 }
+
+function getPageUrl() {
+  return _pageUrl;
+}
+
 
 document.addEventListener('DOMContentLoaded', function() {
   //send message to service worker, ask for pageUrl
@@ -26,6 +34,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     // console.log('document:',document.innerHTML);
     // console.log('document.getElementById("mindmap-panel"):',document.getElementById('mindmap-panel'));
     console.log('message:',message);
+    setPageUrl(message.pageUrl);
     showMindMapPanel(message.pageUrl);
     
   }
@@ -242,48 +251,53 @@ function generate_children_noteCard(title,quote, note, color, groupId){
 
 function createDangerousHtml(title, quote, notes,color) {
     const temp_html = document.createElement('div');
-    const note_card = document.createElement('div');
-    note_card.className = 'note-card';
-    const title_container = document.createElement('div');
-    title_container.className = 'title-container';
-    const title_style = document.createElement('h3');
-    title_style.className = 'title-style';
-    if (!check_empty_container(title)){
-      title_style.innerHTML = '<br>';
-    }
-    else{
-      title_style.innerHTML = title;
-    }
-    title_container.appendChild(title_style);
-    note_card.appendChild(title_container);
-    const quote_container = document.createElement('div');
-    quote_container.className = 'quote-container';
-    const quote_style = document.createElement('p');
-    quote_style.className = 'quote-style';
-    if (!check_empty_container(quote)){
-      quote_style.innerHTML = '<br>';
-    }
-    else{
-      quote_style.innerHTML = quote;
-    }
-    quote_container.appendChild(quote_style); // 修复：添加quote_style到容器
-    note_card.appendChild(quote_container);
-    const notes_container = document.createElement('div');
-    notes_container.className = 'notes-container';
-    const notes_style = document.createElement('p');
-    notes_style.className = 'notes-style';
-    if (!check_empty_container(notes)){
-      notes_style.innerHTML = '<br>';
-    }
-    else{
-      notes_style.innerHTML = notes;
-    }
-    notes_container.appendChild(notes_style);
-    note_card.appendChild(notes_container);
+    const note_card = create_note_card(title,quote,notes,color);
     temp_html.appendChild(note_card);
-    note_card.style.backgroundColor = color;
-    title_container.style.backgroundColor = color;
     return temp_html.innerHTML;
+}
+function create_note_card(title,quote,notes,color){
+  const note_card = document.createElement('div');
+  note_card.className = 'note-card';
+  const title_container = document.createElement('div');
+  title_container.className = 'title-container';
+  const title_style = document.createElement('h3');
+  title_style.className = 'title-style';
+  if (!check_empty_container(title)){
+    title_style.innerHTML = '<br>';
+  }
+  else{
+    title_style.innerHTML = title;
+  }
+  title_container.appendChild(title_style);
+  note_card.appendChild(title_container);
+  const quote_container = document.createElement('div');
+  quote_container.className = 'quote-container';
+  const quote_style = document.createElement('p');
+  quote_style.className = 'quote-style';
+  if (!check_empty_container(quote)){
+    quote_style.innerHTML = '<br>';
+  }
+  else{
+    quote_style.innerHTML = quote;
+  }
+  quote_container.appendChild(quote_style); // 修复：添加quote_style到容器
+  note_card.appendChild(quote_container);
+  const notes_container = document.createElement('div');
+  notes_container.className = 'notes-container';
+  const notes_style = document.createElement('p');
+  notes_style.className = 'notes-style';
+  if (!check_empty_container(notes)){
+    notes_style.innerHTML = '<br>';
+  }
+  else{
+    notes_style.innerHTML = notes;
+  }
+  notes_container.appendChild(notes_style);
+  note_card.appendChild(notes_container);
+
+  note_card.style.backgroundColor = color;
+  title_container.style.backgroundColor = color;
+  return note_card;
 }
 //TODO: double click to edit the note card
 function showNoteCardEditor(nodeEle,panel,mind,pageUrl){
@@ -453,6 +467,9 @@ function create_convert_btn(){
   convertBtn.className = 'toolbar-btn convert-btn';
   convertBtn.title = 'Convert to Note List';
   convertBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16"><path d="M2 2h12v2H2V2zm0 4h12v2H2V6zm0 4h12v2H2v-2zm0 4h8v2H2v-2z" fill="currentColor"/></svg>';
+  convertBtn.addEventListener('click',()=>{
+    show_note_list();
+  });
   return convertBtn;
 }
 function create_mindMap_toolbar(){// on the right top corner and fix 
@@ -479,4 +496,86 @@ function create_mindMap_toolbar(){// on the right top corner and fix
   toolbar.appendChild(convertBtn);
 
   mindMap_container.appendChild(toolbar);
+}
+function show_note_list(){
+  const panel = document.querySelector('#map');
+  if (!panel){
+    console.error('panel not found');
+    return;
+  }
+  panel.remove();
+  const mindMap_container = document.querySelector('#mindmap-container');
+  if (!mindMap_container){
+    console.error('mindMap_container not found');
+    return;
+  }
+
+  const note_list = document.createElement('div');
+  note_list.className = 'note-list';
+  mindMap_container.appendChild(note_list);
+  const toolbar = document.querySelector('.mindmap-toolbar');
+  if (!toolbar){
+    console.error('toolbar not found');
+    return;
+  }
+  update_note_list_toolbar();
+  create_note_list();
+}
+function update_note_list_toolbar(){
+  const toolbar = document.querySelector('.mindmap-toolbar');
+  if (!toolbar){
+    console.error('toolbar not found');
+    return;
+  }
+  const convertBtn = toolbar.querySelector('.convert-btn');
+  if (!convertBtn){
+    console.error('convertBtn not found');
+    return;
+  }
+  const convertBtn_to_mindMap = document.createElement('button');
+  convertBtn_to_mindMap.className = 'toolbar-btn convert-btn-to-mindMap';
+  convertBtn_to_mindMap.title = 'Convert to Mind Map';
+  convertBtn_to_mindMap.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16"><path d="M2 2h12v2H2V2zm0 4h12v2H2V6zm0 4h12v2H2v-2zm0 4h8v2H2v-2z" fill="currentColor"/></svg>';
+  convertBtn_to_mindMap.addEventListener('click',()=>{
+    const note_list = document.querySelector('.note-list');
+    if (!note_list){
+      console.error('note_list not found');
+      return;
+    }
+    note_list.remove();
+    const map = document.createElement('div');
+    map.id = 'map';
+    const mindMap_container = document.querySelector('#mindmap-container');
+    if (!mindMap_container){
+      console.error('mindMap_container not found');
+      return;
+    }
+    
+    mindMap_container.appendChild(map);
+    map.style.width = '100%';
+    map.style.height = '100%';
+    map.style.position = 'fixed';
+    map.style.top = '0';
+    showMindMapPanel(getPageUrl());
+  });
+  toolbar.replaceChild(convertBtn_to_mindMap,convertBtn);
+}
+function create_note_list(){
+  const note_list = document.querySelector('.note-list');
+  if (!note_list){
+    console.error('note_list not found');
+    return;
+  }
+  chrome.storage.local.get('mindMap'+ getPageUrl(), (result) => {
+    const data_mindMap = result['mindMap'+ getPageUrl()];
+    if (data_mindMap){
+      const note_data = data_mindMap.nodeData.children;
+      note_data.forEach(note => {
+        const note_card = create_note_card(note.topic,note.quote,note.note,note.color);
+        note_card.style.width = '100%';
+        note_list.appendChild(note_card);
+      });
+    }
+  });
+  
 }
