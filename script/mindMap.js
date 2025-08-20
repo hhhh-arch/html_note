@@ -204,7 +204,11 @@ function initNoteCard(pageUrl) {
     return data;
 }
 function refresh_NoteCard(root_noteCard,children_noteCard,mind){
-
+  if (!getMind()){
+    console.error('mind not found');
+    return;
+  }
+  console.log('mind.getData():',getMind().getData());
   if (children_noteCard){
     let children_noteCard_list = getMind().getData().nodeData.children;
     if (children_noteCard_list){
@@ -222,7 +226,7 @@ function refresh_NoteCard(root_noteCard,children_noteCard,mind){
   //   arrows: [],
   //   summaries: []
   // };
-  setMind(getMind().refresh(root_noteCard));
+  getMind().refresh(root_noteCard);
   
   console.log('mind.getData():',getMind().getData());
   console.log('mind.getData().nodeData.children:',getMind().getData().nodeData.children);
