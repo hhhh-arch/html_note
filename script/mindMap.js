@@ -572,13 +572,14 @@ function update_note_list_toolbar(){
   const convertBtn_to_mindMap = document.createElement('button');
   convertBtn_to_mindMap.className = 'toolbar-btn convert-btn-to-mindMap';
   convertBtn_to_mindMap.title = 'Convert to Mind Map';
-  convertBtn_to_mindMap.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16"><path d="M2 2h12v2H2V2zm0 4h12v2H2V6zm0 4h12v2H2v-2zm0 4h8v2H2v-2z" fill="currentColor"/></svg>';
+  convertBtn_to_mindMap.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16"><rect x="5" y="1" width="6" height="4" fill="currentColor"/><rect x="0" y="11" width="6" height="4" fill="currentColor"/><rect x="10" y="11" width="6" height="4" fill="currentColor"/><line x1="3" y1="3" x2="5" y2="3" stroke="currentColor" stroke-width="0.5"/><line x1="13" y1="3" x2="11" y2="3" stroke="currentColor" stroke-width="0.5"/><path d="M3 3L2 3L2 11L3 11L4 11L4 3L3 3Z" fill="currentColor"/><path d="M13 3L14 3L14 11L13 11L12 11L12 3L13 3Z" fill="currentColor"/></svg>';
   convertBtn_to_mindMap.addEventListener('click',()=>{
     const note_list = document.querySelector('.note-list');
     if (!note_list){
       console.error('note_list not found');
       return;
     }
+    
     note_list.remove();
     const map = document.createElement('div');
     map.id = 'map';
