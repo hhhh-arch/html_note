@@ -344,21 +344,33 @@ function showNoteCardEditor(nodeEle,panel,mind,pageUrl){
   const note = nodeEle.nodeObj.dataset.note;
   const note_card_editor = document.createElement('div');
   note_card_editor.className = 'note-card-editor';
+  const title_container = document.createElement('div');
+  title_container.className = 'note-card-editor-title-container';
+  title_container.contentEditable = 'true';
   const title_style = document.createElement('h3');
   title_style.className = 'title-style';
   title_style.innerHTML = title;
   title_style.contentEditable = 'true';
-  note_card_editor.appendChild(title_style);
+  title_container.appendChild(title_style);
+  note_card_editor.appendChild(title_container);
+  const quote_container = document.createElement('div');
+  quote_container.className = 'note-card-editor-quote-container';
+  quote_container.contentEditable = 'true';
   const quote_style = document.createElement('p');
   quote_style.className = 'quote-style';
   quote_style.innerHTML = quote;
   quote_style.contentEditable = 'true';
-  note_card_editor.appendChild(quote_style);
+  quote_container.appendChild(quote_style);
+  note_card_editor.appendChild(quote_container);
+  const notes_container = document.createElement('div');
+  notes_container.className = 'note-card-editor-notes-container';
+  notes_container.contentEditable = 'true';
   const notes_style = document.createElement('p');
   notes_style.className = 'notes-style';
   notes_style.innerHTML = note;
   notes_style.contentEditable = 'true';
-  note_card_editor.appendChild(notes_style);
+  notes_container.appendChild(notes_style);
+  note_card_editor.appendChild(notes_container);
   panel.appendChild(note_card_editor);  
   note_card_editor.addEventListener('mouseleave',(event)=>{
     if (note_card_editor.contains(event.target)){
