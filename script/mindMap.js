@@ -594,6 +594,7 @@ function update_note_list_toolbar(){
     map.style.position = 'fixed';
     map.style.top = '0';
     showMindMapPanel(getPageUrl());
+    toolbar.remove();
   });
   toolbar.replaceChild(convertBtn_to_mindMap,convertBtn);
 }
@@ -607,6 +608,7 @@ function create_note_list(){
     const data_mindMap = result['mindMap'+ getPageUrl()];
     if (data_mindMap){
       const note_data = data_mindMap.nodeData.children;
+      console.log("note_data:",note_data);
       note_data.forEach(note => {
         const note_data_set = note.dataset; 
         if (!note_data_set){
@@ -616,8 +618,11 @@ function create_note_list(){
         const note_card = create_note_card(note_data_set.title,note_data_set.quote,note_data_set.note,note_data_set.color);
         note_card.style.width = '100%';
         note_list.appendChild(note_card);
+        console.log("note_list:",note_list);
       });
     }
   });
   
 }
+//TODO: re style the note editor 
+//TODO: add ai chat function 
