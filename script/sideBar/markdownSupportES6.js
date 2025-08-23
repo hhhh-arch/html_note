@@ -51,7 +51,7 @@ function removeListenerEventEnter(temp) {
 }
 export {createAnNewContainer};
 function createAnNewContainer(textArea) {
-    const newContainer = document.createElement('div');
+    const newContainer = document.createElement('span');
     newContainer.tabIndex = 0;
     newContainer.contentEditable = true;
     newContainer.setAttribute('inputEventLiscener', 'false');
@@ -69,7 +69,7 @@ function createAnNewContainer(textArea) {
 }
 export {createAnNewContainerWithNotes};
 function createAnNewContainerWithNotes(textArea, markdown_data) {
-    const newContainer = document.createElement('div');
+    const newContainer = document.createElement('span');
     newContainer.tabIndex = 0;
     newContainer.contentEditable = true;
     newContainer.setAttribute('inputEventLiscener', 'false');
@@ -108,8 +108,8 @@ function showOriginalMarkdown(temp, textArea) {
 }
 
 function createNewDOMElement(markdown, markdown_data) {
-    const newDOMElement = document.createElement('div');
-    if (markdown.includes('<div class="md-h1">')) {
+    const newDOMElement = document.createElement('span');
+    if (markdown.includes('<span class="md-h1">')) {
         newDOMElement.innerHTML = markdown;
         if (newDOMElement.firstChild) {
             newDOMElement.firstChild.setAttribute('mardown-data', markdown_data);
@@ -301,7 +301,7 @@ function parseAllDataNote(currentNote, textArea) {
         console.log("line", line);
 
         if (line.trim() == '') {
-            const temp = document.createElement('div');
+            const temp = document.createElement('span');
             temp.innerHTML = '<br>';
             temp.classList.add("markdown-temp");
             temp.setAttribute("mardown-data", '<br>');
@@ -313,7 +313,7 @@ function parseAllDataNote(currentNote, textArea) {
                 markdownModify();
                 const PurifiedNote = marked.parse(line);
                 console.log("PurifiedNote", PurifiedNote);
-                const temp = document.createElement('div');
+                const temp = document.createElement('span');
                 const newDOMElement = createNewDOMElement(PurifiedNote, line);
                 textArea.appendChild(newDOMElement);
                 markdownInputMonitor(textArea, newDOMElement);
@@ -324,7 +324,7 @@ function parseAllDataNote(currentNote, textArea) {
             } catch (error) {
                 console.error("Error parsing markdown line:", line, error);
                 // 如果解析失败，直接添加原始文本
-                const temp = document.createElement('div');
+                const temp = document.createElement('span');
                 temp.innerHTML = line;
                 temp.classList.add("markdown-temp");
                 temp.setAttribute("mardown-data", line);
@@ -385,19 +385,19 @@ function checkPackage() {
 
 
 function markdownModify() {
-    const renderer = {
-        heading({tokens, depth}) {
-            const text = this.parser.parseInline(tokens);
-            if (depth === 1) {
-                return `<div class="md-h1">${text}</div>`;
-            }
+    // const renderer = {
+    //     heading({tokens, depth}) {
+    //         const text = this.parser.parseInline(tokens);
+    //         if (depth === 1) {
+    //             return `<span class="md-h1">${text}</span>`;
+    //         }
 
-            return `<h${depth}>${text}</h${depth}>`;
-        }
-    };
+    //         return `<span class="md-h${depth}">${text}</span>`;
+    //     }
+    // };
 
 
-    marked.use({renderer});
+    // marked.use({renderer});
 }
 
 function editingMarkdownMonitor(newContainer, textArea) {

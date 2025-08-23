@@ -1,6 +1,6 @@
 
 import MindElixir from '../../libs/mind-elixir/MindElixir.js'
-import {checkPackage,createAnNewContainer,markdownInputMonitor,monitorInsertIn,parseAllDataNote} from '../script/sideBar/markdownSupportES6.js';
+import {checkPackage,createAnNewContainer,loadAllMarkdown,markdownInputMonitor,monitorInsertIn,parseAllDataNote} from '../script/sideBar/markdownSupportES6.js';
 
 let _mind = null;
 let _pageUrl = null;
@@ -411,7 +411,8 @@ function updateNoteCard(nodeEle,panel,note_card_editor,mind,pageUrl){
   console.log("updateNoteCard:",note_card_editor);
   const title = note_card_editor.querySelector('.title-style').innerHTML;
   const quote = note_card_editor.querySelector('.quote-style').innerHTML;
-  const note = note_card_editor.querySelector('.note-card-editor-notes-container').innerHTML;
+  const note = loadAllMarkdown(note_card_editor.querySelector('.note-card-editor-notes-container'));
+  const note_html = note_card_editor.querySelector('.note-card-editor-notes-container').innerHTML;
   if (!check_empty_container(title)&&!check_empty_container(quote)&&!check_empty_container(note)){
     console.log("remove nodeEle:",nodeEle);
     getMind().removeNodes([getMind().currentNode]);
@@ -422,7 +423,7 @@ function updateNoteCard(nodeEle,panel,note_card_editor,mind,pageUrl){
   nodeEle.nodeObj.dataset.quote = quote;
   nodeEle.nodeObj.dataset.note = note;
   const color = nodeEle.nodeObj.dataset.color;
-  nodeEle.nodeObj.dangerouslySetInnerHTML = createDangerousHtml(title,quote,note,color);
+  nodeEle.nodeObj.dangerouslySetInnerHTML = createDangerousHtml(title,quote,note_html,color);
   nodeEle.nodeObj.topic = title||quote;
   console.log("nodeEle.nodeObj:",nodeEle.nodeObj);
   console.log("mind.getData():",getMind().getData());
