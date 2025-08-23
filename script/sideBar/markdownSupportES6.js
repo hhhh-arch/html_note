@@ -1,4 +1,10 @@
+import '../../libs/marked.min.js';
+import '../../libs/purify.min.js';
+const marked = window.marked;
+const DOMPurify = window.DOMPurify;
+export {marked,DOMPurify};
 // markdown.js
+export {markdownInputMonitor};
 function markdownInputMonitor(textArea, newContainer) {
     try {
         console.log("textArea", textArea);
@@ -43,7 +49,7 @@ function removeListenerEventEnter(temp) {
         }
     });
 }
-
+export {createAnNewContainer};
 function createAnNewContainer(textArea) {
     const newContainer = document.createElement('div');
     newContainer.tabIndex = 0;
@@ -61,7 +67,7 @@ function createAnNewContainer(textArea) {
     const childIndex = Array.from(textArea.children).length - 1;
     return textArea.children[childIndex];
 }
-
+export {createAnNewContainerWithNotes};
 function createAnNewContainerWithNotes(textArea, markdown_data) {
     const newContainer = document.createElement('div');
     newContainer.tabIndex = 0;
@@ -216,7 +222,7 @@ function cleanupMarkdownListeners(textArea) {
         delete textArea._inputHandler;
     }
 }
-
+export {monitorInsertIn};
 function monitorInsertIn(temp, textArea) {
     //TODO: add remove event listener function
     console.log("[debug] monitorInsertIn");
@@ -250,7 +256,7 @@ function monitorKeyDown(temp, textArea) {
         }
     });
 }
-
+export {loadAllMarkdown};
 function loadAllMarkdown(textArea) {
     console.log("[debug] loadAllMarkdown");
     const all_editing_containers = textArea.querySelectorAll(".note-editor-textarea-div");
@@ -281,7 +287,7 @@ function loadAllMarkdown(textArea) {
 
     return markdown;
 }
-
+export {parseAllDataNote};
 function parseAllDataNote(currentNote, textArea) {
     // 清空textArea内容，避免重复添加
     //textArea.innerHTML = '';
@@ -304,7 +310,7 @@ function parseAllDataNote(currentNote, textArea) {
         } else {
             try {
                 markdownModify();
-                const PurifiedNote = window.marked.parse(line);
+                const PurifiedNote = marked.parse(line);
                 console.log("PurifiedNote", PurifiedNote);
                 const temp = document.createElement('div');
                 const newDOMElement = createNewDOMElement(PurifiedNote, line);
@@ -362,7 +368,7 @@ function newLineForReloading(textArea, lastLine) {
         return lastLine;
     }
 }
-
+export {checkPackage};
 function checkPackage() {
     if (typeof marked === 'undefined') {
         console.error("marked.js is not loaded");
@@ -375,6 +381,7 @@ function checkPackage() {
         return true;
     }
 }
+
 
 function markdownModify() {
     const renderer = {
@@ -389,7 +396,7 @@ function markdownModify() {
     };
 
 
-    window.marked.use({renderer});
+    marked.use({renderer});
 }
 
 function editingMarkdownMonitor(newContainer, textArea) {

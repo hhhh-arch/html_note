@@ -1,10 +1,10 @@
 
 import MindElixir from '../../libs/mind-elixir/MindElixir.js'
-
+import {checkPackage,createAnNewContainer,markdownInputMonitor,monitorInsertIn,parseAllDataNote} from '../script/sideBar/markdownSupportES6.js';
 
 let _mind = null;
 let _pageUrl = null;
-
+let _nodeEle = null;
 function setMind(mindInstance) {
     _mind = mindInstance;
 }
@@ -21,12 +21,33 @@ function getPageUrl() {
   return _pageUrl;
 }
 
+function setNodeEle(nodeEle) {
+  _nodeEle = nodeEle;
+}
 
+function getNodeEle() {
+  return _nodeEle;
+}
 document.addEventListener('DOMContentLoaded', function() {
   //send message to service worker, ask for pageUrl
   chrome.runtime.sendMessage({type: 'side_panel_ready'},(response)=>{
     console.log('response:',response);
   });
+});
+// event listener for click outside the note_card_editor 
+document.addEventListener('mousedown',(event)=>{
+  
+    const note_card_editor = document.querySelector('.note-card-editor');
+    const panel = document.querySelector('#map');
+    if (note_card_editor){
+      if (note_card_editor.contains(event.target)){
+        return;
+      }
+      else{
+        hideNoteCardEditor(panel,note_card_editor,getNodeEle(),getMind(),getPageUrl());
+      }
+    }
+
 });
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === 'init_mindmap') {
@@ -61,6 +82,7 @@ function showMindMapPanel(pageUrl) {
       console.error('panel not found');
       return;
     }
+    checkPackage();
     create_mindMap_toolbar(panel);
     const mind = initMindMap(MindElixir, pageUrl,null);
     (function overide_node_edit(mind){
@@ -364,19 +386,19 @@ function showNoteCardEditor(nodeEle,panel,mind,pageUrl){
   note_card_editor.appendChild(quote_container);
   const notes_container = document.createElement('div');
   notes_container.className = 'note-card-editor-notes-container';
-  notes_container.contentEditable = 'true';
-  const notes_style = document.createElement('p');
-  notes_style.className = 'notes-style';
-  notes_style.innerHTML = note;
-  notes_style.contentEditable = 'true';
-  notes_container.appendChild(notes_style);
+  console.log("note:",note);
+  if (note!='<br>'&&note!='<br/>'&&note!=''){
+    const all_notes = parseAllDataNote(note,notes_container);
+  }
+  else{
+    const newContainer = createAnNewContainer(notes_container);
+    markdownInputMonitor(notes_container,newContainer);
+    monitorInsertIn(newContainer,notes_container);
+  }
+  setNodeEle(nodeEle);
   note_card_editor.appendChild(notes_container);
   panel.appendChild(note_card_editor);  
-  note_card_editor.addEventListener('mouseleave',(event)=>{
-    if (note_card_editor.contains(event.target)){
-     hideNoteCardEditor(panel,note_card_editor,nodeEle,note_card_editor,mind,pageUrl);
-    }
- })
+
 }
 function hideNoteCardEditor(panel,note_card_editor,nodeEle,mind,pageUrl){
   console.log("hideNoteCardEditor:",note_card_editor);
@@ -389,7 +411,7 @@ function updateNoteCard(nodeEle,panel,note_card_editor,mind,pageUrl){
   console.log("updateNoteCard:",note_card_editor);
   const title = note_card_editor.querySelector('.title-style').innerHTML;
   const quote = note_card_editor.querySelector('.quote-style').innerHTML;
-  const note = note_card_editor.querySelector('.notes-style').innerHTML;
+  const note = note_card_editor.querySelector('.note-card-editor-notes-container').innerHTML;
   if (!check_empty_container(title)&&!check_empty_container(quote)&&!check_empty_container(note)){
     console.log("remove nodeEle:",nodeEle);
     getMind().removeNodes([getMind().currentNode]);
