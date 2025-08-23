@@ -101,7 +101,7 @@ function showOriginalMarkdown(temp, textArea) {
     //monitorInsertIn(newContainer,textArea);
 
     // console.log("[debug] allTemps",allTemps);
-    newContainer.focus();
+    // newContainer.focus();
     //console.log("[debug] textArea in showOriginalMarkdown 3",textArea);
 
     return newContainer;
@@ -224,17 +224,18 @@ function cleanupMarkdownListeners(textArea) {
 }
 export {monitorInsertIn};
 function monitorInsertIn(temp, textArea) {
-    //TODO: add remove event listener function
     console.log("[debug] monitorInsertIn");
 
 
-    temp.removeEventListener('click', (e) => {
+    temp.removeEventListener('mousedown', (e) => {
+        e.stopPropagation();
         const newContainer = showOriginalMarkdown(temp, textArea);
         markdownInputMonitor(textArea, newContainer);
         console.log("[debug] temp clicked");
     });
 
-    temp.addEventListener('click', (e) => {
+    temp.addEventListener('mousedown', (e) => {
+        e.stopPropagation();
         const newContainer = showOriginalMarkdown(temp, textArea);
         markdownInputMonitor(textArea, newContainer);
         console.log("[debug] temp clicked");
