@@ -102,7 +102,7 @@ function showOriginalMarkdown(temp, textArea) {
 
     // console.log("[debug] allTemps",allTemps);
     // newContainer.focus();
-    //console.log("[debug] textArea in showOriginalMarkdown 3",textArea);
+    console.log("[debug] textArea in showOriginalMarkdown 3",textArea);
 
     return newContainer;
 }
@@ -336,11 +336,23 @@ function parseAllDataNote(currentNote, textArea) {
 
         console.log("debug textArea", textArea);
     });
-    const allTemps = textArea.querySelectorAll(".markdown-temp");
+    
 //     console.log("parseAllDataNote完成，找到", allTemps.length, "个markdown-temp元素");
     //monitorInsertIn(newDOMElement,textArea);
-
+    //clearallTheEmptyLine(textArea);
+    const allTemps = textArea.querySelectorAll(".markdown-temp");
     return allTemps;
+}
+function clearallTheEmptyLine(textArea){
+    const allTemps = textArea.querySelectorAll(".markdown-temp");
+    for (let i = allTemps.length-1; i >= 0; i--) {
+        if (allTemps[i].innerHTML != '' && allTemps[i].innerHTML != '<br>') {
+            break;
+        }
+        else{
+            textArea.removeChild(allTemps[i]);
+        }
+    }
 }
 
 // function markdownorgainse(textArea){
@@ -504,6 +516,7 @@ function enterKeyHandler(e, newContainer, textArea) {
 
     if (caretPosition == -1) {
         e.preventDefault();
+        e.stopPropagation();
         renderMarkdown(textArea, newContainer, newDOMElement => {
             //console.log("temp",temp)
 
@@ -524,15 +537,17 @@ function enterKeyHandler(e, newContainer, textArea) {
 
     } else if (caretPosition == 0) {
         e.preventDefault();
+        e.stopPropagation();
         const nextContainer = createAnNewContainer(textArea);
         textArea.insertBefore(nextContainer, newContainer);
         markdownInputMonitor(textArea, nextContainer);
     } else if (caretPosition > 0 && caretPosition < newContainer.innerText.length) {
         e.preventDefault();
+        e.stopPropagation();
         splitContainer(newContainer, caretPosition, textArea);
         console.log("[debug] splitContainer textArea", textArea);
     } else {
-        console.error("[debug] caretPosition is out of range,caretPosition", caretPosition);
+        console.error("[debug] caretPosition is out of range,caretPosition", caretPosition,newContainer.innerText.length);
     }
 }
 
