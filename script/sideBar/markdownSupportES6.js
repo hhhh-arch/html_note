@@ -279,41 +279,47 @@ function loadAllMarkdown(textArea) {
             return allTemps[0].getAttribute('mardown-data');
         }
     }
-    allTemps.forEach((temp) => {
-        if (temp.innerHTML === '' || temp.innerHTML === '<br>') {
+    
+    // 优化保存逻辑，避免重复的换行符
+    for (let i = 0; i < allTemps.length; i++) {
+        const temp = allTemps[i];
+        const markdownData = temp.getAttribute('mardown-data');
+        
+        if (markdownData && markdownData.trim() !== '') {
+            // 有内容的行：添加内容
+            markdown += markdownData;
+        }
+        
+        // 如果不是最后一行，添加换行符
+        if (i < allTemps.length - 1) {
             markdown += '\n';
         }
-        markdown += temp.getAttribute('mardown-data') + '\n';
-    });
+    }
 
     return markdown;
 }
 export {parseAllDataNote};
 function parseAllDataNote(currentNote, textArea) {
     // 清空textArea内容，避免重复添加
-    //textArea.innerHTML = '';
+    textArea.innerHTML = '';
 
     // split currentNote by \n
     const lines = currentNote.split('\n');
 
-    lines.forEach((line) => {
+    lines.forEach((line, index) => {
         // if line is not empty, parse it
         console.log("line", line);
 
         if (line.trim() == '') {
-            const temp = document.createElement('span');
-            temp.innerHTML = '<br>';
-            temp.classList.add("markdown-temp");
-            temp.setAttribute("mardown-data", '<br>');
-            temp.tabIndex = 0;
-            temp.contentEditable = true;
-            textArea.appendChild(temp);
+            // 空行：创建一个空的span元素，markdown-data为空字符串
+            const temp = createAnNewContainer(textArea);
+            markdownInputMonitor(textArea, temp);
+            monitorInsertIn(temp, textArea);
         } else {
             try {
                 markdownModify();
                 const PurifiedNote = marked.parse(line);
                 console.log("PurifiedNote", PurifiedNote);
-                const temp = document.createElement('span');
                 const newDOMElement = createNewDOMElement(PurifiedNote, line);
                 textArea.appendChild(newDOMElement);
                 markdownInputMonitor(textArea, newDOMElement);
@@ -337,11 +343,38 @@ function parseAllDataNote(currentNote, textArea) {
         console.log("debug textArea", textArea);
     });
     
-//     console.log("parseAllDataNote完成，找到", allTemps.length, "个markdown-temp元素");
-    //monitorInsertIn(newDOMElement,textArea);
-    //clearallTheEmptyLine(textArea);
+
+    //clearTrailingEmptyLines(textArea);
+    
     const allTemps = textArea.querySelectorAll(".markdown-temp");
     return allTemps;
+}
+
+
+function clearTrailingEmptyLines(textArea) {
+    const allTemps = textArea.querySelectorAll(".markdown-temp");
+    if (allTemps.length === 0) return;
+    
+
+    let lastNonEmptyIndex = -1;
+    for (let i = allTemps.length - 1; i >= 0; i--) {
+        const temp = allTemps[i];
+        const markdownData = temp.getAttribute('mardown-data');
+        if (markdownData && markdownData.trim() !== '') {
+            lastNonEmptyIndex = i;
+            break;
+        }
+    }
+    
+
+    if (lastNonEmptyIndex >= 0) {
+        for (let i = allTemps.length - 1; i > lastNonEmptyIndex; i--) {
+            const temp = allTemps[i];
+            if (temp.parentNode === textArea) {
+                textArea.removeChild(temp);
+            }
+        }
+    }
 }
 function clearallTheEmptyLine(textArea){
     const allTemps = textArea.querySelectorAll(".markdown-temp");
