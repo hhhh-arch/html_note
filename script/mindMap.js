@@ -395,6 +395,7 @@ function showNoteCardEditor(nodeEle,panel,mind,pageUrl){
     const newContainer = createAnNewContainer(notes_container);
     markdownInputMonitor(notes_container,newContainer);
     monitorInsertIn(newContainer,notes_container);
+    newContainer.focus();
   }
   setNodeEle(nodeEle);
   note_card_editor.appendChild(notes_container);

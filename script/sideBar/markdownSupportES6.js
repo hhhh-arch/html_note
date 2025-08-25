@@ -1,5 +1,6 @@
 import '../../libs/marked.min.js';
 import '../../libs/purify.min.js';
+import '../../libs/jquery.caret.min.js';
 const marked = window.marked;
 const DOMPurify = window.DOMPurify;
 export {marked,DOMPurify};
