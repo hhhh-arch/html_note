@@ -392,10 +392,7 @@ function showNoteCardEditor(nodeEle,panel,mind,pageUrl){
     const all_notes = parseAllDataNote(note,notes_container);
   }
   else{
-    const newContainer = createAnNewContainer(notes_container);
-    markdownInputMonitor(notes_container,newContainer);
-    monitorInsertIn(newContainer,notes_container);
-    newContainer.focus();
+    const newContainer = initProsemirror(notes_container);
   }
   setNodeEle(nodeEle);
   note_card_editor.appendChild(notes_container);
@@ -636,6 +633,7 @@ function update_note_list_toolbar(){
   });
   toolbar.replaceChild(convertBtn_to_mindMap,convertBtn);
 }
+
 function create_note_list(){
   const note_list = document.querySelector('.note-list');
   if (!note_list){
@@ -659,8 +657,8 @@ function create_note_list(){
         console.log("note_list:",note_list);
       });
     }
+  
   });
   
 }
-//TODO: re style the note editor 
-//TODO: add ai chat function 
+

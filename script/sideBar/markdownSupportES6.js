@@ -1,6 +1,7 @@
 import '../../libs/marked.min.js';
 import '../../libs/purify.min.js';
 import '../../libs/jquery.caret.min.js';
+import {initProsemirror} from './prosemirror.js';
 const marked = window.marked;
 const DOMPurify = window.DOMPurify;
 export {marked,DOMPurify};
