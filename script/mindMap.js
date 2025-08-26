@@ -390,14 +390,26 @@ function showNoteCardEditor(nodeEle,panel,mind,pageUrl){
   note_card_editor.appendChild(quote_container);
   const notes_container = document.createElement('div');
   notes_container.className = 'note-card-editor-notes-container';
+  notes_container.contentEditable = 'true';
   console.log("note:",note);
   if (note!='<br>'&&note!='<br/>'&&note!=''){
     const all_notes = parseAllDataNote(note,notes_container);
   }
   else{
-
+    console.log('About to call initProsemirror with container:', notes_container);
+    console.log('Container HTML before:', notes_container.innerHTML);
+    console.log('initProsemirror function:', typeof initProsemirror);
     
-    const newContainer = initProsemirror(notes_container);
+    const editorView = initProsemirror(notes_container);
+    console.log('initProsemirror returned:', editorView);
+    
+    if (editorView) {
+        console.log('ProseMirror editor initialized successfully');
+        console.log('Editor view:', editorView);
+        console.log('Container HTML after:', notes_container.innerHTML);
+    } else {
+        console.error('initProsemirror returned null/undefined');
+    }
   }
   setNodeEle(nodeEle);
   note_card_editor.appendChild(notes_container);

@@ -14429,17 +14429,9 @@ var ProseMirrorBundle = (() => {
       nodes: addListNodes(schema.spec.nodes, "paragraph block*", "block"),
       marks: schema.spec.marks
     });
-    const content = textArea.querySelector("#content");
-    if (!content) {
-      console.error("content not found");
-      return;
-    }
-    const new_html = `<div id="content">
-  <h3>hello world</h3>
-  </div>`;
-    window.view = new EditorView(new_html, {
+    window.view = new EditorView(textArea, {
       state: EditorState.create({
-        doc: DOMParser.fromSchema(mySchema).parse(new_html),
+        doc: DOMParser.fromSchema(mySchema).parse(textArea),
         plugins: exampleSetup({ schema: mySchema })
       })
     });
