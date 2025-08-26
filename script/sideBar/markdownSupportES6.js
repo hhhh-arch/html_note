@@ -1,7 +1,8 @@
 import '../../libs/marked.min.js';
 import '../../libs/purify.min.js';
-import '../../libs/jquery.caret.min.js';
-import {initProsemirror} from './prosemirror.js';
+// import {initProsemirror} from './prosemirror.js';
+// 从全局变量获取initProsemirror函数
+const { initProsemirror } = window.ProseMirrorBundle;
 const marked = window.marked;
 const DOMPurify = window.DOMPurify;
 export {marked,DOMPurify};
@@ -416,7 +417,7 @@ function newLineForReloading(textArea, lastLine) {
         return lastLine;
     }
 }
-export {checkPackage};
+export {checkPackage, initProsemirror};
 function checkPackage() {
     if (typeof marked === 'undefined') {
         console.error("marked.js is not loaded");

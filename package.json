@@ -1,5 +1,16 @@
 {
+  "scripts": {
+    "build": "node build.js"
+  },
   "devDependencies": {
     "esbuild": "^0.25.8"
+  },
+  "dependencies": {
+    "prosemirror-example-setup": "^1.2.3",
+    "prosemirror-model": "^1.25.3",
+    "prosemirror-schema-basic": "^1.2.4",
+    "prosemirror-schema-list": "^1.5.1",
+    "prosemirror-state": "^1.4.3",
+    "prosemirror-view": "^1.40.1"
   }
 }

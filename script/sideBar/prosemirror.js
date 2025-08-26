@@ -1,9 +1,9 @@
-import {EditorState} from '../../libs/prosemirror-state.js'
-import {EditorView} from '../../libs/prosemirror-view.js'
-import {Schema, DOMParser} from '../../libs/prosemirror-model.js'
-import {schema} from '../../libs/prosemirror-schema-basic.js'
-import {exampleSetup} from '../../libs/prosemirror-example-setup.js'
-import {addListNodes} from '../../libs/prosemirror-schema-list.js'
+import {EditorState} from "prosemirror-state"
+import {EditorView} from "prosemirror-view"
+import {Schema, DOMParser} from "prosemirror-model"
+import {schema} from "prosemirror-schema-basic"
+import {addListNodes} from "prosemirror-schema-list"
+import {exampleSetup} from "prosemirror-example-setup"
 
 export {initProsemirror};
 function initProsemirror(textArea){

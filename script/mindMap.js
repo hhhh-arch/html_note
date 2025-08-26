@@ -1,7 +1,7 @@
 
 import MindElixir from '../../libs/mind-elixir/MindElixir.js'
 import {checkPackage,createAnNewContainer,loadAllMarkdown,markdownInputMonitor,monitorInsertIn,parseAllDataNote} from '../script/sideBar/markdownSupportES6.js';
-
+import {initProsemirror} from '../script/sideBar/prosemirror.js';
 let _mind = null;
 let _pageUrl = null;
 let _nodeEle = null;
@@ -386,7 +386,6 @@ function showNoteCardEditor(nodeEle,panel,mind,pageUrl){
   note_card_editor.appendChild(quote_container);
   const notes_container = document.createElement('div');
   notes_container.className = 'note-card-editor-notes-container';
-  notes_container.contentEditable = 'true';
   console.log("note:",note);
   if (note!='<br>'&&note!='<br/>'&&note!=''){
     const all_notes = parseAllDataNote(note,notes_container);
