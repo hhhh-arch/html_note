@@ -23,7 +23,9 @@ var ProseMirrorBundle = (() => {
     getMarkdown: () => getMarkdown,
     get_doc_json: () => get_doc_json,
     get_hmtl: () => get_hmtl,
-    initProsemirror: () => initProsemirror
+    initProsemirror: () => initProsemirror,
+    retrive_doc_json: () => retrive_doc_json,
+    set_up_note_card_editor: () => set_up_note_card_editor
   });
 
   // node_modules/orderedmap/dist/index.js
@@ -20641,6 +20643,18 @@ var ProseMirrorBundle = (() => {
     console.log("json", json);
     const jsonString = JSON.stringify(json);
     return jsonString;
+  }
+  function retrive_doc_json(json_string) {
+    const doc3 = Node2.fromJSON(window.view.state.schema, JSON.parse(json_string));
+    console.log("doc", doc3);
+    return doc3;
+  }
+  function set_up_note_card_editor(json_string) {
+    const restoredDoc = retrive_doc_json(json_string);
+    const plugins = exampleSetup({ schema });
+    const state = EditorState.create({ doc: restoredDoc, schema, plugins });
+    const view2 = new EditorView(document.querySelector("#editor"), { state });
+    return view2;
   }
   return __toCommonJS(prosemirror_exports);
 })();

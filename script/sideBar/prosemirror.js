@@ -49,4 +49,18 @@ function get_doc_json(){
   const jsonString = JSON.stringify(json);
   return jsonString;
 }
+export {retrive_doc_json};
+function retrive_doc_json(json_string){
+  const doc = Node.fromJSON(window.view.state.schema, JSON.parse(json_string));
+  console.log('doc',doc);
+  return doc;
+}
+export {set_up_note_card_editor};
+function set_up_note_card_editor(json_string){
+  const restoredDoc = retrive_doc_json(json_string);
 
+  const plugins = exampleSetup({ schema });
+  const state = EditorState.create({ doc: restoredDoc, schema, plugins });
+  const view = new EditorView(document.querySelector("#editor"), { state });
+  return view;
+}
