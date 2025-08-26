@@ -1,7 +1,11 @@
 
 import MindElixir from '../../libs/mind-elixir/MindElixir.js'
 import {checkPackage,createAnNewContainer,loadAllMarkdown,markdownInputMonitor,monitorInsertIn,parseAllDataNote} from '../script/sideBar/markdownSupportES6.js';
-import {initProsemirror} from '../script/sideBar/prosemirror.js';
+// import {initProsemirror} from '../script/sideBar/prosemirror.js';
+
+// 从全局变量获取initProsemirror函数
+const { initProsemirror } = window.ProseMirrorBundle || {};
+
 let _mind = null;
 let _pageUrl = null;
 let _nodeEle = null;
@@ -391,6 +395,8 @@ function showNoteCardEditor(nodeEle,panel,mind,pageUrl){
     const all_notes = parseAllDataNote(note,notes_container);
   }
   else{
+
+    
     const newContainer = initProsemirror(notes_container);
   }
   setNodeEle(nodeEle);

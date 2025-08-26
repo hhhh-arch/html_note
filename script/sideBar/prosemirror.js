@@ -8,15 +8,24 @@ import {exampleSetup} from "prosemirror-example-setup"
 export {initProsemirror};
 function initProsemirror(textArea){
 
-    const mySchema = new Schema({
-        nodes: addListNodes(schema.spec.nodes, "paragraph block*", "block"),
-        marks: schema.spec.marks
-      })
-      
-      window.view = new EditorView(textArea, {
-        state: EditorState.create({
-          plugins: exampleSetup({schema: mySchema})
-        })
-      })
-    return mySchema;
+  const mySchema = new Schema({
+    nodes: addListNodes(schema.spec.nodes, "paragraph block*", "block"),
+    marks: schema.spec.marks
+  })
+  const content = textArea.querySelector("#content");
+  if (!content){
+    console.error("content not found");
+    return;
+  }
+  const new_html = `<div id="content">
+  <h3>hello world</h3>
+  </div>`;
+  window.view = new EditorView(new_html, {
+    state: EditorState.create({
+      doc: DOMParser.fromSchema(mySchema).parse(new_html),
+      plugins: exampleSetup({schema: mySchema})
+    })
+  });
+  return window.view;
+
 }
