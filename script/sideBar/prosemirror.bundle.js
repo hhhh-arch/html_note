@@ -21,6 +21,7 @@ var ProseMirrorBundle = (() => {
   var prosemirror_exports = {};
   __export(prosemirror_exports, {
     getMarkdown: () => getMarkdown,
+    get_doc_json: () => get_doc_json,
     get_hmtl: () => get_hmtl,
     initProsemirror: () => initProsemirror
   });
@@ -6263,10 +6264,10 @@ var ProseMirrorBundle = (() => {
       bottom: rect.top + node.clientHeight * scaleY
     };
   }
-  function scrollRectIntoView(view, rect, startDOM) {
-    let scrollThreshold = view.someProp("scrollThreshold") || 0, scrollMargin = view.someProp("scrollMargin") || 5;
-    let doc3 = view.dom.ownerDocument;
-    for (let parent = startDOM || view.dom; ; ) {
+  function scrollRectIntoView(view2, rect, startDOM) {
+    let scrollThreshold = view2.someProp("scrollThreshold") || 0, scrollMargin = view2.someProp("scrollMargin") || 5;
+    let doc3 = view2.dom.ownerDocument;
+    for (let parent = startDOM || view2.dom; ; ) {
       if (!parent)
         break;
       if (parent.nodeType != 1) {
@@ -6304,12 +6305,12 @@ var ProseMirrorBundle = (() => {
       parent = pos == "absolute" ? parent.offsetParent : parentNode(parent);
     }
   }
-  function storeScrollPos(view) {
-    let rect = view.dom.getBoundingClientRect(), startY = Math.max(0, rect.top);
+  function storeScrollPos(view2) {
+    let rect = view2.dom.getBoundingClientRect(), startY = Math.max(0, rect.top);
     let refDOM, refTop;
     for (let x = (rect.left + rect.right) / 2, y = startY + 1; y < Math.min(innerHeight, rect.bottom); y += 5) {
-      let dom = view.root.elementFromPoint(x, y);
-      if (!dom || dom == view.dom || !view.dom.contains(dom))
+      let dom = view2.root.elementFromPoint(x, y);
+      if (!dom || dom == view2.dom || !view2.dom.contains(dom))
         continue;
       let localRect = dom.getBoundingClientRect();
       if (localRect.top >= startY - 20) {
@@ -6318,7 +6319,7 @@ var ProseMirrorBundle = (() => {
         break;
       }
     }
-    return { refDOM, refTop, stack: scrollStack(view.dom) };
+    return { refDOM, refTop, stack: scrollStack(view2.dom) };
   }
   function scrollStack(dom) {
     let stack = [], doc3 = dom.ownerDocument;
@@ -6431,20 +6432,20 @@ var ProseMirrorBundle = (() => {
       return parent;
     return dom;
   }
-  function posFromElement(view, elt, coords) {
+  function posFromElement(view2, elt, coords) {
     let { node, offset } = findOffsetInNode(elt, coords), bias = -1;
     if (node.nodeType == 1 && !node.firstChild) {
       let rect = node.getBoundingClientRect();
       bias = rect.left != rect.right && coords.left > (rect.left + rect.right) / 2 ? 1 : -1;
     }
-    return view.docView.posFromDOM(node, offset, bias);
+    return view2.docView.posFromDOM(node, offset, bias);
   }
-  function posFromCaret(view, node, offset, coords) {
+  function posFromCaret(view2, node, offset, coords) {
     let outsideBlock = -1;
     for (let cur = node, sawBlock = false; ; ) {
-      if (cur == view.dom)
+      if (cur == view2.dom)
         break;
-      let desc = view.docView.nearestDesc(cur, true), rect;
+      let desc = view2.docView.nearestDesc(cur, true), rect;
       if (!desc)
         return null;
       if (desc.dom.nodeType == 1 && (desc.node.isBlock && desc.parent || !desc.contentDOM) && // Ignore elements with zero-size bounding rectangles
@@ -6463,7 +6464,7 @@ var ProseMirrorBundle = (() => {
       }
       cur = desc.dom.parentNode;
     }
-    return outsideBlock > -1 ? outsideBlock : view.docView.posFromDOM(node, offset, -1);
+    return outsideBlock > -1 ? outsideBlock : view2.docView.posFromDOM(node, offset, -1);
   }
   function elementFromPoint(element, coords, box) {
     let len = element.childNodes.length;
@@ -6484,18 +6485,18 @@ var ProseMirrorBundle = (() => {
     }
     return element;
   }
-  function posAtCoords(view, coords) {
-    let doc3 = view.dom.ownerDocument, node, offset = 0;
+  function posAtCoords(view2, coords) {
+    let doc3 = view2.dom.ownerDocument, node, offset = 0;
     let caret = caretFromPoint(doc3, coords.left, coords.top);
     if (caret)
       ({ node, offset } = caret);
-    let elt = (view.root.elementFromPoint ? view.root : doc3).elementFromPoint(coords.left, coords.top);
+    let elt = (view2.root.elementFromPoint ? view2.root : doc3).elementFromPoint(coords.left, coords.top);
     let pos;
-    if (!elt || !view.dom.contains(elt.nodeType != 1 ? elt.parentNode : elt)) {
-      let box = view.dom.getBoundingClientRect();
+    if (!elt || !view2.dom.contains(elt.nodeType != 1 ? elt.parentNode : elt)) {
+      let box = view2.dom.getBoundingClientRect();
       if (!inRect(coords, box))
         return null;
-      elt = elementFromPoint(view.dom, coords, box);
+      elt = elementFromPoint(view2.dom, coords, box);
       if (!elt)
         return null;
     }
@@ -6517,14 +6518,14 @@ var ProseMirrorBundle = (() => {
       let prev;
       if (webkit && offset && node.nodeType == 1 && (prev = node.childNodes[offset - 1]).nodeType == 1 && prev.contentEditable == "false" && prev.getBoundingClientRect().top >= coords.top)
         offset--;
-      if (node == view.dom && offset == node.childNodes.length - 1 && node.lastChild.nodeType == 1 && coords.top > node.lastChild.getBoundingClientRect().bottom)
-        pos = view.state.doc.content.size;
+      if (node == view2.dom && offset == node.childNodes.length - 1 && node.lastChild.nodeType == 1 && coords.top > node.lastChild.getBoundingClientRect().bottom)
+        pos = view2.state.doc.content.size;
       else if (offset == 0 || node.nodeType != 1 || node.childNodes[offset - 1].nodeName != "BR")
-        pos = posFromCaret(view, node, offset, coords);
+        pos = posFromCaret(view2, node, offset, coords);
     }
     if (pos == null)
-      pos = posFromElement(view, elt, coords);
-    let desc = view.docView.nearestDesc(elt, true);
+      pos = posFromElement(view2, elt, coords);
+    let desc = view2.docView.nearestDesc(elt, true);
     return { pos, inside: desc ? desc.posAtStart - desc.border : -1 };
   }
   function nonZero(rect) {
@@ -6540,8 +6541,8 @@ var ProseMirrorBundle = (() => {
     return Array.prototype.find.call(rects, nonZero) || target.getBoundingClientRect();
   }
   var BIDI = /[\u0590-\u05f4\u0600-\u06ff\u0700-\u08ac]/;
-  function coordsAtPos(view, pos, side) {
-    let { node, offset, atom } = view.docView.domFromPos(pos, side < 0 ? -1 : 1);
+  function coordsAtPos(view2, pos, side) {
+    let { node, offset, atom } = view2.docView.domFromPos(pos, side < 0 ? -1 : 1);
     let supportEmptyRange = webkit || gecko;
     if (node.nodeType == 3) {
       if (supportEmptyRange && (BIDI.test(node.nodeValue) || (side < 0 ? !offset : offset == node.nodeValue.length))) {
@@ -6571,7 +6572,7 @@ var ProseMirrorBundle = (() => {
         return flattenV(singleRect(textRange(node, from2, to), takeSide), takeSide < 0);
       }
     }
-    let $dom = view.state.doc.resolve(pos - (atom || 0));
+    let $dom = view2.state.doc.resolve(pos - (atom || 0));
     if (!$dom.parent.inlineContent) {
       if (atom == null && offset && (side < 0 || offset == nodeSize(node))) {
         let before = node.childNodes[offset - 1];
@@ -6613,28 +6614,28 @@ var ProseMirrorBundle = (() => {
     let y = top ? rect.top : rect.bottom;
     return { top: y, bottom: y, left: rect.left, right: rect.right };
   }
-  function withFlushedState(view, state, f) {
-    let viewState = view.state, active = view.root.activeElement;
+  function withFlushedState(view2, state, f) {
+    let viewState = view2.state, active = view2.root.activeElement;
     if (viewState != state)
-      view.updateState(state);
-    if (active != view.dom)
-      view.focus();
+      view2.updateState(state);
+    if (active != view2.dom)
+      view2.focus();
     try {
       return f();
     } finally {
       if (viewState != state)
-        view.updateState(viewState);
-      if (active != view.dom && active)
+        view2.updateState(viewState);
+      if (active != view2.dom && active)
         active.focus();
     }
   }
-  function endOfTextblockVertical(view, state, dir) {
+  function endOfTextblockVertical(view2, state, dir) {
     let sel = state.selection;
     let $pos = dir == "up" ? sel.$from : sel.$to;
-    return withFlushedState(view, state, () => {
-      let { node: dom } = view.docView.domFromPos($pos.pos, dir == "up" ? -1 : 1);
+    return withFlushedState(view2, state, () => {
+      let { node: dom } = view2.docView.domFromPos($pos.pos, dir == "up" ? -1 : 1);
       for (; ; ) {
-        let nearest = view.docView.nearestDesc(dom, true);
+        let nearest = view2.docView.nearestDesc(dom, true);
         if (!nearest)
           break;
         if (nearest.node.isBlock) {
@@ -6643,7 +6644,7 @@ var ProseMirrorBundle = (() => {
         }
         dom = nearest.dom.parentNode;
       }
-      let coords = coordsAtPos(view, $pos.pos, 1);
+      let coords = coordsAtPos(view2, $pos.pos, 1);
       for (let child = dom.firstChild; child; child = child.nextSibling) {
         let boxes;
         if (child.nodeType == 1)
@@ -6662,22 +6663,22 @@ var ProseMirrorBundle = (() => {
     });
   }
   var maybeRTL = /[\u0590-\u08ac]/;
-  function endOfTextblockHorizontal(view, state, dir) {
+  function endOfTextblockHorizontal(view2, state, dir) {
     let { $head } = state.selection;
     if (!$head.parent.isTextblock)
       return false;
     let offset = $head.parentOffset, atStart = !offset, atEnd = offset == $head.parent.content.size;
-    let sel = view.domSelection();
+    let sel = view2.domSelection();
     if (!sel)
       return $head.pos == $head.start() || $head.pos == $head.end();
     if (!maybeRTL.test($head.parent.textContent) || !sel.modify)
       return dir == "left" || dir == "backward" ? atStart : atEnd;
-    return withFlushedState(view, state, () => {
-      let { focusNode: oldNode, focusOffset: oldOff, anchorNode, anchorOffset } = view.domSelectionRange();
+    return withFlushedState(view2, state, () => {
+      let { focusNode: oldNode, focusOffset: oldOff, anchorNode, anchorOffset } = view2.domSelectionRange();
       let oldBidiLevel = sel.caretBidiLevel;
       sel.modify("move", dir, "character");
-      let parentDOM = $head.depth ? view.docView.domAfterPos($head.before()) : view.dom;
-      let { focusNode: newNode, focusOffset: newOff } = view.domSelectionRange();
+      let parentDOM = $head.depth ? view2.docView.domAfterPos($head.before()) : view2.dom;
+      let { focusNode: newNode, focusOffset: newOff } = view2.domSelectionRange();
       let result = newNode && !parentDOM.contains(newNode.nodeType == 1 ? newNode : newNode.parentNode) || oldNode == newNode && oldOff == newOff;
       try {
         sel.collapse(anchorNode, anchorOffset);
@@ -6693,12 +6694,12 @@ var ProseMirrorBundle = (() => {
   var cachedState = null;
   var cachedDir = null;
   var cachedResult = false;
-  function endOfTextblock(view, state, dir) {
+  function endOfTextblock(view2, state, dir) {
     if (cachedState == state && cachedDir == dir)
       return cachedResult;
     cachedState = state;
     cachedDir = dir;
-    return cachedResult = dir == "up" || dir == "down" ? endOfTextblockVertical(view, state, dir) : endOfTextblockHorizontal(view, state, dir);
+    return cachedResult = dir == "up" || dir == "down" ? endOfTextblockVertical(view2, state, dir) : endOfTextblockHorizontal(view2, state, dir);
   }
   var NOT_DIRTY = 0;
   var CHILD_DIRTY = 1;
@@ -6976,18 +6977,18 @@ var ProseMirrorBundle = (() => {
     // custom things with the selection. Note that this falls apart when
     // a selection starts in such a node and ends in another, in which
     // case we just use whatever domFromPos produces as a best effort.
-    setSelection(anchor, head, view, force = false) {
+    setSelection(anchor, head, view2, force = false) {
       let from2 = Math.min(anchor, head), to = Math.max(anchor, head);
       for (let i = 0, offset = 0; i < this.children.length; i++) {
         let child = this.children[i], end = offset + child.size;
         if (from2 > offset && to < end)
-          return child.setSelection(anchor - offset - child.border, head - offset - child.border, view, force);
+          return child.setSelection(anchor - offset - child.border, head - offset - child.border, view2, force);
         offset = end;
       }
       let anchorDOM = this.domFromPos(anchor, anchor ? -1 : 1);
       let headDOM = head == anchor ? anchorDOM : this.domFromPos(head, head ? -1 : 1);
-      let domSel = view.root.getSelection();
-      let selRange = view.domSelectionRange();
+      let domSel = view2.root.getSelection();
+      let selRange = view2.domSelectionRange();
       let brKludge = false;
       if ((gecko || safari) && anchor == head) {
         let { node, offset } = anchorDOM;
@@ -7090,10 +7091,10 @@ var ProseMirrorBundle = (() => {
     }
   };
   var WidgetViewDesc = class extends ViewDesc {
-    constructor(parent, widget, view, pos) {
+    constructor(parent, widget, view2, pos) {
       let self, dom = widget.type.toDOM;
       if (typeof dom == "function")
-        dom = dom(view, () => {
+        dom = dom(view2, () => {
           if (!self)
             return pos;
           if (self.parent)
@@ -7167,9 +7168,9 @@ var ProseMirrorBundle = (() => {
       this.mark = mark;
       this.spec = spec;
     }
-    static create(parent, mark, inline2, view) {
-      let custom = view.nodeViews[mark.type.name];
-      let spec = custom && custom(mark, view, inline2);
+    static create(parent, mark, inline2, view2) {
+      let custom = view2.nodeViews[mark.type.name];
+      let spec = custom && custom(mark, view2, inline2);
       if (!spec || !spec.dom)
         spec = DOMSerializer.renderSpec(document, mark.type.spec.toDOM(mark, inline2), null, mark.attrs);
       return new _MarkViewDesc(parent, mark, spec.dom, spec.contentDOM || spec.dom, spec);
@@ -7193,13 +7194,13 @@ var ProseMirrorBundle = (() => {
         this.dirty = NOT_DIRTY;
       }
     }
-    slice(from2, to, view) {
-      let copy2 = _MarkViewDesc.create(this.parent, this.mark, true, view);
+    slice(from2, to, view2) {
+      let copy2 = _MarkViewDesc.create(this.parent, this.mark, true, view2);
       let nodes2 = this.children, size = this.size;
       if (to < size)
-        nodes2 = replaceNodes(nodes2, to, size, view);
+        nodes2 = replaceNodes(nodes2, to, size, view2);
       if (from2 > 0)
-        nodes2 = replaceNodes(nodes2, 0, from2, view);
+        nodes2 = replaceNodes(nodes2, 0, from2, view2);
       for (let i = 0; i < nodes2.length; i++)
         nodes2[i].parent = copy2;
       copy2.children = nodes2;
@@ -7215,7 +7216,7 @@ var ProseMirrorBundle = (() => {
     }
   };
   var NodeViewDesc = class _NodeViewDesc extends ViewDesc {
-    constructor(parent, node, outerDeco, innerDeco, dom, contentDOM, nodeDOM, view, pos) {
+    constructor(parent, node, outerDeco, innerDeco, dom, contentDOM, nodeDOM, view2, pos) {
       super(parent, [], dom, contentDOM);
       this.node = node;
       this.outerDeco = outerDeco;
@@ -7231,9 +7232,9 @@ var ProseMirrorBundle = (() => {
     // since it'd require exposing a whole slew of finicky
     // implementation details to the user code that they probably will
     // never need.)
-    static create(parent, node, outerDeco, innerDeco, view, pos) {
-      let custom = view.nodeViews[node.type.name], descObj;
-      let spec = custom && custom(node, view, () => {
+    static create(parent, node, outerDeco, innerDeco, view2, pos) {
+      let custom = view2.nodeViews[node.type.name], descObj;
+      let spec = custom && custom(node, view2, () => {
         if (!descObj)
           return pos;
         if (descObj.parent)
@@ -7258,11 +7259,11 @@ var ProseMirrorBundle = (() => {
       let nodeDOM = dom;
       dom = applyOuterDeco(dom, outerDeco, node);
       if (spec)
-        return descObj = new CustomNodeViewDesc(parent, node, outerDeco, innerDeco, dom, contentDOM || null, nodeDOM, spec, view, pos + 1);
+        return descObj = new CustomNodeViewDesc(parent, node, outerDeco, innerDeco, dom, contentDOM || null, nodeDOM, spec, view2, pos + 1);
       else if (node.isText)
-        return new TextViewDesc(parent, node, outerDeco, innerDeco, dom, nodeDOM, view);
+        return new TextViewDesc(parent, node, outerDeco, innerDeco, dom, nodeDOM, view2);
       else
-        return new _NodeViewDesc(parent, node, outerDeco, innerDeco, dom, contentDOM || null, nodeDOM, view, pos + 1);
+        return new _NodeViewDesc(parent, node, outerDeco, innerDeco, dom, contentDOM || null, nodeDOM, view2, pos + 1);
     }
     parseRule() {
       if (this.node.type.spec.reparseInView)
@@ -7300,46 +7301,46 @@ var ProseMirrorBundle = (() => {
     // decorations, possibly introducing nesting for marks. Then, in a
     // separate step, syncs the DOM inside `this.contentDOM` to
     // `this.children`.
-    updateChildren(view, pos) {
+    updateChildren(view2, pos) {
       let inline2 = this.node.inlineContent, off = pos;
-      let composition = view.composing ? this.localCompositionInfo(view, pos) : null;
+      let composition = view2.composing ? this.localCompositionInfo(view2, pos) : null;
       let localComposition = composition && composition.pos > -1 ? composition : null;
       let compositionInChild = composition && composition.pos < 0;
-      let updater = new ViewTreeUpdater(this, localComposition && localComposition.node, view);
+      let updater = new ViewTreeUpdater(this, localComposition && localComposition.node, view2);
       iterDeco(this.node, this.innerDeco, (widget, i, insideNode) => {
         if (widget.spec.marks)
-          updater.syncToMarks(widget.spec.marks, inline2, view);
+          updater.syncToMarks(widget.spec.marks, inline2, view2);
         else if (widget.type.side >= 0 && !insideNode)
-          updater.syncToMarks(i == this.node.childCount ? Mark.none : this.node.child(i).marks, inline2, view);
-        updater.placeWidget(widget, view, off);
+          updater.syncToMarks(i == this.node.childCount ? Mark.none : this.node.child(i).marks, inline2, view2);
+        updater.placeWidget(widget, view2, off);
       }, (child, outerDeco, innerDeco, i) => {
-        updater.syncToMarks(child.marks, inline2, view);
+        updater.syncToMarks(child.marks, inline2, view2);
         let compIndex;
         if (updater.findNodeMatch(child, outerDeco, innerDeco, i)) ;
-        else if (compositionInChild && view.state.selection.from > off && view.state.selection.to < off + child.nodeSize && (compIndex = updater.findIndexWithChild(composition.node)) > -1 && updater.updateNodeAt(child, outerDeco, innerDeco, compIndex, view)) ;
-        else if (updater.updateNextNode(child, outerDeco, innerDeco, view, i, off)) ;
+        else if (compositionInChild && view2.state.selection.from > off && view2.state.selection.to < off + child.nodeSize && (compIndex = updater.findIndexWithChild(composition.node)) > -1 && updater.updateNodeAt(child, outerDeco, innerDeco, compIndex, view2)) ;
+        else if (updater.updateNextNode(child, outerDeco, innerDeco, view2, i, off)) ;
         else {
-          updater.addNode(child, outerDeco, innerDeco, view, off);
+          updater.addNode(child, outerDeco, innerDeco, view2, off);
         }
         off += child.nodeSize;
       });
-      updater.syncToMarks([], inline2, view);
+      updater.syncToMarks([], inline2, view2);
       if (this.node.isTextblock)
         updater.addTextblockHacks();
       updater.destroyRest();
       if (updater.changed || this.dirty == CONTENT_DIRTY) {
         if (localComposition)
-          this.protectLocalComposition(view, localComposition);
-        renderDescs(this.contentDOM, this.children, view);
+          this.protectLocalComposition(view2, localComposition);
+        renderDescs(this.contentDOM, this.children, view2);
         if (ios)
           iosHacks(this.dom);
       }
     }
-    localCompositionInfo(view, pos) {
-      let { from: from2, to } = view.state.selection;
-      if (!(view.state.selection instanceof TextSelection) || from2 < pos || to > pos + this.node.content.size)
+    localCompositionInfo(view2, pos) {
+      let { from: from2, to } = view2.state.selection;
+      if (!(view2.state.selection instanceof TextSelection) || from2 < pos || to > pos + this.node.content.size)
         return null;
-      let textNode = view.input.compositionNode;
+      let textNode = view2.input.compositionNode;
       if (!textNode || !this.dom.contains(textNode.parentNode))
         return null;
       if (this.node.inlineContent) {
@@ -7350,7 +7351,7 @@ var ProseMirrorBundle = (() => {
         return { node: textNode, pos: -1, text: "" };
       }
     }
-    protectLocalComposition(view, { node, pos, text: text2 }) {
+    protectLocalComposition(view2, { node, pos, text: text2 }) {
       if (this.getDesc(node))
         return;
       let topNode = node;
@@ -7365,23 +7366,23 @@ var ProseMirrorBundle = (() => {
           topNode.pmViewDesc = void 0;
       }
       let desc = new CompositionViewDesc(this, topNode, node, text2);
-      view.input.compositionNodes.push(desc);
-      this.children = replaceNodes(this.children, pos, pos + text2.length, view, desc);
+      view2.input.compositionNodes.push(desc);
+      this.children = replaceNodes(this.children, pos, pos + text2.length, view2, desc);
     }
     // If this desc must be updated to match the given node decoration,
     // do so and return true.
-    update(node, outerDeco, innerDeco, view) {
+    update(node, outerDeco, innerDeco, view2) {
       if (this.dirty == NODE_DIRTY || !node.sameMarkup(this.node))
         return false;
-      this.updateInner(node, outerDeco, innerDeco, view);
+      this.updateInner(node, outerDeco, innerDeco, view2);
       return true;
     }
-    updateInner(node, outerDeco, innerDeco, view) {
+    updateInner(node, outerDeco, innerDeco, view2) {
       this.updateOuterDeco(outerDeco);
       this.node = node;
       this.innerDeco = innerDeco;
       if (this.contentDOM)
-        this.updateChildren(view, this.posAtStart);
+        this.updateChildren(view2, this.posAtStart);
       this.dirty = NOT_DIRTY;
     }
     updateOuterDeco(outerDeco) {
@@ -7415,16 +7416,16 @@ var ProseMirrorBundle = (() => {
       return this.node.isAtom;
     }
   };
-  function docViewDesc(doc3, outerDeco, innerDeco, dom, view) {
+  function docViewDesc(doc3, outerDeco, innerDeco, dom, view2) {
     applyOuterDeco(dom, outerDeco, doc3);
-    let docView = new NodeViewDesc(void 0, doc3, outerDeco, innerDeco, dom, dom, dom, view, 0);
+    let docView = new NodeViewDesc(void 0, doc3, outerDeco, innerDeco, dom, dom, dom, view2, 0);
     if (docView.contentDOM)
-      docView.updateChildren(view, 0);
+      docView.updateChildren(view2, 0);
     return docView;
   }
   var TextViewDesc = class _TextViewDesc extends NodeViewDesc {
-    constructor(parent, node, outerDeco, innerDeco, dom, nodeDOM, view) {
-      super(parent, node, outerDeco, innerDeco, dom, null, nodeDOM, view, 0);
+    constructor(parent, node, outerDeco, innerDeco, dom, nodeDOM, view2) {
+      super(parent, node, outerDeco, innerDeco, dom, null, nodeDOM, view2, 0);
     }
     parseRule() {
       let skip = this.nodeDOM.parentNode;
@@ -7432,14 +7433,14 @@ var ProseMirrorBundle = (() => {
         skip = skip.parentNode;
       return { skip: skip || true };
     }
-    update(node, outerDeco, innerDeco, view) {
+    update(node, outerDeco, innerDeco, view2) {
       if (this.dirty == NODE_DIRTY || this.dirty != NOT_DIRTY && !this.inParent() || !node.sameMarkup(this.node))
         return false;
       this.updateOuterDeco(outerDeco);
       if ((this.dirty != NOT_DIRTY || node.text != this.node.text) && node.text != this.nodeDOM.nodeValue) {
         this.nodeDOM.nodeValue = node.text;
-        if (view.trackWrites == this.nodeDOM)
-          view.trackWrites = null;
+        if (view2.trackWrites == this.nodeDOM)
+          view2.trackWrites = null;
       }
       this.node = node;
       this.dirty = NOT_DIRTY;
@@ -7463,9 +7464,9 @@ var ProseMirrorBundle = (() => {
     ignoreMutation(mutation) {
       return mutation.type != "characterData" && mutation.type != "selection";
     }
-    slice(from2, to, view) {
+    slice(from2, to, view2) {
       let node = this.node.cut(from2, to), dom = document.createTextNode(node.text);
-      return new _TextViewDesc(this.parent, node, this.outerDeco, this.innerDeco, dom, dom, view);
+      return new _TextViewDesc(this.parent, node, this.outerDeco, this.innerDeco, dom, dom, view2);
     }
     markDirty(from2, to) {
       super.markDirty(from2, to);
@@ -7494,25 +7495,25 @@ var ProseMirrorBundle = (() => {
     }
   };
   var CustomNodeViewDesc = class extends NodeViewDesc {
-    constructor(parent, node, outerDeco, innerDeco, dom, contentDOM, nodeDOM, spec, view, pos) {
-      super(parent, node, outerDeco, innerDeco, dom, contentDOM, nodeDOM, view, pos);
+    constructor(parent, node, outerDeco, innerDeco, dom, contentDOM, nodeDOM, spec, view2, pos) {
+      super(parent, node, outerDeco, innerDeco, dom, contentDOM, nodeDOM, view2, pos);
       this.spec = spec;
     }
     // A custom `update` method gets to decide whether the update goes
     // through. If it does, and there's a `contentDOM` node, our logic
     // updates the children.
-    update(node, outerDeco, innerDeco, view) {
+    update(node, outerDeco, innerDeco, view2) {
       if (this.dirty == NODE_DIRTY)
         return false;
       if (this.spec.update && (this.node.type == node.type || this.spec.multiType)) {
         let result = this.spec.update(node, outerDeco, innerDeco);
         if (result)
-          this.updateInner(node, outerDeco, innerDeco, view);
+          this.updateInner(node, outerDeco, innerDeco, view2);
         return result;
       } else if (!this.contentDOM && !node.isLeaf) {
         return false;
       } else {
-        return super.update(node, outerDeco, innerDeco, view);
+        return super.update(node, outerDeco, innerDeco, view2);
       }
     }
     selectNode() {
@@ -7521,8 +7522,8 @@ var ProseMirrorBundle = (() => {
     deselectNode() {
       this.spec.deselectNode ? this.spec.deselectNode() : super.deselectNode();
     }
-    setSelection(anchor, head, view, force) {
-      this.spec.setSelection ? this.spec.setSelection(anchor, head, view.root) : super.setSelection(anchor, head, view, force);
+    setSelection(anchor, head, view2, force) {
+      this.spec.setSelection ? this.spec.setSelection(anchor, head, view2.root) : super.setSelection(anchor, head, view2, force);
     }
     destroy() {
       if (this.spec.destroy)
@@ -7536,7 +7537,7 @@ var ProseMirrorBundle = (() => {
       return this.spec.ignoreMutation ? this.spec.ignoreMutation(mutation) : super.ignoreMutation(mutation);
     }
   };
-  function renderDescs(parentDOM, descs, view) {
+  function renderDescs(parentDOM, descs, view2) {
     let dom = parentDOM.firstChild, written = false;
     for (let i = 0; i < descs.length; i++) {
       let desc = descs[i], childDOM = desc.dom;
@@ -7552,7 +7553,7 @@ var ProseMirrorBundle = (() => {
       }
       if (desc instanceof MarkViewDesc) {
         let pos = dom ? dom.previousSibling : parentDOM.lastChild;
-        renderDescs(desc.contentDOM, desc.children, view);
+        renderDescs(desc.contentDOM, desc.children, view2);
         dom = pos ? pos.nextSibling : parentDOM.firstChild;
       }
     }
@@ -7560,8 +7561,8 @@ var ProseMirrorBundle = (() => {
       dom = rm(dom);
       written = true;
     }
-    if (written && view.trackWrites == parentDOM)
-      view.trackWrites = null;
+    if (written && view2.trackWrites == parentDOM)
+      view2.trackWrites = null;
   }
   var OuterDecoLevel = function(nodeName) {
     if (nodeName)
@@ -7663,9 +7664,9 @@ var ProseMirrorBundle = (() => {
     return next;
   }
   var ViewTreeUpdater = class {
-    constructor(top, lock, view) {
+    constructor(top, lock, view2) {
       this.lock = lock;
-      this.view = view;
+      this.view = view2;
       this.index = 0;
       this.stack = [];
       this.changed = false;
@@ -7688,7 +7689,7 @@ var ProseMirrorBundle = (() => {
     }
     // Sync the current stack of mark descs with the given array of
     // marks, reusing existing mark descs when possible.
-    syncToMarks(marks2, inline2, view) {
+    syncToMarks(marks2, inline2, view2) {
       let keep = 0, depth = this.stack.length >> 1;
       let maxKeep = Math.min(depth, marks2.length);
       while (keep < maxKeep && (keep == depth - 1 ? this.top : this.stack[keep + 1 << 1]).matchesMark(marks2[keep]) && marks2[keep].type.spec.spanning !== false)
@@ -7717,7 +7718,7 @@ var ProseMirrorBundle = (() => {
           }
           this.top = this.top.children[this.index];
         } else {
-          let markDesc = MarkViewDesc.create(this.top, marks2[depth], inline2, view);
+          let markDesc = MarkViewDesc.create(this.top, marks2[depth], inline2, view2);
           this.top.children.splice(this.index, 0, markDesc);
           this.top = markDesc;
           this.changed = true;
@@ -7747,11 +7748,11 @@ var ProseMirrorBundle = (() => {
       this.index++;
       return true;
     }
-    updateNodeAt(node, outerDeco, innerDeco, index, view) {
+    updateNodeAt(node, outerDeco, innerDeco, index, view2) {
       let child = this.top.children[index];
       if (child.dirty == NODE_DIRTY && child.dom == child.contentDOM)
         child.dirty = CONTENT_DIRTY;
-      if (!child.update(node, outerDeco, innerDeco, view))
+      if (!child.update(node, outerDeco, innerDeco, view2))
         return false;
       this.destroyBetween(this.index, index);
       this.index++;
@@ -7776,7 +7777,7 @@ var ProseMirrorBundle = (() => {
     }
     // Try to update the next node, if any, to the given data. Checks
     // pre-matches to avoid overwriting nodes that could still be used.
-    updateNextNode(node, outerDeco, innerDeco, view, index, pos) {
+    updateNextNode(node, outerDeco, innerDeco, view2, index, pos) {
       for (let i = this.index; i < this.top.children.length; i++) {
         let next = this.top.children[i];
         if (next instanceof NodeViewDesc) {
@@ -7785,18 +7786,18 @@ var ProseMirrorBundle = (() => {
             return false;
           let nextDOM = next.dom, updated;
           let locked = this.isLocked(nextDOM) && !(node.isText && next.node && next.node.isText && next.nodeDOM.nodeValue == node.text && next.dirty != NODE_DIRTY && sameOuterDeco(outerDeco, next.outerDeco));
-          if (!locked && next.update(node, outerDeco, innerDeco, view)) {
+          if (!locked && next.update(node, outerDeco, innerDeco, view2)) {
             this.destroyBetween(this.index, i);
             if (next.dom != nextDOM)
               this.changed = true;
             this.index++;
             return true;
-          } else if (!locked && (updated = this.recreateWrapper(next, node, outerDeco, innerDeco, view, pos))) {
+          } else if (!locked && (updated = this.recreateWrapper(next, node, outerDeco, innerDeco, view2, pos))) {
             this.destroyBetween(this.index, i);
             this.top.children[this.index] = updated;
             if (updated.contentDOM) {
               updated.dirty = CONTENT_DIRTY;
-              updated.updateChildren(view, pos + 1);
+              updated.updateChildren(view2, pos + 1);
               updated.dirty = NOT_DIRTY;
             }
             this.changed = true;
@@ -7810,10 +7811,10 @@ var ProseMirrorBundle = (() => {
     }
     // When a node with content is replaced by a different node with
     // identical content, move over its children.
-    recreateWrapper(next, node, outerDeco, innerDeco, view, pos) {
+    recreateWrapper(next, node, outerDeco, innerDeco, view2, pos) {
       if (next.dirty || node.isAtom || !next.children.length || !next.node.content.eq(node.content) || !sameOuterDeco(outerDeco, next.outerDeco) || !innerDeco.eq(next.innerDeco))
         return null;
-      let wrapper = NodeViewDesc.create(this.top, node, outerDeco, innerDeco, view, pos);
+      let wrapper = NodeViewDesc.create(this.top, node, outerDeco, innerDeco, view2, pos);
       if (wrapper.contentDOM) {
         wrapper.children = next.children;
         next.children = [];
@@ -7824,19 +7825,19 @@ var ProseMirrorBundle = (() => {
       return wrapper;
     }
     // Insert the node as a newly created node desc.
-    addNode(node, outerDeco, innerDeco, view, pos) {
-      let desc = NodeViewDesc.create(this.top, node, outerDeco, innerDeco, view, pos);
+    addNode(node, outerDeco, innerDeco, view2, pos) {
+      let desc = NodeViewDesc.create(this.top, node, outerDeco, innerDeco, view2, pos);
       if (desc.contentDOM)
-        desc.updateChildren(view, pos + 1);
+        desc.updateChildren(view2, pos + 1);
       this.top.children.splice(this.index++, 0, desc);
       this.changed = true;
     }
-    placeWidget(widget, view, pos) {
+    placeWidget(widget, view2, pos) {
       let next = this.index < this.top.children.length ? this.top.children[this.index] : null;
       if (next && next.matchesWidget(widget) && (widget == next.widget || !next.widget.type.toDOM.parentNode)) {
         this.index++;
       } else {
-        let desc = new WidgetViewDesc(this.top, widget, view, pos);
+        let desc = new WidgetViewDesc(this.top, widget, view2, pos);
         this.top.children.splice(this.index++, 0, desc);
         this.changed = true;
       }
@@ -8020,7 +8021,7 @@ var ProseMirrorBundle = (() => {
     }
     return -1;
   }
-  function replaceNodes(nodes2, from2, to, view, replacement) {
+  function replaceNodes(nodes2, from2, to, view2, replacement) {
     let result = [];
     for (let i = 0, off = 0; i < nodes2.length; i++) {
       let child = nodes2[i], start = off, end = off += child.size;
@@ -8028,23 +8029,23 @@ var ProseMirrorBundle = (() => {
         result.push(child);
       } else {
         if (start < from2)
-          result.push(child.slice(0, from2 - start, view));
+          result.push(child.slice(0, from2 - start, view2));
         if (replacement) {
           result.push(replacement);
           replacement = void 0;
         }
         if (end > to)
-          result.push(child.slice(to - start, child.size, view));
+          result.push(child.slice(to - start, child.size, view2));
       }
     }
     return result;
   }
-  function selectionFromDOM(view, origin = null) {
-    let domSel = view.domSelectionRange(), doc3 = view.state.doc;
+  function selectionFromDOM(view2, origin = null) {
+    let domSel = view2.domSelectionRange(), doc3 = view2.state.doc;
     if (!domSel.focusNode)
       return null;
-    let nearestDesc = view.docView.nearestDesc(domSel.focusNode), inWidget = nearestDesc && nearestDesc.size == 0;
-    let head = view.docView.posFromDOM(domSel.focusNode, domSel.focusOffset, 1);
+    let nearestDesc = view2.docView.nearestDesc(domSel.focusNode), inWidget = nearestDesc && nearestDesc.size == 0;
+    let head = view2.docView.posFromDOM(domSel.focusNode, domSel.focusOffset, 1);
     if (head < 0)
       return null;
     let $head = doc3.resolve(head), anchor, selection;
@@ -8058,58 +8059,58 @@ var ProseMirrorBundle = (() => {
         selection = new NodeSelection(head == pos ? $head : doc3.resolve(pos));
       }
     } else {
-      if (domSel instanceof view.dom.ownerDocument.defaultView.Selection && domSel.rangeCount > 1) {
+      if (domSel instanceof view2.dom.ownerDocument.defaultView.Selection && domSel.rangeCount > 1) {
         let min = head, max = head;
         for (let i = 0; i < domSel.rangeCount; i++) {
           let range = domSel.getRangeAt(i);
-          min = Math.min(min, view.docView.posFromDOM(range.startContainer, range.startOffset, 1));
-          max = Math.max(max, view.docView.posFromDOM(range.endContainer, range.endOffset, -1));
+          min = Math.min(min, view2.docView.posFromDOM(range.startContainer, range.startOffset, 1));
+          max = Math.max(max, view2.docView.posFromDOM(range.endContainer, range.endOffset, -1));
         }
         if (min < 0)
           return null;
-        [anchor, head] = max == view.state.selection.anchor ? [max, min] : [min, max];
+        [anchor, head] = max == view2.state.selection.anchor ? [max, min] : [min, max];
         $head = doc3.resolve(head);
       } else {
-        anchor = view.docView.posFromDOM(domSel.anchorNode, domSel.anchorOffset, 1);
+        anchor = view2.docView.posFromDOM(domSel.anchorNode, domSel.anchorOffset, 1);
       }
       if (anchor < 0)
         return null;
     }
     let $anchor = doc3.resolve(anchor);
     if (!selection) {
-      let bias = origin == "pointer" || view.state.selection.head < $head.pos && !inWidget ? 1 : -1;
-      selection = selectionBetween(view, $anchor, $head, bias);
+      let bias = origin == "pointer" || view2.state.selection.head < $head.pos && !inWidget ? 1 : -1;
+      selection = selectionBetween(view2, $anchor, $head, bias);
     }
     return selection;
   }
-  function editorOwnsSelection(view) {
-    return view.editable ? view.hasFocus() : hasSelection(view) && document.activeElement && document.activeElement.contains(view.dom);
+  function editorOwnsSelection(view2) {
+    return view2.editable ? view2.hasFocus() : hasSelection(view2) && document.activeElement && document.activeElement.contains(view2.dom);
   }
-  function selectionToDOM(view, force = false) {
-    let sel = view.state.selection;
-    syncNodeSelection(view, sel);
-    if (!editorOwnsSelection(view))
+  function selectionToDOM(view2, force = false) {
+    let sel = view2.state.selection;
+    syncNodeSelection(view2, sel);
+    if (!editorOwnsSelection(view2))
       return;
-    if (!force && view.input.mouseDown && view.input.mouseDown.allowDefault && chrome) {
-      let domSel = view.domSelectionRange(), curSel = view.domObserver.currentSelection;
+    if (!force && view2.input.mouseDown && view2.input.mouseDown.allowDefault && chrome) {
+      let domSel = view2.domSelectionRange(), curSel = view2.domObserver.currentSelection;
       if (domSel.anchorNode && curSel.anchorNode && isEquivalentPosition(domSel.anchorNode, domSel.anchorOffset, curSel.anchorNode, curSel.anchorOffset)) {
-        view.input.mouseDown.delayedSelectionSync = true;
-        view.domObserver.setCurSelection();
+        view2.input.mouseDown.delayedSelectionSync = true;
+        view2.domObserver.setCurSelection();
         return;
       }
     }
-    view.domObserver.disconnectSelection();
-    if (view.cursorWrapper) {
-      selectCursorWrapper(view);
+    view2.domObserver.disconnectSelection();
+    if (view2.cursorWrapper) {
+      selectCursorWrapper(view2);
     } else {
       let { anchor, head } = sel, resetEditableFrom, resetEditableTo;
       if (brokenSelectBetweenUneditable && !(sel instanceof TextSelection)) {
         if (!sel.$from.parent.inlineContent)
-          resetEditableFrom = temporarilyEditableNear(view, sel.from);
+          resetEditableFrom = temporarilyEditableNear(view2, sel.from);
         if (!sel.empty && !sel.$from.parent.inlineContent)
-          resetEditableTo = temporarilyEditableNear(view, sel.to);
+          resetEditableTo = temporarilyEditableNear(view2, sel.to);
       }
-      view.docView.setSelection(anchor, head, view, force);
+      view2.docView.setSelection(anchor, head, view2, force);
       if (brokenSelectBetweenUneditable) {
         if (resetEditableFrom)
           resetEditable(resetEditableFrom);
@@ -8117,19 +8118,19 @@ var ProseMirrorBundle = (() => {
           resetEditable(resetEditableTo);
       }
       if (sel.visible) {
-        view.dom.classList.remove("ProseMirror-hideselection");
+        view2.dom.classList.remove("ProseMirror-hideselection");
       } else {
-        view.dom.classList.add("ProseMirror-hideselection");
+        view2.dom.classList.add("ProseMirror-hideselection");
         if ("onselectionchange" in document)
-          removeClassOnSelectionChange(view);
+          removeClassOnSelectionChange(view2);
       }
     }
-    view.domObserver.setCurSelection();
-    view.domObserver.connectSelection();
+    view2.domObserver.setCurSelection();
+    view2.domObserver.connectSelection();
   }
   var brokenSelectBetweenUneditable = safari || chrome && chrome_version < 63;
-  function temporarilyEditableNear(view, pos) {
-    let { node, offset } = view.docView.domFromPos(pos, 0);
+  function temporarilyEditableNear(view2, pos) {
+    let { node, offset } = view2.docView.domFromPos(pos, 0);
     let after = offset < node.childNodes.length ? node.childNodes[offset] : null;
     let before = offset ? node.childNodes[offset - 1] : null;
     if (safari && after && after.contentEditable == "false")
@@ -8156,26 +8157,26 @@ var ProseMirrorBundle = (() => {
       element.wasDraggable = null;
     }
   }
-  function removeClassOnSelectionChange(view) {
-    let doc3 = view.dom.ownerDocument;
-    doc3.removeEventListener("selectionchange", view.input.hideSelectionGuard);
-    let domSel = view.domSelectionRange();
+  function removeClassOnSelectionChange(view2) {
+    let doc3 = view2.dom.ownerDocument;
+    doc3.removeEventListener("selectionchange", view2.input.hideSelectionGuard);
+    let domSel = view2.domSelectionRange();
     let node = domSel.anchorNode, offset = domSel.anchorOffset;
-    doc3.addEventListener("selectionchange", view.input.hideSelectionGuard = () => {
+    doc3.addEventListener("selectionchange", view2.input.hideSelectionGuard = () => {
       if (domSel.anchorNode != node || domSel.anchorOffset != offset) {
-        doc3.removeEventListener("selectionchange", view.input.hideSelectionGuard);
+        doc3.removeEventListener("selectionchange", view2.input.hideSelectionGuard);
         setTimeout(() => {
-          if (!editorOwnsSelection(view) || view.state.selection.visible)
-            view.dom.classList.remove("ProseMirror-hideselection");
+          if (!editorOwnsSelection(view2) || view2.state.selection.visible)
+            view2.dom.classList.remove("ProseMirror-hideselection");
         }, 20);
       }
     });
   }
-  function selectCursorWrapper(view) {
-    let domSel = view.domSelection(), range = document.createRange();
+  function selectCursorWrapper(view2) {
+    let domSel = view2.domSelection(), range = document.createRange();
     if (!domSel)
       return;
-    let node = view.cursorWrapper.dom, img = node.nodeName == "IMG";
+    let node = view2.cursorWrapper.dom, img = node.nodeName == "IMG";
     if (img)
       range.setStart(node.parentNode, domIndex(node) + 1);
     else
@@ -8183,52 +8184,52 @@ var ProseMirrorBundle = (() => {
     range.collapse(true);
     domSel.removeAllRanges();
     domSel.addRange(range);
-    if (!img && !view.state.selection.visible && ie && ie_version <= 11) {
+    if (!img && !view2.state.selection.visible && ie && ie_version <= 11) {
       node.disabled = true;
       node.disabled = false;
     }
   }
-  function syncNodeSelection(view, sel) {
+  function syncNodeSelection(view2, sel) {
     if (sel instanceof NodeSelection) {
-      let desc = view.docView.descAt(sel.from);
-      if (desc != view.lastSelectedViewDesc) {
-        clearNodeSelection(view);
+      let desc = view2.docView.descAt(sel.from);
+      if (desc != view2.lastSelectedViewDesc) {
+        clearNodeSelection(view2);
         if (desc)
           desc.selectNode();
-        view.lastSelectedViewDesc = desc;
+        view2.lastSelectedViewDesc = desc;
       }
     } else {
-      clearNodeSelection(view);
+      clearNodeSelection(view2);
     }
   }
-  function clearNodeSelection(view) {
-    if (view.lastSelectedViewDesc) {
-      if (view.lastSelectedViewDesc.parent)
-        view.lastSelectedViewDesc.deselectNode();
-      view.lastSelectedViewDesc = void 0;
+  function clearNodeSelection(view2) {
+    if (view2.lastSelectedViewDesc) {
+      if (view2.lastSelectedViewDesc.parent)
+        view2.lastSelectedViewDesc.deselectNode();
+      view2.lastSelectedViewDesc = void 0;
     }
   }
-  function selectionBetween(view, $anchor, $head, bias) {
-    return view.someProp("createSelectionBetween", (f) => f(view, $anchor, $head)) || TextSelection.between($anchor, $head, bias);
+  function selectionBetween(view2, $anchor, $head, bias) {
+    return view2.someProp("createSelectionBetween", (f) => f(view2, $anchor, $head)) || TextSelection.between($anchor, $head, bias);
   }
-  function hasFocusAndSelection(view) {
-    if (view.editable && !view.hasFocus())
+  function hasFocusAndSelection(view2) {
+    if (view2.editable && !view2.hasFocus())
       return false;
-    return hasSelection(view);
+    return hasSelection(view2);
   }
-  function hasSelection(view) {
-    let sel = view.domSelectionRange();
+  function hasSelection(view2) {
+    let sel = view2.domSelectionRange();
     if (!sel.anchorNode)
       return false;
     try {
-      return view.dom.contains(sel.anchorNode.nodeType == 3 ? sel.anchorNode.parentNode : sel.anchorNode) && (view.editable || view.dom.contains(sel.focusNode.nodeType == 3 ? sel.focusNode.parentNode : sel.focusNode));
+      return view2.dom.contains(sel.anchorNode.nodeType == 3 ? sel.anchorNode.parentNode : sel.anchorNode) && (view2.editable || view2.dom.contains(sel.focusNode.nodeType == 3 ? sel.focusNode.parentNode : sel.focusNode));
     } catch (_) {
       return false;
     }
   }
-  function anchorInRightPlace(view) {
-    let anchorDOM = view.docView.domFromPos(view.state.selection.anchor, 0);
-    let domSel = view.domSelectionRange();
+  function anchorInRightPlace(view2) {
+    let anchorDOM = view2.docView.domFromPos(view2.state.selection.anchor, 0);
+    let domSel = view2.domSelectionRange();
     return isEquivalentPosition(anchorDOM.node, anchorDOM.offset, domSel.anchorNode, domSel.anchorOffset);
   }
   function moveSelectionBlock(state, dir) {
@@ -8237,47 +8238,47 @@ var ProseMirrorBundle = (() => {
     let $start = !$side.parent.inlineContent ? $side : $side.depth ? state.doc.resolve(dir > 0 ? $side.after() : $side.before()) : null;
     return $start && Selection.findFrom($start, dir);
   }
-  function apply(view, sel) {
-    view.dispatch(view.state.tr.setSelection(sel).scrollIntoView());
+  function apply(view2, sel) {
+    view2.dispatch(view2.state.tr.setSelection(sel).scrollIntoView());
     return true;
   }
-  function selectHorizontally(view, dir, mods) {
-    let sel = view.state.selection;
+  function selectHorizontally(view2, dir, mods) {
+    let sel = view2.state.selection;
     if (sel instanceof TextSelection) {
       if (mods.indexOf("s") > -1) {
         let { $head } = sel, node = $head.textOffset ? null : dir < 0 ? $head.nodeBefore : $head.nodeAfter;
         if (!node || node.isText || !node.isLeaf)
           return false;
-        let $newHead = view.state.doc.resolve($head.pos + node.nodeSize * (dir < 0 ? -1 : 1));
-        return apply(view, new TextSelection(sel.$anchor, $newHead));
+        let $newHead = view2.state.doc.resolve($head.pos + node.nodeSize * (dir < 0 ? -1 : 1));
+        return apply(view2, new TextSelection(sel.$anchor, $newHead));
       } else if (!sel.empty) {
         return false;
-      } else if (view.endOfTextblock(dir > 0 ? "forward" : "backward")) {
-        let next = moveSelectionBlock(view.state, dir);
+      } else if (view2.endOfTextblock(dir > 0 ? "forward" : "backward")) {
+        let next = moveSelectionBlock(view2.state, dir);
         if (next && next instanceof NodeSelection)
-          return apply(view, next);
+          return apply(view2, next);
         return false;
       } else if (!(mac && mods.indexOf("m") > -1)) {
         let $head = sel.$head, node = $head.textOffset ? null : dir < 0 ? $head.nodeBefore : $head.nodeAfter, desc;
         if (!node || node.isText)
           return false;
         let nodePos = dir < 0 ? $head.pos - node.nodeSize : $head.pos;
-        if (!(node.isAtom || (desc = view.docView.descAt(nodePos)) && !desc.contentDOM))
+        if (!(node.isAtom || (desc = view2.docView.descAt(nodePos)) && !desc.contentDOM))
           return false;
         if (NodeSelection.isSelectable(node)) {
-          return apply(view, new NodeSelection(dir < 0 ? view.state.doc.resolve($head.pos - node.nodeSize) : $head));
+          return apply(view2, new NodeSelection(dir < 0 ? view2.state.doc.resolve($head.pos - node.nodeSize) : $head));
         } else if (webkit) {
-          return apply(view, new TextSelection(view.state.doc.resolve(dir < 0 ? nodePos : nodePos + node.nodeSize)));
+          return apply(view2, new TextSelection(view2.state.doc.resolve(dir < 0 ? nodePos : nodePos + node.nodeSize)));
         } else {
           return false;
         }
       }
     } else if (sel instanceof NodeSelection && sel.node.isInline) {
-      return apply(view, new TextSelection(dir > 0 ? sel.$to : sel.$from));
+      return apply(view2, new TextSelection(dir > 0 ? sel.$to : sel.$from));
     } else {
-      let next = moveSelectionBlock(view.state, dir);
+      let next = moveSelectionBlock(view2.state, dir);
       if (next)
-        return apply(view, next);
+        return apply(view2, next);
       return false;
     }
   }
@@ -8288,11 +8289,11 @@ var ProseMirrorBundle = (() => {
     let desc = dom.pmViewDesc;
     return desc && desc.size == 0 && (dir < 0 || dom.nextSibling || dom.nodeName != "BR");
   }
-  function skipIgnoredNodes(view, dir) {
-    return dir < 0 ? skipIgnoredNodesBefore(view) : skipIgnoredNodesAfter(view);
+  function skipIgnoredNodes(view2, dir) {
+    return dir < 0 ? skipIgnoredNodesBefore(view2) : skipIgnoredNodesAfter(view2);
   }
-  function skipIgnoredNodesBefore(view) {
-    let sel = view.domSelectionRange();
+  function skipIgnoredNodesBefore(view2) {
+    let sel = view2.domSelectionRange();
     let node = sel.focusNode, offset = sel.focusOffset;
     if (!node)
       return;
@@ -8325,7 +8326,7 @@ var ProseMirrorBundle = (() => {
         }
         if (!prev) {
           node = node.parentNode;
-          if (node == view.dom)
+          if (node == view2.dom)
             break;
           offset = 0;
         } else {
@@ -8335,12 +8336,12 @@ var ProseMirrorBundle = (() => {
       }
     }
     if (force)
-      setSelFocus(view, node, offset);
+      setSelFocus(view2, node, offset);
     else if (moveNode)
-      setSelFocus(view, moveNode, moveOffset);
+      setSelFocus(view2, moveNode, moveOffset);
   }
-  function skipIgnoredNodesAfter(view) {
-    let sel = view.domSelectionRange();
+  function skipIgnoredNodesAfter(view2) {
+    let sel = view2.domSelectionRange();
     let node = sel.focusNode, offset = sel.focusOffset;
     if (!node)
       return;
@@ -8367,7 +8368,7 @@ var ProseMirrorBundle = (() => {
         }
         if (!next) {
           node = node.parentNode;
-          if (node == view.dom)
+          if (node == view2.dom)
             break;
           offset = len = 0;
         } else {
@@ -8378,7 +8379,7 @@ var ProseMirrorBundle = (() => {
       }
     }
     if (moveNode)
-      setSelFocus(view, moveNode, moveOffset);
+      setSelFocus(view2, moveNode, moveOffset);
   }
   function isBlockNode(dom) {
     let desc = dom.pmViewDesc;
@@ -8414,7 +8415,7 @@ var ProseMirrorBundle = (() => {
       offset = node.childNodes.length;
     }
   }
-  function setSelFocus(view, node, offset) {
+  function setSelFocus(view2, node, offset) {
     if (node.nodeType != 3) {
       let before, after;
       if (after = textNodeAfter(node, offset)) {
@@ -8425,7 +8426,7 @@ var ProseMirrorBundle = (() => {
         offset = before.nodeValue.length;
       }
     }
-    let sel = view.domSelection();
+    let sel = view2.domSelection();
     if (!sel)
       return;
     if (selectionCollapsed(sel)) {
@@ -8437,87 +8438,87 @@ var ProseMirrorBundle = (() => {
     } else if (sel.extend) {
       sel.extend(node, offset);
     }
-    view.domObserver.setCurSelection();
-    let { state } = view;
+    view2.domObserver.setCurSelection();
+    let { state } = view2;
     setTimeout(() => {
-      if (view.state == state)
-        selectionToDOM(view);
+      if (view2.state == state)
+        selectionToDOM(view2);
     }, 50);
   }
-  function findDirection(view, pos) {
-    let $pos = view.state.doc.resolve(pos);
+  function findDirection(view2, pos) {
+    let $pos = view2.state.doc.resolve(pos);
     if (!(chrome || windows) && $pos.parent.inlineContent) {
-      let coords = view.coordsAtPos(pos);
+      let coords = view2.coordsAtPos(pos);
       if (pos > $pos.start()) {
-        let before = view.coordsAtPos(pos - 1);
+        let before = view2.coordsAtPos(pos - 1);
         let mid = (before.top + before.bottom) / 2;
         if (mid > coords.top && mid < coords.bottom && Math.abs(before.left - coords.left) > 1)
           return before.left < coords.left ? "ltr" : "rtl";
       }
       if (pos < $pos.end()) {
-        let after = view.coordsAtPos(pos + 1);
+        let after = view2.coordsAtPos(pos + 1);
         let mid = (after.top + after.bottom) / 2;
         if (mid > coords.top && mid < coords.bottom && Math.abs(after.left - coords.left) > 1)
           return after.left > coords.left ? "ltr" : "rtl";
       }
     }
-    let computed = getComputedStyle(view.dom).direction;
+    let computed = getComputedStyle(view2.dom).direction;
     return computed == "rtl" ? "rtl" : "ltr";
   }
-  function selectVertically(view, dir, mods) {
-    let sel = view.state.selection;
+  function selectVertically(view2, dir, mods) {
+    let sel = view2.state.selection;
     if (sel instanceof TextSelection && !sel.empty || mods.indexOf("s") > -1)
       return false;
     if (mac && mods.indexOf("m") > -1)
       return false;
     let { $from, $to } = sel;
-    if (!$from.parent.inlineContent || view.endOfTextblock(dir < 0 ? "up" : "down")) {
-      let next = moveSelectionBlock(view.state, dir);
+    if (!$from.parent.inlineContent || view2.endOfTextblock(dir < 0 ? "up" : "down")) {
+      let next = moveSelectionBlock(view2.state, dir);
       if (next && next instanceof NodeSelection)
-        return apply(view, next);
+        return apply(view2, next);
     }
     if (!$from.parent.inlineContent) {
       let side = dir < 0 ? $from : $to;
       let beyond = sel instanceof AllSelection ? Selection.near(side, dir) : Selection.findFrom(side, dir);
-      return beyond ? apply(view, beyond) : false;
+      return beyond ? apply(view2, beyond) : false;
     }
     return false;
   }
-  function stopNativeHorizontalDelete(view, dir) {
-    if (!(view.state.selection instanceof TextSelection))
+  function stopNativeHorizontalDelete(view2, dir) {
+    if (!(view2.state.selection instanceof TextSelection))
       return true;
-    let { $head, $anchor, empty: empty2 } = view.state.selection;
+    let { $head, $anchor, empty: empty2 } = view2.state.selection;
     if (!$head.sameParent($anchor))
       return true;
     if (!empty2)
       return false;
-    if (view.endOfTextblock(dir > 0 ? "forward" : "backward"))
+    if (view2.endOfTextblock(dir > 0 ? "forward" : "backward"))
       return true;
     let nextNode = !$head.textOffset && (dir < 0 ? $head.nodeBefore : $head.nodeAfter);
     if (nextNode && !nextNode.isText) {
-      let tr = view.state.tr;
+      let tr = view2.state.tr;
       if (dir < 0)
         tr.delete($head.pos - nextNode.nodeSize, $head.pos);
       else
         tr.delete($head.pos, $head.pos + nextNode.nodeSize);
-      view.dispatch(tr);
+      view2.dispatch(tr);
       return true;
     }
     return false;
   }
-  function switchEditable(view, node, state) {
-    view.domObserver.stop();
+  function switchEditable(view2, node, state) {
+    view2.domObserver.stop();
     node.contentEditable = state;
-    view.domObserver.start();
+    view2.domObserver.start();
   }
-  function safariDownArrowBug(view) {
-    if (!safari || view.state.selection.$head.parentOffset > 0)
+  function safariDownArrowBug(view2) {
+    if (!safari || view2.state.selection.$head.parentOffset > 0)
       return false;
-    let { focusNode, focusOffset } = view.domSelectionRange();
+    let { focusNode, focusOffset } = view2.domSelectionRange();
     if (focusNode && focusNode.nodeType == 1 && focusOffset == 0 && focusNode.firstChild && focusNode.firstChild.contentEditable == "false") {
       let child = focusNode.firstChild;
-      switchEditable(view, child, "true");
-      setTimeout(() => switchEditable(view, child, "false"), 20);
+      switchEditable(view2, child, "true");
+      setTimeout(() => switchEditable(view2, child, "false"), 20);
     }
     return false;
   }
@@ -8533,32 +8534,32 @@ var ProseMirrorBundle = (() => {
       result += "s";
     return result;
   }
-  function captureKeyDown(view, event) {
+  function captureKeyDown(view2, event) {
     let code2 = event.keyCode, mods = getMods(event);
     if (code2 == 8 || mac && code2 == 72 && mods == "c") {
-      return stopNativeHorizontalDelete(view, -1) || skipIgnoredNodes(view, -1);
+      return stopNativeHorizontalDelete(view2, -1) || skipIgnoredNodes(view2, -1);
     } else if (code2 == 46 && !event.shiftKey || mac && code2 == 68 && mods == "c") {
-      return stopNativeHorizontalDelete(view, 1) || skipIgnoredNodes(view, 1);
+      return stopNativeHorizontalDelete(view2, 1) || skipIgnoredNodes(view2, 1);
     } else if (code2 == 13 || code2 == 27) {
       return true;
     } else if (code2 == 37 || mac && code2 == 66 && mods == "c") {
-      let dir = code2 == 37 ? findDirection(view, view.state.selection.from) == "ltr" ? -1 : 1 : -1;
-      return selectHorizontally(view, dir, mods) || skipIgnoredNodes(view, dir);
+      let dir = code2 == 37 ? findDirection(view2, view2.state.selection.from) == "ltr" ? -1 : 1 : -1;
+      return selectHorizontally(view2, dir, mods) || skipIgnoredNodes(view2, dir);
     } else if (code2 == 39 || mac && code2 == 70 && mods == "c") {
-      let dir = code2 == 39 ? findDirection(view, view.state.selection.from) == "ltr" ? 1 : -1 : 1;
-      return selectHorizontally(view, dir, mods) || skipIgnoredNodes(view, dir);
+      let dir = code2 == 39 ? findDirection(view2, view2.state.selection.from) == "ltr" ? 1 : -1 : 1;
+      return selectHorizontally(view2, dir, mods) || skipIgnoredNodes(view2, dir);
     } else if (code2 == 38 || mac && code2 == 80 && mods == "c") {
-      return selectVertically(view, -1, mods) || skipIgnoredNodes(view, -1);
+      return selectVertically(view2, -1, mods) || skipIgnoredNodes(view2, -1);
     } else if (code2 == 40 || mac && code2 == 78 && mods == "c") {
-      return safariDownArrowBug(view) || selectVertically(view, 1, mods) || skipIgnoredNodes(view, 1);
+      return safariDownArrowBug(view2) || selectVertically(view2, 1, mods) || skipIgnoredNodes(view2, 1);
     } else if (mods == (mac ? "m" : "c") && (code2 == 66 || code2 == 73 || code2 == 89 || code2 == 90)) {
       return true;
     }
     return false;
   }
-  function serializeForClipboard(view, slice2) {
-    view.someProp("transformCopied", (f) => {
-      slice2 = f(slice2, view);
+  function serializeForClipboard(view2, slice2) {
+    view2.someProp("transformCopied", (f) => {
+      slice2 = f(slice2, view2);
     });
     let context = [], { content, openStart, openEnd } = slice2;
     while (openStart > 1 && openEnd > 1 && content.childCount == 1 && content.firstChild.childCount == 1) {
@@ -8568,7 +8569,7 @@ var ProseMirrorBundle = (() => {
       context.push(node.type.name, node.attrs != node.type.defaultAttrs ? node.attrs : null);
       content = node.content;
     }
-    let serializer = view.someProp("clipboardSerializer") || DOMSerializer.fromSchema(view.state.schema);
+    let serializer = view2.someProp("clipboardSerializer") || DOMSerializer.fromSchema(view2.state.schema);
     let doc3 = detachedDoc(), wrap2 = doc3.createElement("div");
     wrap2.appendChild(serializer.serializeFragment(content, { document: doc3 }));
     let firstChild = wrap2.firstChild, needsWrap, wrappers = 0;
@@ -8584,27 +8585,27 @@ var ProseMirrorBundle = (() => {
     }
     if (firstChild && firstChild.nodeType == 1)
       firstChild.setAttribute("data-pm-slice", `${openStart} ${openEnd}${wrappers ? ` -${wrappers}` : ""} ${JSON.stringify(context)}`);
-    let text2 = view.someProp("clipboardTextSerializer", (f) => f(slice2, view)) || slice2.content.textBetween(0, slice2.content.size, "\n\n");
+    let text2 = view2.someProp("clipboardTextSerializer", (f) => f(slice2, view2)) || slice2.content.textBetween(0, slice2.content.size, "\n\n");
     return { dom: wrap2, text: text2, slice: slice2 };
   }
-  function parseFromClipboard(view, text2, html, plainText, $context) {
+  function parseFromClipboard(view2, text2, html, plainText, $context) {
     let inCode = $context.parent.type.spec.code;
     let dom, slice2;
     if (!html && !text2)
       return null;
     let asText = text2 && (plainText || inCode || !html);
     if (asText) {
-      view.someProp("transformPastedText", (f) => {
-        text2 = f(text2, inCode || plainText, view);
+      view2.someProp("transformPastedText", (f) => {
+        text2 = f(text2, inCode || plainText, view2);
       });
       if (inCode)
-        return text2 ? new Slice(Fragment.from(view.state.schema.text(text2.replace(/\r\n?/g, "\n"))), 0, 0) : Slice.empty;
-      let parsed = view.someProp("clipboardTextParser", (f) => f(text2, $context, plainText, view));
+        return text2 ? new Slice(Fragment.from(view2.state.schema.text(text2.replace(/\r\n?/g, "\n"))), 0, 0) : Slice.empty;
+      let parsed = view2.someProp("clipboardTextParser", (f) => f(text2, $context, plainText, view2));
       if (parsed) {
         slice2 = parsed;
       } else {
         let marks2 = $context.marks();
-        let { schema: schema3 } = view.state, serializer = DOMSerializer.fromSchema(schema3);
+        let { schema: schema3 } = view2.state, serializer = DOMSerializer.fromSchema(schema3);
         dom = document.createElement("div");
         text2.split(/(?:\r\n?|\n)+/).forEach((block2) => {
           let p = dom.appendChild(document.createElement("p"));
@@ -8613,8 +8614,8 @@ var ProseMirrorBundle = (() => {
         });
       }
     } else {
-      view.someProp("transformPastedHTML", (f) => {
-        html = f(html, view);
+      view2.someProp("transformPastedHTML", (f) => {
+        html = f(html, view2);
       });
       dom = readHTML(html);
       if (webkit)
@@ -8632,7 +8633,7 @@ var ProseMirrorBundle = (() => {
         dom = child;
       }
     if (!slice2) {
-      let parser = view.someProp("clipboardParser") || view.someProp("domParser") || DOMParser.fromSchema(view.state.schema);
+      let parser = view2.someProp("clipboardParser") || view2.someProp("domParser") || DOMParser.fromSchema(view2.state.schema);
       slice2 = parser.parseSlice(dom, {
         preserveWhitespace: !!(asText || sliceData),
         context: $context,
@@ -8656,8 +8657,8 @@ var ProseMirrorBundle = (() => {
         slice2 = closeSlice(slice2, openStart, openEnd);
       }
     }
-    view.someProp("transformPasted", (f) => {
-      slice2 = f(slice2, view);
+    view2.someProp("transformPasted", (f) => {
+      slice2 = f(slice2, view2);
     });
     return slice2;
   }
@@ -8825,100 +8826,100 @@ var ProseMirrorBundle = (() => {
       this.hideSelectionGuard = null;
     }
   };
-  function initInput(view) {
+  function initInput(view2) {
     for (let event in handlers) {
       let handler = handlers[event];
-      view.dom.addEventListener(event, view.input.eventHandlers[event] = (event2) => {
-        if (eventBelongsToView(view, event2) && !runCustomHandler(view, event2) && (view.editable || !(event2.type in editHandlers)))
-          handler(view, event2);
+      view2.dom.addEventListener(event, view2.input.eventHandlers[event] = (event2) => {
+        if (eventBelongsToView(view2, event2) && !runCustomHandler(view2, event2) && (view2.editable || !(event2.type in editHandlers)))
+          handler(view2, event2);
       }, passiveHandlers[event] ? { passive: true } : void 0);
     }
     if (safari)
-      view.dom.addEventListener("input", () => null);
-    ensureListeners(view);
+      view2.dom.addEventListener("input", () => null);
+    ensureListeners(view2);
   }
-  function setSelectionOrigin(view, origin) {
-    view.input.lastSelectionOrigin = origin;
-    view.input.lastSelectionTime = Date.now();
+  function setSelectionOrigin(view2, origin) {
+    view2.input.lastSelectionOrigin = origin;
+    view2.input.lastSelectionTime = Date.now();
   }
-  function destroyInput(view) {
-    view.domObserver.stop();
-    for (let type in view.input.eventHandlers)
-      view.dom.removeEventListener(type, view.input.eventHandlers[type]);
-    clearTimeout(view.input.composingTimeout);
-    clearTimeout(view.input.lastIOSEnterFallbackTimeout);
+  function destroyInput(view2) {
+    view2.domObserver.stop();
+    for (let type in view2.input.eventHandlers)
+      view2.dom.removeEventListener(type, view2.input.eventHandlers[type]);
+    clearTimeout(view2.input.composingTimeout);
+    clearTimeout(view2.input.lastIOSEnterFallbackTimeout);
   }
-  function ensureListeners(view) {
-    view.someProp("handleDOMEvents", (currentHandlers) => {
+  function ensureListeners(view2) {
+    view2.someProp("handleDOMEvents", (currentHandlers) => {
       for (let type in currentHandlers)
-        if (!view.input.eventHandlers[type])
-          view.dom.addEventListener(type, view.input.eventHandlers[type] = (event) => runCustomHandler(view, event));
+        if (!view2.input.eventHandlers[type])
+          view2.dom.addEventListener(type, view2.input.eventHandlers[type] = (event) => runCustomHandler(view2, event));
     });
   }
-  function runCustomHandler(view, event) {
-    return view.someProp("handleDOMEvents", (handlers2) => {
+  function runCustomHandler(view2, event) {
+    return view2.someProp("handleDOMEvents", (handlers2) => {
       let handler = handlers2[event.type];
-      return handler ? handler(view, event) || event.defaultPrevented : false;
+      return handler ? handler(view2, event) || event.defaultPrevented : false;
     });
   }
-  function eventBelongsToView(view, event) {
+  function eventBelongsToView(view2, event) {
     if (!event.bubbles)
       return true;
     if (event.defaultPrevented)
       return false;
-    for (let node = event.target; node != view.dom; node = node.parentNode)
+    for (let node = event.target; node != view2.dom; node = node.parentNode)
       if (!node || node.nodeType == 11 || node.pmViewDesc && node.pmViewDesc.stopEvent(event))
         return false;
     return true;
   }
-  function dispatchEvent(view, event) {
-    if (!runCustomHandler(view, event) && handlers[event.type] && (view.editable || !(event.type in editHandlers)))
-      handlers[event.type](view, event);
+  function dispatchEvent(view2, event) {
+    if (!runCustomHandler(view2, event) && handlers[event.type] && (view2.editable || !(event.type in editHandlers)))
+      handlers[event.type](view2, event);
   }
-  editHandlers.keydown = (view, _event) => {
+  editHandlers.keydown = (view2, _event) => {
     let event = _event;
-    view.input.shiftKey = event.keyCode == 16 || event.shiftKey;
-    if (inOrNearComposition(view, event))
+    view2.input.shiftKey = event.keyCode == 16 || event.shiftKey;
+    if (inOrNearComposition(view2, event))
       return;
-    view.input.lastKeyCode = event.keyCode;
-    view.input.lastKeyCodeTime = Date.now();
+    view2.input.lastKeyCode = event.keyCode;
+    view2.input.lastKeyCodeTime = Date.now();
     if (android && chrome && event.keyCode == 13)
       return;
     if (event.keyCode != 229)
-      view.domObserver.forceFlush();
+      view2.domObserver.forceFlush();
     if (ios && event.keyCode == 13 && !event.ctrlKey && !event.altKey && !event.metaKey) {
       let now = Date.now();
-      view.input.lastIOSEnter = now;
-      view.input.lastIOSEnterFallbackTimeout = setTimeout(() => {
-        if (view.input.lastIOSEnter == now) {
-          view.someProp("handleKeyDown", (f) => f(view, keyEvent(13, "Enter")));
-          view.input.lastIOSEnter = 0;
+      view2.input.lastIOSEnter = now;
+      view2.input.lastIOSEnterFallbackTimeout = setTimeout(() => {
+        if (view2.input.lastIOSEnter == now) {
+          view2.someProp("handleKeyDown", (f) => f(view2, keyEvent(13, "Enter")));
+          view2.input.lastIOSEnter = 0;
         }
       }, 200);
-    } else if (view.someProp("handleKeyDown", (f) => f(view, event)) || captureKeyDown(view, event)) {
+    } else if (view2.someProp("handleKeyDown", (f) => f(view2, event)) || captureKeyDown(view2, event)) {
       event.preventDefault();
     } else {
-      setSelectionOrigin(view, "key");
+      setSelectionOrigin(view2, "key");
     }
   };
-  editHandlers.keyup = (view, event) => {
+  editHandlers.keyup = (view2, event) => {
     if (event.keyCode == 16)
-      view.input.shiftKey = false;
+      view2.input.shiftKey = false;
   };
-  editHandlers.keypress = (view, _event) => {
+  editHandlers.keypress = (view2, _event) => {
     let event = _event;
-    if (inOrNearComposition(view, event) || !event.charCode || event.ctrlKey && !event.altKey || mac && event.metaKey)
+    if (inOrNearComposition(view2, event) || !event.charCode || event.ctrlKey && !event.altKey || mac && event.metaKey)
       return;
-    if (view.someProp("handleKeyPress", (f) => f(view, event))) {
+    if (view2.someProp("handleKeyPress", (f) => f(view2, event))) {
       event.preventDefault();
       return;
     }
-    let sel = view.state.selection;
+    let sel = view2.state.selection;
     if (!(sel instanceof TextSelection) || !sel.$from.sameParent(sel.$to)) {
       let text2 = String.fromCharCode(event.charCode);
-      let deflt = () => view.state.tr.insertText(text2).scrollIntoView();
-      if (!/[\r\n]/.test(text2) && !view.someProp("handleTextInput", (f) => f(view, sel.$from.pos, sel.$to.pos, text2, deflt)))
-        view.dispatch(deflt());
+      let deflt = () => view2.state.tr.insertText(text2).scrollIntoView();
+      if (!/[\r\n]/.test(text2) && !view2.someProp("handleTextInput", (f) => f(view2, sel.$from.pos, sel.$to.pos, text2, deflt)))
+        view2.dispatch(deflt());
       event.preventDefault();
     }
   };
@@ -8929,43 +8930,43 @@ var ProseMirrorBundle = (() => {
     let dx = click.x - event.clientX, dy = click.y - event.clientY;
     return dx * dx + dy * dy < 100;
   }
-  function runHandlerOnContext(view, propName, pos, inside, event) {
+  function runHandlerOnContext(view2, propName, pos, inside, event) {
     if (inside == -1)
       return false;
-    let $pos = view.state.doc.resolve(inside);
+    let $pos = view2.state.doc.resolve(inside);
     for (let i = $pos.depth + 1; i > 0; i--) {
-      if (view.someProp(propName, (f) => i > $pos.depth ? f(view, pos, $pos.nodeAfter, $pos.before(i), event, true) : f(view, pos, $pos.node(i), $pos.before(i), event, false)))
+      if (view2.someProp(propName, (f) => i > $pos.depth ? f(view2, pos, $pos.nodeAfter, $pos.before(i), event, true) : f(view2, pos, $pos.node(i), $pos.before(i), event, false)))
         return true;
     }
     return false;
   }
-  function updateSelection(view, selection, origin) {
-    if (!view.focused)
-      view.focus();
-    if (view.state.selection.eq(selection))
+  function updateSelection(view2, selection, origin) {
+    if (!view2.focused)
+      view2.focus();
+    if (view2.state.selection.eq(selection))
       return;
-    let tr = view.state.tr.setSelection(selection);
+    let tr = view2.state.tr.setSelection(selection);
     if (origin == "pointer")
       tr.setMeta("pointer", true);
-    view.dispatch(tr);
+    view2.dispatch(tr);
   }
-  function selectClickedLeaf(view, inside) {
+  function selectClickedLeaf(view2, inside) {
     if (inside == -1)
       return false;
-    let $pos = view.state.doc.resolve(inside), node = $pos.nodeAfter;
+    let $pos = view2.state.doc.resolve(inside), node = $pos.nodeAfter;
     if (node && node.isAtom && NodeSelection.isSelectable(node)) {
-      updateSelection(view, new NodeSelection($pos), "pointer");
+      updateSelection(view2, new NodeSelection($pos), "pointer");
       return true;
     }
     return false;
   }
-  function selectClickedNode(view, inside) {
+  function selectClickedNode(view2, inside) {
     if (inside == -1)
       return false;
-    let sel = view.state.selection, selectedNode, selectAt;
+    let sel = view2.state.selection, selectedNode, selectAt;
     if (sel instanceof NodeSelection)
       selectedNode = sel.node;
-    let $pos = view.state.doc.resolve(inside);
+    let $pos = view2.state.doc.resolve(inside);
     for (let i = $pos.depth + 1; i > 0; i--) {
       let node = i > $pos.depth ? $pos.nodeAfter : $pos.node(i);
       if (NodeSelection.isSelectable(node)) {
@@ -8977,28 +8978,28 @@ var ProseMirrorBundle = (() => {
       }
     }
     if (selectAt != null) {
-      updateSelection(view, NodeSelection.create(view.state.doc, selectAt), "pointer");
+      updateSelection(view2, NodeSelection.create(view2.state.doc, selectAt), "pointer");
       return true;
     } else {
       return false;
     }
   }
-  function handleSingleClick(view, pos, inside, event, selectNode) {
-    return runHandlerOnContext(view, "handleClickOn", pos, inside, event) || view.someProp("handleClick", (f) => f(view, pos, event)) || (selectNode ? selectClickedNode(view, inside) : selectClickedLeaf(view, inside));
+  function handleSingleClick(view2, pos, inside, event, selectNode) {
+    return runHandlerOnContext(view2, "handleClickOn", pos, inside, event) || view2.someProp("handleClick", (f) => f(view2, pos, event)) || (selectNode ? selectClickedNode(view2, inside) : selectClickedLeaf(view2, inside));
   }
-  function handleDoubleClick(view, pos, inside, event) {
-    return runHandlerOnContext(view, "handleDoubleClickOn", pos, inside, event) || view.someProp("handleDoubleClick", (f) => f(view, pos, event));
+  function handleDoubleClick(view2, pos, inside, event) {
+    return runHandlerOnContext(view2, "handleDoubleClickOn", pos, inside, event) || view2.someProp("handleDoubleClick", (f) => f(view2, pos, event));
   }
-  function handleTripleClick(view, pos, inside, event) {
-    return runHandlerOnContext(view, "handleTripleClickOn", pos, inside, event) || view.someProp("handleTripleClick", (f) => f(view, pos, event)) || defaultTripleClick(view, inside, event);
+  function handleTripleClick(view2, pos, inside, event) {
+    return runHandlerOnContext(view2, "handleTripleClickOn", pos, inside, event) || view2.someProp("handleTripleClick", (f) => f(view2, pos, event)) || defaultTripleClick(view2, inside, event);
   }
-  function defaultTripleClick(view, inside, event) {
+  function defaultTripleClick(view2, inside, event) {
     if (event.button != 0)
       return false;
-    let doc3 = view.state.doc;
+    let doc3 = view2.state.doc;
     if (inside == -1) {
       if (doc3.inlineContent) {
-        updateSelection(view, TextSelection.create(doc3, 0, doc3.content.size), "pointer");
+        updateSelection(view2, TextSelection.create(doc3, 0, doc3.content.size), "pointer");
         return true;
       }
       return false;
@@ -9008,67 +9009,67 @@ var ProseMirrorBundle = (() => {
       let node = i > $pos.depth ? $pos.nodeAfter : $pos.node(i);
       let nodePos = $pos.before(i);
       if (node.inlineContent)
-        updateSelection(view, TextSelection.create(doc3, nodePos + 1, nodePos + 1 + node.content.size), "pointer");
+        updateSelection(view2, TextSelection.create(doc3, nodePos + 1, nodePos + 1 + node.content.size), "pointer");
       else if (NodeSelection.isSelectable(node))
-        updateSelection(view, NodeSelection.create(doc3, nodePos), "pointer");
+        updateSelection(view2, NodeSelection.create(doc3, nodePos), "pointer");
       else
         continue;
       return true;
     }
   }
-  function forceDOMFlush(view) {
-    return endComposition(view);
+  function forceDOMFlush(view2) {
+    return endComposition(view2);
   }
   var selectNodeModifier = mac ? "metaKey" : "ctrlKey";
-  handlers.mousedown = (view, _event) => {
+  handlers.mousedown = (view2, _event) => {
     let event = _event;
-    view.input.shiftKey = event.shiftKey;
-    let flushed = forceDOMFlush(view);
+    view2.input.shiftKey = event.shiftKey;
+    let flushed = forceDOMFlush(view2);
     let now = Date.now(), type = "singleClick";
-    if (now - view.input.lastClick.time < 500 && isNear(event, view.input.lastClick) && !event[selectNodeModifier] && view.input.lastClick.button == event.button) {
-      if (view.input.lastClick.type == "singleClick")
+    if (now - view2.input.lastClick.time < 500 && isNear(event, view2.input.lastClick) && !event[selectNodeModifier] && view2.input.lastClick.button == event.button) {
+      if (view2.input.lastClick.type == "singleClick")
         type = "doubleClick";
-      else if (view.input.lastClick.type == "doubleClick")
+      else if (view2.input.lastClick.type == "doubleClick")
         type = "tripleClick";
     }
-    view.input.lastClick = { time: now, x: event.clientX, y: event.clientY, type, button: event.button };
-    let pos = view.posAtCoords(eventCoords(event));
+    view2.input.lastClick = { time: now, x: event.clientX, y: event.clientY, type, button: event.button };
+    let pos = view2.posAtCoords(eventCoords(event));
     if (!pos)
       return;
     if (type == "singleClick") {
-      if (view.input.mouseDown)
-        view.input.mouseDown.done();
-      view.input.mouseDown = new MouseDown(view, pos, event, !!flushed);
-    } else if ((type == "doubleClick" ? handleDoubleClick : handleTripleClick)(view, pos.pos, pos.inside, event)) {
+      if (view2.input.mouseDown)
+        view2.input.mouseDown.done();
+      view2.input.mouseDown = new MouseDown(view2, pos, event, !!flushed);
+    } else if ((type == "doubleClick" ? handleDoubleClick : handleTripleClick)(view2, pos.pos, pos.inside, event)) {
       event.preventDefault();
     } else {
-      setSelectionOrigin(view, "pointer");
+      setSelectionOrigin(view2, "pointer");
     }
   };
   var MouseDown = class {
-    constructor(view, pos, event, flushed) {
-      this.view = view;
+    constructor(view2, pos, event, flushed) {
+      this.view = view2;
       this.pos = pos;
       this.event = event;
       this.flushed = flushed;
       this.delayedSelectionSync = false;
       this.mightDrag = null;
-      this.startDoc = view.state.doc;
+      this.startDoc = view2.state.doc;
       this.selectNode = !!event[selectNodeModifier];
       this.allowDefault = event.shiftKey;
       let targetNode, targetPos;
       if (pos.inside > -1) {
-        targetNode = view.state.doc.nodeAt(pos.inside);
+        targetNode = view2.state.doc.nodeAt(pos.inside);
         targetPos = pos.inside;
       } else {
-        let $pos = view.state.doc.resolve(pos.pos);
+        let $pos = view2.state.doc.resolve(pos.pos);
         targetNode = $pos.parent;
         targetPos = $pos.depth ? $pos.before() : 0;
       }
       const target = flushed ? null : event.target;
-      const targetDesc = target ? view.docView.nearestDesc(target, true) : null;
+      const targetDesc = target ? view2.docView.nearestDesc(target, true) : null;
       this.target = targetDesc && targetDesc.dom.nodeType == 1 ? targetDesc.dom : null;
-      let { selection } = view.state;
+      let { selection } = view2.state;
       if (event.button == 0 && targetNode.type.spec.draggable && targetNode.type.spec.selectable !== false || selection instanceof NodeSelection && selection.from <= targetPos && selection.to > targetPos)
         this.mightDrag = {
           node: targetNode,
@@ -9087,9 +9088,9 @@ var ProseMirrorBundle = (() => {
           }, 20);
         this.view.domObserver.start();
       }
-      view.root.addEventListener("mouseup", this.up = this.up.bind(this));
-      view.root.addEventListener("mousemove", this.move = this.move.bind(this));
-      setSelectionOrigin(view, "pointer");
+      view2.root.addEventListener("mouseup", this.up = this.up.bind(this));
+      view2.root.addEventListener("mousemove", this.move = this.move.bind(this));
+      setSelectionOrigin(view2, "pointer");
     }
     done() {
       this.view.root.removeEventListener("mouseup", this.up);
@@ -9144,44 +9145,44 @@ var ProseMirrorBundle = (() => {
         this.allowDefault = true;
     }
   };
-  handlers.touchstart = (view) => {
-    view.input.lastTouch = Date.now();
-    forceDOMFlush(view);
-    setSelectionOrigin(view, "pointer");
+  handlers.touchstart = (view2) => {
+    view2.input.lastTouch = Date.now();
+    forceDOMFlush(view2);
+    setSelectionOrigin(view2, "pointer");
   };
-  handlers.touchmove = (view) => {
-    view.input.lastTouch = Date.now();
-    setSelectionOrigin(view, "pointer");
+  handlers.touchmove = (view2) => {
+    view2.input.lastTouch = Date.now();
+    setSelectionOrigin(view2, "pointer");
   };
-  handlers.contextmenu = (view) => forceDOMFlush(view);
-  function inOrNearComposition(view, event) {
-    if (view.composing)
+  handlers.contextmenu = (view2) => forceDOMFlush(view2);
+  function inOrNearComposition(view2, event) {
+    if (view2.composing)
       return true;
-    if (safari && Math.abs(event.timeStamp - view.input.compositionEndedAt) < 500) {
-      view.input.compositionEndedAt = -2e8;
+    if (safari && Math.abs(event.timeStamp - view2.input.compositionEndedAt) < 500) {
+      view2.input.compositionEndedAt = -2e8;
       return true;
     }
     return false;
   }
   var timeoutComposition = android ? 5e3 : -1;
-  editHandlers.compositionstart = editHandlers.compositionupdate = (view) => {
-    if (!view.composing) {
-      view.domObserver.flush();
-      let { state } = view, $pos = state.selection.$to;
+  editHandlers.compositionstart = editHandlers.compositionupdate = (view2) => {
+    if (!view2.composing) {
+      view2.domObserver.flush();
+      let { state } = view2, $pos = state.selection.$to;
       if (state.selection instanceof TextSelection && (state.storedMarks || !$pos.textOffset && $pos.parentOffset && $pos.nodeBefore.marks.some((m) => m.type.spec.inclusive === false))) {
-        view.markCursor = view.state.storedMarks || $pos.marks();
-        endComposition(view, true);
-        view.markCursor = null;
+        view2.markCursor = view2.state.storedMarks || $pos.marks();
+        endComposition(view2, true);
+        view2.markCursor = null;
       } else {
-        endComposition(view, !state.selection.empty);
+        endComposition(view2, !state.selection.empty);
         if (gecko && state.selection.empty && $pos.parentOffset && !$pos.textOffset && $pos.nodeBefore.marks.length) {
-          let sel = view.domSelectionRange();
+          let sel = view2.domSelectionRange();
           for (let node = sel.focusNode, offset = sel.focusOffset; node && node.nodeType == 1 && offset != 0; ) {
             let before = offset < 0 ? node.lastChild : node.childNodes[offset - 1];
             if (!before)
               break;
             if (before.nodeType == 3) {
-              let sel2 = view.domSelection();
+              let sel2 = view2.domSelection();
               if (sel2)
                 sel2.collapse(before, before.nodeValue.length);
               break;
@@ -9192,48 +9193,48 @@ var ProseMirrorBundle = (() => {
           }
         }
       }
-      view.input.composing = true;
+      view2.input.composing = true;
     }
-    scheduleComposeEnd(view, timeoutComposition);
+    scheduleComposeEnd(view2, timeoutComposition);
   };
-  editHandlers.compositionend = (view, event) => {
-    if (view.composing) {
-      view.input.composing = false;
-      view.input.compositionEndedAt = event.timeStamp;
-      view.input.compositionPendingChanges = view.domObserver.pendingRecords().length ? view.input.compositionID : 0;
-      view.input.compositionNode = null;
-      if (view.input.compositionPendingChanges)
-        Promise.resolve().then(() => view.domObserver.flush());
-      view.input.compositionID++;
-      scheduleComposeEnd(view, 20);
+  editHandlers.compositionend = (view2, event) => {
+    if (view2.composing) {
+      view2.input.composing = false;
+      view2.input.compositionEndedAt = event.timeStamp;
+      view2.input.compositionPendingChanges = view2.domObserver.pendingRecords().length ? view2.input.compositionID : 0;
+      view2.input.compositionNode = null;
+      if (view2.input.compositionPendingChanges)
+        Promise.resolve().then(() => view2.domObserver.flush());
+      view2.input.compositionID++;
+      scheduleComposeEnd(view2, 20);
     }
   };
-  function scheduleComposeEnd(view, delay) {
-    clearTimeout(view.input.composingTimeout);
+  function scheduleComposeEnd(view2, delay) {
+    clearTimeout(view2.input.composingTimeout);
     if (delay > -1)
-      view.input.composingTimeout = setTimeout(() => endComposition(view), delay);
+      view2.input.composingTimeout = setTimeout(() => endComposition(view2), delay);
   }
-  function clearComposition(view) {
-    if (view.composing) {
-      view.input.composing = false;
-      view.input.compositionEndedAt = timestampFromCustomEvent();
+  function clearComposition(view2) {
+    if (view2.composing) {
+      view2.input.composing = false;
+      view2.input.compositionEndedAt = timestampFromCustomEvent();
     }
-    while (view.input.compositionNodes.length > 0)
-      view.input.compositionNodes.pop().markParentsDirty();
+    while (view2.input.compositionNodes.length > 0)
+      view2.input.compositionNodes.pop().markParentsDirty();
   }
-  function findCompositionNode(view) {
-    let sel = view.domSelectionRange();
+  function findCompositionNode(view2) {
+    let sel = view2.domSelectionRange();
     if (!sel.focusNode)
       return null;
     let textBefore = textNodeBefore$1(sel.focusNode, sel.focusOffset);
     let textAfter = textNodeAfter$1(sel.focusNode, sel.focusOffset);
     if (textBefore && textAfter && textBefore != textAfter) {
-      let descAfter = textAfter.pmViewDesc, lastChanged = view.domObserver.lastChangedTextNode;
+      let descAfter = textAfter.pmViewDesc, lastChanged = view2.domObserver.lastChangedTextNode;
       if (textBefore == lastChanged || textAfter == lastChanged)
         return lastChanged;
       if (!descAfter || !descAfter.isText(textAfter.nodeValue)) {
         return textAfter;
-      } else if (view.input.compositionNode == textAfter) {
+      } else if (view2.input.compositionNode == textAfter) {
         let descBefore = textBefore.pmViewDesc;
         if (!(!descBefore || !descBefore.isText(textBefore.nodeValue)))
           return textAfter;
@@ -9246,91 +9247,91 @@ var ProseMirrorBundle = (() => {
     event.initEvent("event", true, true);
     return event.timeStamp;
   }
-  function endComposition(view, restarting = false) {
-    if (android && view.domObserver.flushingSoon >= 0)
+  function endComposition(view2, restarting = false) {
+    if (android && view2.domObserver.flushingSoon >= 0)
       return;
-    view.domObserver.forceFlush();
-    clearComposition(view);
-    if (restarting || view.docView && view.docView.dirty) {
-      let sel = selectionFromDOM(view), cur = view.state.selection;
+    view2.domObserver.forceFlush();
+    clearComposition(view2);
+    if (restarting || view2.docView && view2.docView.dirty) {
+      let sel = selectionFromDOM(view2), cur = view2.state.selection;
       if (sel && !sel.eq(cur))
-        view.dispatch(view.state.tr.setSelection(sel));
-      else if ((view.markCursor || restarting) && !cur.$from.node(cur.$from.sharedDepth(cur.to)).inlineContent)
-        view.dispatch(view.state.tr.deleteSelection());
+        view2.dispatch(view2.state.tr.setSelection(sel));
+      else if ((view2.markCursor || restarting) && !cur.$from.node(cur.$from.sharedDepth(cur.to)).inlineContent)
+        view2.dispatch(view2.state.tr.deleteSelection());
       else
-        view.updateState(view.state);
+        view2.updateState(view2.state);
       return true;
     }
     return false;
   }
-  function captureCopy(view, dom) {
-    if (!view.dom.parentNode)
+  function captureCopy(view2, dom) {
+    if (!view2.dom.parentNode)
       return;
-    let wrap2 = view.dom.parentNode.appendChild(document.createElement("div"));
+    let wrap2 = view2.dom.parentNode.appendChild(document.createElement("div"));
     wrap2.appendChild(dom);
     wrap2.style.cssText = "position: fixed; left: -10000px; top: 10px";
     let sel = getSelection(), range = document.createRange();
     range.selectNodeContents(dom);
-    view.dom.blur();
+    view2.dom.blur();
     sel.removeAllRanges();
     sel.addRange(range);
     setTimeout(() => {
       if (wrap2.parentNode)
         wrap2.parentNode.removeChild(wrap2);
-      view.focus();
+      view2.focus();
     }, 50);
   }
   var brokenClipboardAPI = ie && ie_version < 15 || ios && webkit_version < 604;
-  handlers.copy = editHandlers.cut = (view, _event) => {
+  handlers.copy = editHandlers.cut = (view2, _event) => {
     let event = _event;
-    let sel = view.state.selection, cut = event.type == "cut";
+    let sel = view2.state.selection, cut = event.type == "cut";
     if (sel.empty)
       return;
     let data = brokenClipboardAPI ? null : event.clipboardData;
-    let slice2 = sel.content(), { dom, text: text2 } = serializeForClipboard(view, slice2);
+    let slice2 = sel.content(), { dom, text: text2 } = serializeForClipboard(view2, slice2);
     if (data) {
       event.preventDefault();
       data.clearData();
       data.setData("text/html", dom.innerHTML);
       data.setData("text/plain", text2);
     } else {
-      captureCopy(view, dom);
+      captureCopy(view2, dom);
     }
     if (cut)
-      view.dispatch(view.state.tr.deleteSelection().scrollIntoView().setMeta("uiEvent", "cut"));
+      view2.dispatch(view2.state.tr.deleteSelection().scrollIntoView().setMeta("uiEvent", "cut"));
   };
   function sliceSingleNode(slice2) {
     return slice2.openStart == 0 && slice2.openEnd == 0 && slice2.content.childCount == 1 ? slice2.content.firstChild : null;
   }
-  function capturePaste(view, event) {
-    if (!view.dom.parentNode)
+  function capturePaste(view2, event) {
+    if (!view2.dom.parentNode)
       return;
-    let plainText = view.input.shiftKey || view.state.selection.$from.parent.type.spec.code;
-    let target = view.dom.parentNode.appendChild(document.createElement(plainText ? "textarea" : "div"));
+    let plainText = view2.input.shiftKey || view2.state.selection.$from.parent.type.spec.code;
+    let target = view2.dom.parentNode.appendChild(document.createElement(plainText ? "textarea" : "div"));
     if (!plainText)
       target.contentEditable = "true";
     target.style.cssText = "position: fixed; left: -10000px; top: 10px";
     target.focus();
-    let plain = view.input.shiftKey && view.input.lastKeyCode != 45;
+    let plain = view2.input.shiftKey && view2.input.lastKeyCode != 45;
     setTimeout(() => {
-      view.focus();
+      view2.focus();
       if (target.parentNode)
         target.parentNode.removeChild(target);
       if (plainText)
-        doPaste(view, target.value, null, plain, event);
+        doPaste(view2, target.value, null, plain, event);
       else
-        doPaste(view, target.textContent, target.innerHTML, plain, event);
+        doPaste(view2, target.textContent, target.innerHTML, plain, event);
     }, 50);
   }
-  function doPaste(view, text2, html, preferPlain, event) {
-    let slice2 = parseFromClipboard(view, text2, html, preferPlain, view.state.selection.$from);
-    if (view.someProp("handlePaste", (f) => f(view, event, slice2 || Slice.empty)))
+  function doPaste(view2, text2, html, preferPlain, event) {
+    let slice2 = parseFromClipboard(view2, text2, html, preferPlain, view2.state.selection.$from);
+    if (view2.someProp("handlePaste", (f) => f(view2, event, slice2 || Slice.empty)))
       return true;
     if (!slice2)
       return false;
     let singleNode = sliceSingleNode(slice2);
-    let tr = singleNode ? view.state.tr.replaceSelectionWith(singleNode, preferPlain) : view.state.tr.replaceSelection(slice2);
-    view.dispatch(tr.scrollIntoView().setMeta("paste", true).setMeta("uiEvent", "paste"));
+    let tr = singleNode ? view2.state.tr.replaceSelectionWith(singleNode, preferPlain) : view2.state.tr.replaceSelection(slice2);
+    view2.dispatch(tr.scrollIntoView().setMeta("paste", true).setMeta("uiEvent", "paste"));
     return true;
   }
   function getText(clipboardData) {
@@ -9340,16 +9341,16 @@ var ProseMirrorBundle = (() => {
     let uris = clipboardData.getData("text/uri-list");
     return uris ? uris.replace(/\r?\n/g, " ") : "";
   }
-  editHandlers.paste = (view, _event) => {
+  editHandlers.paste = (view2, _event) => {
     let event = _event;
-    if (view.composing && !android)
+    if (view2.composing && !android)
       return;
     let data = brokenClipboardAPI ? null : event.clipboardData;
-    let plain = view.input.shiftKey && view.input.lastKeyCode != 45;
-    if (data && doPaste(view, getText(data), data.getData("text/html"), plain, event))
+    let plain = view2.input.shiftKey && view2.input.lastKeyCode != 45;
+    if (data && doPaste(view2, getText(data), data.getData("text/html"), plain, event))
       event.preventDefault();
     else
-      capturePaste(view, event);
+      capturePaste(view2, event);
   };
   var Dragging = class {
     constructor(slice2, move, node) {
@@ -9359,76 +9360,76 @@ var ProseMirrorBundle = (() => {
     }
   };
   var dragCopyModifier = mac ? "altKey" : "ctrlKey";
-  function dragMoves(view, event) {
-    let moves = view.someProp("dragCopies", (test2) => !test2(event));
+  function dragMoves(view2, event) {
+    let moves = view2.someProp("dragCopies", (test2) => !test2(event));
     return moves != null ? moves : !event[dragCopyModifier];
   }
-  handlers.dragstart = (view, _event) => {
+  handlers.dragstart = (view2, _event) => {
     let event = _event;
-    let mouseDown = view.input.mouseDown;
+    let mouseDown = view2.input.mouseDown;
     if (mouseDown)
       mouseDown.done();
     if (!event.dataTransfer)
       return;
-    let sel = view.state.selection;
-    let pos = sel.empty ? null : view.posAtCoords(eventCoords(event));
+    let sel = view2.state.selection;
+    let pos = sel.empty ? null : view2.posAtCoords(eventCoords(event));
     let node;
     if (pos && pos.pos >= sel.from && pos.pos <= (sel instanceof NodeSelection ? sel.to - 1 : sel.to)) ;
     else if (mouseDown && mouseDown.mightDrag) {
-      node = NodeSelection.create(view.state.doc, mouseDown.mightDrag.pos);
+      node = NodeSelection.create(view2.state.doc, mouseDown.mightDrag.pos);
     } else if (event.target && event.target.nodeType == 1) {
-      let desc = view.docView.nearestDesc(event.target, true);
-      if (desc && desc.node.type.spec.draggable && desc != view.docView)
-        node = NodeSelection.create(view.state.doc, desc.posBefore);
+      let desc = view2.docView.nearestDesc(event.target, true);
+      if (desc && desc.node.type.spec.draggable && desc != view2.docView)
+        node = NodeSelection.create(view2.state.doc, desc.posBefore);
     }
-    let draggedSlice = (node || view.state.selection).content();
-    let { dom, text: text2, slice: slice2 } = serializeForClipboard(view, draggedSlice);
+    let draggedSlice = (node || view2.state.selection).content();
+    let { dom, text: text2, slice: slice2 } = serializeForClipboard(view2, draggedSlice);
     if (!event.dataTransfer.files.length || !chrome || chrome_version > 120)
       event.dataTransfer.clearData();
     event.dataTransfer.setData(brokenClipboardAPI ? "Text" : "text/html", dom.innerHTML);
     event.dataTransfer.effectAllowed = "copyMove";
     if (!brokenClipboardAPI)
       event.dataTransfer.setData("text/plain", text2);
-    view.dragging = new Dragging(slice2, dragMoves(view, event), node);
+    view2.dragging = new Dragging(slice2, dragMoves(view2, event), node);
   };
-  handlers.dragend = (view) => {
-    let dragging = view.dragging;
+  handlers.dragend = (view2) => {
+    let dragging = view2.dragging;
     window.setTimeout(() => {
-      if (view.dragging == dragging)
-        view.dragging = null;
+      if (view2.dragging == dragging)
+        view2.dragging = null;
     }, 50);
   };
   editHandlers.dragover = editHandlers.dragenter = (_, e) => e.preventDefault();
-  editHandlers.drop = (view, _event) => {
+  editHandlers.drop = (view2, _event) => {
     let event = _event;
-    let dragging = view.dragging;
-    view.dragging = null;
+    let dragging = view2.dragging;
+    view2.dragging = null;
     if (!event.dataTransfer)
       return;
-    let eventPos = view.posAtCoords(eventCoords(event));
+    let eventPos = view2.posAtCoords(eventCoords(event));
     if (!eventPos)
       return;
-    let $mouse = view.state.doc.resolve(eventPos.pos);
+    let $mouse = view2.state.doc.resolve(eventPos.pos);
     let slice2 = dragging && dragging.slice;
     if (slice2) {
-      view.someProp("transformPasted", (f) => {
-        slice2 = f(slice2, view);
+      view2.someProp("transformPasted", (f) => {
+        slice2 = f(slice2, view2);
       });
     } else {
-      slice2 = parseFromClipboard(view, getText(event.dataTransfer), brokenClipboardAPI ? null : event.dataTransfer.getData("text/html"), false, $mouse);
+      slice2 = parseFromClipboard(view2, getText(event.dataTransfer), brokenClipboardAPI ? null : event.dataTransfer.getData("text/html"), false, $mouse);
     }
-    let move = !!(dragging && dragMoves(view, event));
-    if (view.someProp("handleDrop", (f) => f(view, event, slice2 || Slice.empty, move))) {
+    let move = !!(dragging && dragMoves(view2, event));
+    if (view2.someProp("handleDrop", (f) => f(view2, event, slice2 || Slice.empty, move))) {
       event.preventDefault();
       return;
     }
     if (!slice2)
       return;
     event.preventDefault();
-    let insertPos = slice2 ? dropPoint(view.state.doc, $mouse.pos, slice2) : $mouse.pos;
+    let insertPos = slice2 ? dropPoint(view2.state.doc, $mouse.pos, slice2) : $mouse.pos;
     if (insertPos == null)
       insertPos = $mouse.pos;
-    let tr = view.state.tr;
+    let tr = view2.state.tr;
     if (move) {
       let { node } = dragging;
       if (node)
@@ -9451,50 +9452,50 @@ var ProseMirrorBundle = (() => {
     } else {
       let end = tr.mapping.map(insertPos);
       tr.mapping.maps[tr.mapping.maps.length - 1].forEach((_from, _to, _newFrom, newTo) => end = newTo);
-      tr.setSelection(selectionBetween(view, $pos, tr.doc.resolve(end)));
+      tr.setSelection(selectionBetween(view2, $pos, tr.doc.resolve(end)));
     }
-    view.focus();
-    view.dispatch(tr.setMeta("uiEvent", "drop"));
+    view2.focus();
+    view2.dispatch(tr.setMeta("uiEvent", "drop"));
   };
-  handlers.focus = (view) => {
-    view.input.lastFocus = Date.now();
-    if (!view.focused) {
-      view.domObserver.stop();
-      view.dom.classList.add("ProseMirror-focused");
-      view.domObserver.start();
-      view.focused = true;
+  handlers.focus = (view2) => {
+    view2.input.lastFocus = Date.now();
+    if (!view2.focused) {
+      view2.domObserver.stop();
+      view2.dom.classList.add("ProseMirror-focused");
+      view2.domObserver.start();
+      view2.focused = true;
       setTimeout(() => {
-        if (view.docView && view.hasFocus() && !view.domObserver.currentSelection.eq(view.domSelectionRange()))
-          selectionToDOM(view);
+        if (view2.docView && view2.hasFocus() && !view2.domObserver.currentSelection.eq(view2.domSelectionRange()))
+          selectionToDOM(view2);
       }, 20);
     }
   };
-  handlers.blur = (view, _event) => {
+  handlers.blur = (view2, _event) => {
     let event = _event;
-    if (view.focused) {
-      view.domObserver.stop();
-      view.dom.classList.remove("ProseMirror-focused");
-      view.domObserver.start();
-      if (event.relatedTarget && view.dom.contains(event.relatedTarget))
-        view.domObserver.currentSelection.clear();
-      view.focused = false;
+    if (view2.focused) {
+      view2.domObserver.stop();
+      view2.dom.classList.remove("ProseMirror-focused");
+      view2.domObserver.start();
+      if (event.relatedTarget && view2.dom.contains(event.relatedTarget))
+        view2.domObserver.currentSelection.clear();
+      view2.focused = false;
     }
   };
-  handlers.beforeinput = (view, _event) => {
+  handlers.beforeinput = (view2, _event) => {
     let event = _event;
     if (chrome && android && event.inputType == "deleteContentBackward") {
-      view.domObserver.flushSoon();
-      let { domChangeCount } = view.input;
+      view2.domObserver.flushSoon();
+      let { domChangeCount } = view2.input;
       setTimeout(() => {
-        if (view.input.domChangeCount != domChangeCount)
+        if (view2.input.domChangeCount != domChangeCount)
           return;
-        view.dom.blur();
-        view.focus();
-        if (view.someProp("handleKeyDown", (f) => f(view, keyEvent(8, "Backspace"))))
+        view2.dom.blur();
+        view2.focus();
+        if (view2.someProp("handleKeyDown", (f) => f(view2, keyEvent(8, "Backspace"))))
           return;
-        let { $cursor } = view.state.selection;
+        let { $cursor } = view2.state.selection;
         if ($cursor && $cursor.pos > 0)
-          view.dispatch(view.state.tr.delete($cursor.pos - 1, $cursor.pos).scrollIntoView());
+          view2.dispatch(view2.state.tr.delete($cursor.pos - 1, $cursor.pos).scrollIntoView());
       }, 50);
     }
   };
@@ -10114,15 +10115,15 @@ var ProseMirrorBundle = (() => {
       i++;
     array.splice(i, 0, deco);
   }
-  function viewDecorations(view) {
+  function viewDecorations(view2) {
     let found2 = [];
-    view.someProp("decorations", (f) => {
-      let result = f(view.state);
+    view2.someProp("decorations", (f) => {
+      let result = f(view2.state);
       if (result && result != empty)
         found2.push(result);
     });
-    if (view.cursorWrapper)
-      found2.push(DecorationSet.create(view.state.doc, [view.cursorWrapper.deco]));
+    if (view2.cursorWrapper)
+      found2.push(DecorationSet.create(view2.state.doc, [view2.cursorWrapper.deco]));
     return DecorationGroup.from(found2);
   }
   var observeOptions = {
@@ -10155,8 +10156,8 @@ var ProseMirrorBundle = (() => {
     }
   };
   var DOMObserver = class {
-    constructor(view, handleDOMChange) {
-      this.view = view;
+    constructor(view2, handleDOMChange) {
+      this.view = view2;
       this.handleDOMChange = handleDOMChange;
       this.queue = [];
       this.flushingSoon = -1;
@@ -10270,16 +10271,16 @@ var ProseMirrorBundle = (() => {
       return this.queue;
     }
     flush() {
-      let { view } = this;
-      if (!view.docView || this.flushingSoon > -1)
+      let { view: view2 } = this;
+      if (!view2.docView || this.flushingSoon > -1)
         return;
       let mutations = this.pendingRecords();
       if (mutations.length)
         this.queue = [];
-      let sel = view.domSelectionRange();
-      let newSel = !this.suppressingSelectionUpdates && !this.currentSelection.eq(sel) && hasFocusAndSelection(view) && !this.ignoreSelectionChange(sel);
+      let sel = view2.domSelectionRange();
+      let newSel = !this.suppressingSelectionUpdates && !this.currentSelection.eq(sel) && hasFocusAndSelection(view2) && !this.ignoreSelectionChange(sel);
       let from2 = -1, to = -1, typeOver = false, added = [];
-      if (view.editable) {
+      if (view2.editable) {
         for (let i = 0; i < mutations.length; i++) {
           let result = this.registerMutation(mutations[i], added);
           if (result) {
@@ -10302,27 +10303,27 @@ var ProseMirrorBundle = (() => {
           let { focusNode } = this.currentSelection;
           for (let br of brs) {
             let parent = br.parentNode;
-            if (parent && parent.nodeName == "LI" && (!focusNode || blockParent(view, focusNode) != parent))
+            if (parent && parent.nodeName == "LI" && (!focusNode || blockParent(view2, focusNode) != parent))
               br.remove();
           }
         }
       }
       let readSel = null;
-      if (from2 < 0 && newSel && view.input.lastFocus > Date.now() - 200 && Math.max(view.input.lastTouch, view.input.lastClick.time) < Date.now() - 300 && selectionCollapsed(sel) && (readSel = selectionFromDOM(view)) && readSel.eq(Selection.near(view.state.doc.resolve(0), 1))) {
-        view.input.lastFocus = 0;
-        selectionToDOM(view);
+      if (from2 < 0 && newSel && view2.input.lastFocus > Date.now() - 200 && Math.max(view2.input.lastTouch, view2.input.lastClick.time) < Date.now() - 300 && selectionCollapsed(sel) && (readSel = selectionFromDOM(view2)) && readSel.eq(Selection.near(view2.state.doc.resolve(0), 1))) {
+        view2.input.lastFocus = 0;
+        selectionToDOM(view2);
         this.currentSelection.set(sel);
-        view.scrollToSelection();
+        view2.scrollToSelection();
       } else if (from2 > -1 || newSel) {
         if (from2 > -1) {
-          view.docView.markDirty(from2, to);
-          checkCSS(view);
+          view2.docView.markDirty(from2, to);
+          checkCSS(view2);
         }
         this.handleDOMChange(from2, to, typeOver, added);
-        if (view.docView && view.docView.dirty)
-          view.updateState(view.state);
+        if (view2.docView && view2.docView.dirty)
+          view2.updateState(view2.state);
         else if (!this.currentSelection.eq(sel))
-          selectionToDOM(view);
+          selectionToDOM(view2);
         this.currentSelection.set(sel);
       }
     }
@@ -10377,31 +10378,31 @@ var ProseMirrorBundle = (() => {
   };
   var cssChecked = /* @__PURE__ */ new WeakMap();
   var cssCheckWarned = false;
-  function checkCSS(view) {
-    if (cssChecked.has(view))
+  function checkCSS(view2) {
+    if (cssChecked.has(view2))
       return;
-    cssChecked.set(view, null);
-    if (["normal", "nowrap", "pre-line"].indexOf(getComputedStyle(view.dom).whiteSpace) !== -1) {
-      view.requiresGeckoHackNode = gecko;
+    cssChecked.set(view2, null);
+    if (["normal", "nowrap", "pre-line"].indexOf(getComputedStyle(view2.dom).whiteSpace) !== -1) {
+      view2.requiresGeckoHackNode = gecko;
       if (cssCheckWarned)
         return;
       console["warn"]("ProseMirror expects the CSS white-space property to be set, preferably to 'pre-wrap'. It is recommended to load style/prosemirror.css from the prosemirror-view package.");
       cssCheckWarned = true;
     }
   }
-  function rangeToSelectionRange(view, range) {
+  function rangeToSelectionRange(view2, range) {
     let anchorNode = range.startContainer, anchorOffset = range.startOffset;
     let focusNode = range.endContainer, focusOffset = range.endOffset;
-    let currentAnchor = view.domAtPos(view.state.selection.anchor);
+    let currentAnchor = view2.domAtPos(view2.state.selection.anchor);
     if (isEquivalentPosition(currentAnchor.node, currentAnchor.offset, focusNode, focusOffset))
       [anchorNode, anchorOffset, focusNode, focusOffset] = [focusNode, focusOffset, anchorNode, anchorOffset];
     return { anchorNode, anchorOffset, focusNode, focusOffset };
   }
-  function safariShadowSelectionRange(view, selection) {
+  function safariShadowSelectionRange(view2, selection) {
     if (selection.getComposedRanges) {
-      let range = selection.getComposedRanges(view.root)[0];
+      let range = selection.getComposedRanges(view2.root)[0];
       if (range)
-        return rangeToSelectionRange(view, range);
+        return rangeToSelectionRange(view2, range);
     }
     let found2;
     function read(event) {
@@ -10409,30 +10410,30 @@ var ProseMirrorBundle = (() => {
       event.stopImmediatePropagation();
       found2 = event.getTargetRanges()[0];
     }
-    view.dom.addEventListener("beforeinput", read, true);
+    view2.dom.addEventListener("beforeinput", read, true);
     document.execCommand("indent");
-    view.dom.removeEventListener("beforeinput", read, true);
-    return found2 ? rangeToSelectionRange(view, found2) : null;
+    view2.dom.removeEventListener("beforeinput", read, true);
+    return found2 ? rangeToSelectionRange(view2, found2) : null;
   }
-  function blockParent(view, node) {
-    for (let p = node.parentNode; p && p != view.dom; p = p.parentNode) {
-      let desc = view.docView.nearestDesc(p, true);
+  function blockParent(view2, node) {
+    for (let p = node.parentNode; p && p != view2.dom; p = p.parentNode) {
+      let desc = view2.docView.nearestDesc(p, true);
       if (desc && desc.node.isBlock)
         return p;
     }
     return null;
   }
-  function parseBetween(view, from_, to_) {
-    let { node: parent, fromOffset, toOffset, from: from2, to } = view.docView.parseRange(from_, to_);
-    let domSel = view.domSelectionRange();
+  function parseBetween(view2, from_, to_) {
+    let { node: parent, fromOffset, toOffset, from: from2, to } = view2.docView.parseRange(from_, to_);
+    let domSel = view2.domSelectionRange();
     let find;
     let anchor = domSel.anchorNode;
-    if (anchor && view.dom.contains(anchor.nodeType == 1 ? anchor : anchor.parentNode)) {
+    if (anchor && view2.dom.contains(anchor.nodeType == 1 ? anchor : anchor.parentNode)) {
       find = [{ node: anchor, offset: domSel.anchorOffset }];
       if (!selectionCollapsed(domSel))
         find.push({ node: domSel.focusNode, offset: domSel.focusOffset });
     }
-    if (chrome && view.input.lastKeyCode === 8) {
+    if (chrome && view2.input.lastKeyCode === 8) {
       for (let off = toOffset; off > fromOffset; off--) {
         let node = parent.childNodes[off - 1], desc = node.pmViewDesc;
         if (node.nodeName == "BR" && !desc) {
@@ -10443,8 +10444,8 @@ var ProseMirrorBundle = (() => {
           break;
       }
     }
-    let startDoc = view.state.doc;
-    let parser = view.someProp("domParser") || DOMParser.fromSchema(view.state.schema);
+    let startDoc = view2.state.doc;
+    let parser = view2.someProp("domParser") || DOMParser.fromSchema(view2.state.schema);
     let $from = startDoc.resolve(from2);
     let sel = null, doc3 = parser.parse(parent, {
       topNode: $from.parent,
@@ -10483,71 +10484,71 @@ var ProseMirrorBundle = (() => {
     return null;
   }
   var isInline = /^(a|abbr|acronym|b|bd[io]|big|br|button|cite|code|data(list)?|del|dfn|em|i|img|ins|kbd|label|map|mark|meter|output|q|ruby|s|samp|small|span|strong|su[bp]|time|u|tt|var)$/i;
-  function readDOMChange(view, from2, to, typeOver, addedNodes) {
-    let compositionID = view.input.compositionPendingChanges || (view.composing ? view.input.compositionID : 0);
-    view.input.compositionPendingChanges = 0;
+  function readDOMChange(view2, from2, to, typeOver, addedNodes) {
+    let compositionID = view2.input.compositionPendingChanges || (view2.composing ? view2.input.compositionID : 0);
+    view2.input.compositionPendingChanges = 0;
     if (from2 < 0) {
-      let origin = view.input.lastSelectionTime > Date.now() - 50 ? view.input.lastSelectionOrigin : null;
-      let newSel = selectionFromDOM(view, origin);
-      if (newSel && !view.state.selection.eq(newSel)) {
-        if (chrome && android && view.input.lastKeyCode === 13 && Date.now() - 100 < view.input.lastKeyCodeTime && view.someProp("handleKeyDown", (f) => f(view, keyEvent(13, "Enter"))))
+      let origin = view2.input.lastSelectionTime > Date.now() - 50 ? view2.input.lastSelectionOrigin : null;
+      let newSel = selectionFromDOM(view2, origin);
+      if (newSel && !view2.state.selection.eq(newSel)) {
+        if (chrome && android && view2.input.lastKeyCode === 13 && Date.now() - 100 < view2.input.lastKeyCodeTime && view2.someProp("handleKeyDown", (f) => f(view2, keyEvent(13, "Enter"))))
           return;
-        let tr = view.state.tr.setSelection(newSel);
+        let tr = view2.state.tr.setSelection(newSel);
         if (origin == "pointer")
           tr.setMeta("pointer", true);
         else if (origin == "key")
           tr.scrollIntoView();
         if (compositionID)
           tr.setMeta("composition", compositionID);
-        view.dispatch(tr);
+        view2.dispatch(tr);
       }
       return;
     }
-    let $before = view.state.doc.resolve(from2);
+    let $before = view2.state.doc.resolve(from2);
     let shared = $before.sharedDepth(to);
     from2 = $before.before(shared + 1);
-    to = view.state.doc.resolve(to).after(shared + 1);
-    let sel = view.state.selection;
-    let parse = parseBetween(view, from2, to);
-    let doc3 = view.state.doc, compare = doc3.slice(parse.from, parse.to);
+    to = view2.state.doc.resolve(to).after(shared + 1);
+    let sel = view2.state.selection;
+    let parse = parseBetween(view2, from2, to);
+    let doc3 = view2.state.doc, compare = doc3.slice(parse.from, parse.to);
     let preferredPos, preferredSide;
-    if (view.input.lastKeyCode === 8 && Date.now() - 100 < view.input.lastKeyCodeTime) {
-      preferredPos = view.state.selection.to;
+    if (view2.input.lastKeyCode === 8 && Date.now() - 100 < view2.input.lastKeyCodeTime) {
+      preferredPos = view2.state.selection.to;
       preferredSide = "end";
     } else {
-      preferredPos = view.state.selection.from;
+      preferredPos = view2.state.selection.from;
       preferredSide = "start";
     }
-    view.input.lastKeyCode = null;
+    view2.input.lastKeyCode = null;
     let change = findDiff(compare.content, parse.doc.content, parse.from, preferredPos, preferredSide);
     if (change)
-      view.input.domChangeCount++;
-    if ((ios && view.input.lastIOSEnter > Date.now() - 225 || android) && addedNodes.some((n) => n.nodeType == 1 && !isInline.test(n.nodeName)) && (!change || change.endA >= change.endB) && view.someProp("handleKeyDown", (f) => f(view, keyEvent(13, "Enter")))) {
-      view.input.lastIOSEnter = 0;
+      view2.input.domChangeCount++;
+    if ((ios && view2.input.lastIOSEnter > Date.now() - 225 || android) && addedNodes.some((n) => n.nodeType == 1 && !isInline.test(n.nodeName)) && (!change || change.endA >= change.endB) && view2.someProp("handleKeyDown", (f) => f(view2, keyEvent(13, "Enter")))) {
+      view2.input.lastIOSEnter = 0;
       return;
     }
     if (!change) {
-      if (typeOver && sel instanceof TextSelection && !sel.empty && sel.$head.sameParent(sel.$anchor) && !view.composing && !(parse.sel && parse.sel.anchor != parse.sel.head)) {
+      if (typeOver && sel instanceof TextSelection && !sel.empty && sel.$head.sameParent(sel.$anchor) && !view2.composing && !(parse.sel && parse.sel.anchor != parse.sel.head)) {
         change = { start: sel.from, endA: sel.to, endB: sel.to };
       } else {
         if (parse.sel) {
-          let sel2 = resolveSelection(view, view.state.doc, parse.sel);
-          if (sel2 && !sel2.eq(view.state.selection)) {
-            let tr = view.state.tr.setSelection(sel2);
+          let sel2 = resolveSelection(view2, view2.state.doc, parse.sel);
+          if (sel2 && !sel2.eq(view2.state.selection)) {
+            let tr = view2.state.tr.setSelection(sel2);
             if (compositionID)
               tr.setMeta("composition", compositionID);
-            view.dispatch(tr);
+            view2.dispatch(tr);
           }
         }
         return;
       }
     }
-    if (view.state.selection.from < view.state.selection.to && change.start == change.endB && view.state.selection instanceof TextSelection) {
-      if (change.start > view.state.selection.from && change.start <= view.state.selection.from + 2 && view.state.selection.from >= parse.from) {
-        change.start = view.state.selection.from;
-      } else if (change.endA < view.state.selection.to && change.endA >= view.state.selection.to - 2 && view.state.selection.to <= parse.to) {
-        change.endB += view.state.selection.to - change.endA;
-        change.endA = view.state.selection.to;
+    if (view2.state.selection.from < view2.state.selection.to && change.start == change.endB && view2.state.selection instanceof TextSelection) {
+      if (change.start > view2.state.selection.from && change.start <= view2.state.selection.from + 2 && view2.state.selection.from >= parse.from) {
+        change.start = view2.state.selection.from;
+      } else if (change.endA < view2.state.selection.to && change.endA >= view2.state.selection.to - 2 && view2.state.selection.to <= parse.to) {
+        change.endB += view2.state.selection.to - change.endA;
+        change.endA = view2.state.selection.to;
       }
     }
     if (ie && ie_version <= 11 && change.endB == change.start + 1 && change.endA == change.start && change.start > parse.from && parse.doc.textBetween(change.start - parse.from - 1, change.start - parse.from + 1) == " \xA0") {
@@ -10560,32 +10561,32 @@ var ProseMirrorBundle = (() => {
     let $fromA = doc3.resolve(change.start);
     let inlineChange = $from.sameParent($to) && $from.parent.inlineContent && $fromA.end() >= change.endA;
     let nextSel;
-    if ((ios && view.input.lastIOSEnter > Date.now() - 225 && (!inlineChange || addedNodes.some((n) => n.nodeName == "DIV" || n.nodeName == "P")) || !inlineChange && $from.pos < parse.doc.content.size && (!$from.sameParent($to) || !$from.parent.inlineContent) && !/\S/.test(parse.doc.textBetween($from.pos, $to.pos, "", "")) && (nextSel = Selection.findFrom(parse.doc.resolve($from.pos + 1), 1, true)) && nextSel.head > $from.pos) && view.someProp("handleKeyDown", (f) => f(view, keyEvent(13, "Enter")))) {
-      view.input.lastIOSEnter = 0;
+    if ((ios && view2.input.lastIOSEnter > Date.now() - 225 && (!inlineChange || addedNodes.some((n) => n.nodeName == "DIV" || n.nodeName == "P")) || !inlineChange && $from.pos < parse.doc.content.size && (!$from.sameParent($to) || !$from.parent.inlineContent) && !/\S/.test(parse.doc.textBetween($from.pos, $to.pos, "", "")) && (nextSel = Selection.findFrom(parse.doc.resolve($from.pos + 1), 1, true)) && nextSel.head > $from.pos) && view2.someProp("handleKeyDown", (f) => f(view2, keyEvent(13, "Enter")))) {
+      view2.input.lastIOSEnter = 0;
       return;
     }
-    if (view.state.selection.anchor > change.start && looksLikeBackspace(doc3, change.start, change.endA, $from, $to) && view.someProp("handleKeyDown", (f) => f(view, keyEvent(8, "Backspace")))) {
+    if (view2.state.selection.anchor > change.start && looksLikeBackspace(doc3, change.start, change.endA, $from, $to) && view2.someProp("handleKeyDown", (f) => f(view2, keyEvent(8, "Backspace")))) {
       if (android && chrome)
-        view.domObserver.suppressSelectionUpdates();
+        view2.domObserver.suppressSelectionUpdates();
       return;
     }
     if (chrome && change.endB == change.start)
-      view.input.lastChromeDelete = Date.now();
+      view2.input.lastChromeDelete = Date.now();
     if (android && !inlineChange && $from.start() != $to.start() && $to.parentOffset == 0 && $from.depth == $to.depth && parse.sel && parse.sel.anchor == parse.sel.head && parse.sel.head == change.endA) {
       change.endB -= 2;
       $to = parse.doc.resolveNoCache(change.endB - parse.from);
       setTimeout(() => {
-        view.someProp("handleKeyDown", function(f) {
-          return f(view, keyEvent(13, "Enter"));
+        view2.someProp("handleKeyDown", function(f) {
+          return f(view2, keyEvent(13, "Enter"));
         });
       }, 20);
     }
     let chFrom = change.start, chTo = change.endA;
     let mkTr = (base3) => {
-      let tr = base3 || view.state.tr.replace(chFrom, chTo, parse.doc.slice(change.start - parse.from, change.endB - parse.from));
+      let tr = base3 || view2.state.tr.replace(chFrom, chTo, parse.doc.slice(change.start - parse.from, change.endB - parse.from));
       if (parse.sel) {
-        let sel2 = resolveSelection(view, tr.doc, parse.sel);
-        if (sel2 && !(chrome && view.composing && sel2.empty && (change.start != change.endB || view.input.lastChromeDelete < Date.now() - 100) && (sel2.head == chFrom || sel2.head == tr.mapping.map(chTo) - 1) || ie && sel2.empty && sel2.head == chFrom))
+        let sel2 = resolveSelection(view2, tr.doc, parse.sel);
+        if (sel2 && !(chrome && view2.composing && sel2.empty && (change.start != change.endB || view2.input.lastChromeDelete < Date.now() - 100) && (sel2.head == chFrom || sel2.head == tr.mapping.map(chTo) - 1) || ie && sel2.empty && sel2.head == chFrom))
           tr.setSelection(sel2);
       }
       if (compositionID)
@@ -10596,38 +10597,38 @@ var ProseMirrorBundle = (() => {
     if (inlineChange) {
       if ($from.pos == $to.pos) {
         if (ie && ie_version <= 11 && $from.parentOffset == 0) {
-          view.domObserver.suppressSelectionUpdates();
-          setTimeout(() => selectionToDOM(view), 20);
+          view2.domObserver.suppressSelectionUpdates();
+          setTimeout(() => selectionToDOM(view2), 20);
         }
-        let tr = mkTr(view.state.tr.delete(chFrom, chTo));
+        let tr = mkTr(view2.state.tr.delete(chFrom, chTo));
         let marks2 = doc3.resolve(change.start).marksAcross(doc3.resolve(change.endA));
         if (marks2)
           tr.ensureMarks(marks2);
-        view.dispatch(tr);
+        view2.dispatch(tr);
       } else if (
         // Adding or removing a mark
         change.endA == change.endB && (markChange = isMarkChange($from.parent.content.cut($from.parentOffset, $to.parentOffset), $fromA.parent.content.cut($fromA.parentOffset, change.endA - $fromA.start())))
       ) {
-        let tr = mkTr(view.state.tr);
+        let tr = mkTr(view2.state.tr);
         if (markChange.type == "add")
           tr.addMark(chFrom, chTo, markChange.mark);
         else
           tr.removeMark(chFrom, chTo, markChange.mark);
-        view.dispatch(tr);
+        view2.dispatch(tr);
       } else if ($from.parent.child($from.index()).isText && $from.index() == $to.index() - ($to.textOffset ? 0 : 1)) {
         let text2 = $from.parent.textBetween($from.parentOffset, $to.parentOffset);
-        let deflt = () => mkTr(view.state.tr.insertText(text2, chFrom, chTo));
-        if (!view.someProp("handleTextInput", (f) => f(view, chFrom, chTo, text2, deflt)))
-          view.dispatch(deflt());
+        let deflt = () => mkTr(view2.state.tr.insertText(text2, chFrom, chTo));
+        if (!view2.someProp("handleTextInput", (f) => f(view2, chFrom, chTo, text2, deflt)))
+          view2.dispatch(deflt());
       }
     } else {
-      view.dispatch(mkTr());
+      view2.dispatch(mkTr());
     }
   }
-  function resolveSelection(view, doc3, parsedSel) {
+  function resolveSelection(view2, doc3, parsedSel) {
     if (Math.max(parsedSel.anchor, parsedSel.head) > doc3.content.size)
       return null;
-    return selectionBetween(view, doc3.resolve(parsedSel.anchor), doc3.resolve(parsedSel.head));
+    return selectionBetween(view2, doc3.resolve(parsedSel.anchor), doc3.resolve(parsedSel.head));
   }
   function isMarkChange(cur, prev) {
     let curMarks = cur.firstChild.marks, prevMarks = prev.firstChild.marks;
@@ -10898,10 +10899,10 @@ var ProseMirrorBundle = (() => {
       }
     }
     destroyPluginViews() {
-      let view;
-      while (view = this.pluginViews.pop())
-        if (view.destroy)
-          view.destroy();
+      let view2;
+      while (view2 = this.pluginViews.pop())
+        if (view2.destroy)
+          view2.destroy();
     }
     updatePluginViews(prevState) {
       if (!prevState || prevState.plugins != this.state.plugins || this.directPlugins != this.prevDirectPlugins) {
@@ -11166,13 +11167,13 @@ var ProseMirrorBundle = (() => {
     else
       this.updateState(this.state.apply(tr));
   };
-  function computeDocDeco(view) {
+  function computeDocDeco(view2) {
     let attrs2 = /* @__PURE__ */ Object.create(null);
     attrs2.class = "ProseMirror";
-    attrs2.contenteditable = String(view.editable);
-    view.someProp("attributes", (value) => {
+    attrs2.contenteditable = String(view2.editable);
+    view2.someProp("attributes", (value) => {
       if (typeof value == "function")
-        value = value(view.state);
+        value = value(view2.state);
       if (value)
         for (let attr in value) {
           if (attr == "class")
@@ -11185,35 +11186,35 @@ var ProseMirrorBundle = (() => {
     });
     if (!attrs2.translate)
       attrs2.translate = "no";
-    return [Decoration.node(0, view.state.doc.content.size, attrs2)];
+    return [Decoration.node(0, view2.state.doc.content.size, attrs2)];
   }
-  function updateCursorWrapper(view) {
-    if (view.markCursor) {
+  function updateCursorWrapper(view2) {
+    if (view2.markCursor) {
       let dom = document.createElement("img");
       dom.className = "ProseMirror-separator";
       dom.setAttribute("mark-placeholder", "true");
       dom.setAttribute("alt", "");
-      view.cursorWrapper = { dom, deco: Decoration.widget(view.state.selection.from, dom, { raw: true, marks: view.markCursor }) };
+      view2.cursorWrapper = { dom, deco: Decoration.widget(view2.state.selection.from, dom, { raw: true, marks: view2.markCursor }) };
     } else {
-      view.cursorWrapper = null;
+      view2.cursorWrapper = null;
     }
   }
-  function getEditable(view) {
-    return !view.someProp("editable", (value) => value(view.state) === false);
+  function getEditable(view2) {
+    return !view2.someProp("editable", (value) => value(view2.state) === false);
   }
   function selectionContextChanged(sel1, sel2) {
     let depth = Math.min(sel1.$anchor.sharedDepth(sel1.head), sel2.$anchor.sharedDepth(sel2.head));
     return sel1.$anchor.start(depth) != sel2.$anchor.start(depth);
   }
-  function buildNodeViews(view) {
+  function buildNodeViews(view2) {
     let result = /* @__PURE__ */ Object.create(null);
     function add4(obj) {
       for (let prop in obj)
         if (!Object.prototype.hasOwnProperty.call(result, prop))
           result[prop] = obj[prop];
     }
-    view.someProp("nodeViews", add4);
-    view.someProp("markViews", add4);
+    view2.someProp("nodeViews", add4);
+    view2.someProp("markViews", add4);
     return result;
   }
   function changedNodeViews(a, b) {
@@ -11802,20 +11803,20 @@ var ProseMirrorBundle = (() => {
   }
   function keydownHandler(bindings) {
     let map3 = normalize(bindings);
-    return function(view, event) {
+    return function(view2, event) {
       let name = keyName(event), baseName, direct = map3[modifiers(name, event)];
-      if (direct && direct(view.state, view.dispatch, view))
+      if (direct && direct(view2.state, view2.dispatch, view2))
         return true;
       if (name.length == 1 && name != " ") {
         if (event.shiftKey) {
           let noShift = map3[modifiers(name, event, false)];
-          if (noShift && noShift(view.state, view.dispatch, view))
+          if (noShift && noShift(view2.state, view2.dispatch, view2))
             return true;
         }
         if ((event.altKey || event.metaKey || event.ctrlKey) && // Ctrl-Alt may be used for AltGr on Windows
         !(windows2 && event.ctrlKey && event.altKey) && (baseName = base[event.keyCode]) && baseName != name) {
           let fromCode = map3[modifiers(baseName, event)];
-          if (fromCode && fromCode(view.state, view.dispatch, view))
+          if (fromCode && fromCode(view2.state, view2.dispatch, view2))
             return true;
         }
       }
@@ -12329,13 +12330,13 @@ var ProseMirrorBundle = (() => {
       config: config2,
       props: {
         handleDOMEvents: {
-          beforeinput(view, e) {
+          beforeinput(view2, e) {
             let inputType = e.inputType;
             let command = inputType == "historyUndo" ? undo : inputType == "historyRedo" ? redo : null;
             if (!command)
               return false;
             e.preventDefault();
-            return command(view.state, view.dispatch);
+            return command(view2.state, view2.dispatch);
           }
         }
       }
@@ -12367,14 +12368,14 @@ var ProseMirrorBundle = (() => {
       dispatch(state.tr.deleteSelection().scrollIntoView());
     return true;
   };
-  function atBlockStart(state, view) {
+  function atBlockStart(state, view2) {
     let { $cursor } = state.selection;
-    if (!$cursor || (view ? !view.endOfTextblock("backward", state) : $cursor.parentOffset > 0))
+    if (!$cursor || (view2 ? !view2.endOfTextblock("backward", state) : $cursor.parentOffset > 0))
       return null;
     return $cursor;
   }
-  var joinBackward = (state, dispatch, view) => {
-    let $cursor = atBlockStart(state, view);
+  var joinBackward = (state, dispatch, view2) => {
+    let $cursor = atBlockStart(state, view2);
     if (!$cursor)
       return false;
     let $cut = findCutBefore($cursor);
@@ -12420,12 +12421,12 @@ var ProseMirrorBundle = (() => {
     }
     return false;
   }
-  var selectNodeBackward = (state, dispatch, view) => {
+  var selectNodeBackward = (state, dispatch, view2) => {
     let { $head, empty: empty2 } = state.selection, $cut = $head;
     if (!empty2)
       return false;
     if ($head.parent.isTextblock) {
-      if (view ? !view.endOfTextblock("backward", state) : $head.parentOffset > 0)
+      if (view2 ? !view2.endOfTextblock("backward", state) : $head.parentOffset > 0)
         return false;
       $cut = findCutBefore($head);
     }
@@ -12446,14 +12447,14 @@ var ProseMirrorBundle = (() => {
       }
     return null;
   }
-  function atBlockEnd(state, view) {
+  function atBlockEnd(state, view2) {
     let { $cursor } = state.selection;
-    if (!$cursor || (view ? !view.endOfTextblock("forward", state) : $cursor.parentOffset < $cursor.parent.content.size))
+    if (!$cursor || (view2 ? !view2.endOfTextblock("forward", state) : $cursor.parentOffset < $cursor.parent.content.size))
       return null;
     return $cursor;
   }
-  var joinForward = (state, dispatch, view) => {
-    let $cursor = atBlockEnd(state, view);
+  var joinForward = (state, dispatch, view2) => {
+    let $cursor = atBlockEnd(state, view2);
     if (!$cursor)
       return false;
     let $cut = findCutAfter($cursor);
@@ -12480,12 +12481,12 @@ var ProseMirrorBundle = (() => {
     }
     return false;
   };
-  var selectNodeForward = (state, dispatch, view) => {
+  var selectNodeForward = (state, dispatch, view2) => {
     let { $head, empty: empty2 } = state.selection, $cut = $head;
     if (!empty2)
       return false;
     if ($head.parent.isTextblock) {
-      if (view ? !view.endOfTextblock("forward", state) : $head.parentOffset < $head.parent.content.size)
+      if (view2 ? !view2.endOfTextblock("forward", state) : $head.parentOffset < $head.parent.content.size)
         return false;
       $cut = findCutAfter($head);
     }
@@ -12892,9 +12893,9 @@ var ProseMirrorBundle = (() => {
     };
   }
   function chainCommands(...commands) {
-    return function(state, dispatch, view) {
+    return function(state, dispatch, view2) {
       for (let i = 0; i < commands.length; i++)
-        if (commands[i](state, dispatch, view))
+        if (commands[i](state, dispatch, view2))
           return true;
       return false;
     };
@@ -13218,11 +13219,11 @@ var ProseMirrorBundle = (() => {
   });
   function arrow(axis, dir) {
     const dirStr = axis == "vert" ? dir > 0 ? "down" : "up" : dir > 0 ? "right" : "left";
-    return function(state, dispatch, view) {
+    return function(state, dispatch, view2) {
       let sel = state.selection;
       let $start = dir > 0 ? sel.$to : sel.$from, mustMove = sel.empty;
       if (sel instanceof TextSelection) {
-        if (!view.endOfTextblock(dirStr) || $start.depth == 0)
+        if (!view2.endOfTextblock(dirStr) || $start.depth == 0)
           return false;
         mustMove = false;
         $start = state.doc.resolve(dir > 0 ? $start.after() : $start.before());
@@ -13235,31 +13236,31 @@ var ProseMirrorBundle = (() => {
       return true;
     };
   }
-  function handleClick(view, pos, event) {
-    if (!view || !view.editable)
+  function handleClick(view2, pos, event) {
+    if (!view2 || !view2.editable)
       return false;
-    let $pos = view.state.doc.resolve(pos);
+    let $pos = view2.state.doc.resolve(pos);
     if (!GapCursor.valid($pos))
       return false;
-    let clickPos = view.posAtCoords({ left: event.clientX, top: event.clientY });
-    if (clickPos && clickPos.inside > -1 && NodeSelection.isSelectable(view.state.doc.nodeAt(clickPos.inside)))
+    let clickPos = view2.posAtCoords({ left: event.clientX, top: event.clientY });
+    if (clickPos && clickPos.inside > -1 && NodeSelection.isSelectable(view2.state.doc.nodeAt(clickPos.inside)))
       return false;
-    view.dispatch(view.state.tr.setSelection(new GapCursor($pos)));
+    view2.dispatch(view2.state.tr.setSelection(new GapCursor($pos)));
     return true;
   }
-  function beforeinput(view, event) {
-    if (event.inputType != "insertCompositionText" || !(view.state.selection instanceof GapCursor))
+  function beforeinput(view2, event) {
+    if (event.inputType != "insertCompositionText" || !(view2.state.selection instanceof GapCursor))
       return false;
-    let { $from } = view.state.selection;
-    let insert = $from.parent.contentMatchAt($from.index()).findWrapping(view.state.schema.nodes.text);
+    let { $from } = view2.state.selection;
+    let insert = $from.parent.contentMatchAt($from.index()).findWrapping(view2.state.schema.nodes.text);
     if (!insert)
       return false;
     let frag = Fragment.empty;
     for (let i = insert.length - 1; i >= 0; i--)
       frag = Fragment.from(insert[i].createAndFill(null, frag));
-    let tr = view.state.tr.replace($from.pos, $from.pos, new Slice(frag, 0, 0));
+    let tr = view2.state.tr.replace($from.pos, $from.pos, new Slice(frag, 0, 0));
     tr.setSelection(TextSelection.near(tr.doc.resolve($from.pos + 1)));
-    view.dispatch(tr);
+    view2.dispatch(tr);
     return false;
   }
   function drawGapCursor(state) {
@@ -13361,14 +13362,14 @@ var ProseMirrorBundle = (() => {
     spec](https://prosemirror.net/docs/ref/#menu.MenuItemSpec.display), and adds an event handler which
     executes the command when the representation is clicked.
     */
-    render(view) {
+    render(view2) {
       let spec = this.spec;
-      let dom = spec.render ? spec.render(view) : spec.icon ? getIcon(view.root, spec.icon) : spec.label ? crelt("div", null, translate(view, spec.label)) : null;
+      let dom = spec.render ? spec.render(view2) : spec.icon ? getIcon(view2.root, spec.icon) : spec.label ? crelt("div", null, translate(view2, spec.label)) : null;
       if (!dom)
         throw new RangeError("MenuItem without icon or label property");
       if (spec.title) {
-        const title = typeof spec.title === "function" ? spec.title(view.state) : spec.title;
-        dom.setAttribute("title", translate(view, title));
+        const title = typeof spec.title === "function" ? spec.title(view2.state) : spec.title;
+        dom.setAttribute("title", translate(view2, title));
       }
       if (spec.class)
         dom.classList.add(spec.class);
@@ -13377,7 +13378,7 @@ var ProseMirrorBundle = (() => {
       dom.addEventListener("mousedown", (e) => {
         e.preventDefault();
         if (!dom.classList.contains(prefix$1 + "-disabled"))
-          spec.run(view.state, view.dispatch, view, e);
+          spec.run(view2.state, view2.dispatch, view2, e);
       });
       function update(state) {
         if (spec.select) {
@@ -13400,8 +13401,8 @@ var ProseMirrorBundle = (() => {
       return { dom, update };
     }
   };
-  function translate(view, text2) {
-    return view._props.translate ? view._props.translate(text2) : text2;
+  function translate(view2, text2) {
+    return view2._props.translate ? view2._props.translate(text2) : text2;
   }
   var lastMenuEvent = { time: 0, node: null };
   function markMenuEvent(e) {
@@ -13423,15 +13424,15 @@ var ProseMirrorBundle = (() => {
     /**
     Render the dropdown menu and sub-items.
     */
-    render(view) {
-      let content = renderDropdownItems(this.content, view);
-      let win = view.dom.ownerDocument.defaultView || window;
+    render(view2) {
+      let content = renderDropdownItems(this.content, view2);
+      let win = view2.dom.ownerDocument.defaultView || window;
       let label = crelt("div", {
         class: prefix$1 + "-dropdown " + (this.options.class || ""),
         style: this.options.css
-      }, translate(view, this.options.label || ""));
+      }, translate(view2, this.options.label || ""));
       if (this.options.title)
-        label.setAttribute("title", translate(view, this.options.title));
+        label.setAttribute("title", translate(view2, this.options.title));
       let wrap2 = crelt("div", { class: prefix$1 + "-dropdown-wrap" }, label);
       let open = null;
       let listeningOnClose = null;
@@ -13478,10 +13479,10 @@ var ProseMirrorBundle = (() => {
       return { close: close2, node: menuDOM };
     }
   };
-  function renderDropdownItems(items, view) {
+  function renderDropdownItems(items, view2) {
     let rendered = [], updates = [];
     for (let i = 0; i < items.length; i++) {
-      let { dom, update } = items[i].render(view);
+      let { dom, update } = items[i].render(view2);
       rendered.push(crelt("div", { class: prefix$1 + "-dropdown-item" }, dom));
       updates.push(update);
     }
@@ -13511,10 +13512,10 @@ var ProseMirrorBundle = (() => {
     /**
     Renders the submenu.
     */
-    render(view) {
-      let items = renderDropdownItems(this.content, view);
-      let win = view.dom.ownerDocument.defaultView || window;
-      let label = crelt("div", { class: prefix$1 + "-submenu-label" }, translate(view, this.options.label || ""));
+    render(view2) {
+      let items = renderDropdownItems(this.content, view2);
+      let win = view2.dom.ownerDocument.defaultView || window;
+      let label = crelt("div", { class: prefix$1 + "-submenu-label" }, translate(view2, this.options.label || ""));
       let wrap2 = crelt("div", { class: prefix$1 + "-submenu-wrap" }, label, crelt("div", { class: prefix$1 + "-submenu" }, items.dom));
       let listeningOnClose = null;
       label.addEventListener("mousedown", (e) => {
@@ -13538,13 +13539,13 @@ var ProseMirrorBundle = (() => {
       return { dom: wrap2, update };
     }
   };
-  function renderGrouped(view, content) {
+  function renderGrouped(view2, content) {
     let result = document.createDocumentFragment();
     let updates = [], separators = [];
     for (let i = 0; i < content.length; i++) {
       let items = content[i], localUpdates = [], localNodes = [];
       for (let j = 0; j < items.length; j++) {
-        let { dom, update: update2 } = items[j].render(view);
+        let { dom, update: update2 } = items[j].render(view2);
         let span = crelt("span", { class: prefix$1 + "item" }, dom);
         result.appendChild(span);
         localNodes.push(span);
@@ -13891,15 +13892,15 @@ var ProseMirrorBundle = (() => {
         }
       },
       props: {
-        handleTextInput(view, from2, to, text2) {
-          return run(view, from2, to, text2, rules, plugin);
+        handleTextInput(view2, from2, to, text2) {
+          return run(view2, from2, to, text2, rules, plugin);
         },
         handleDOMEvents: {
-          compositionend: (view) => {
+          compositionend: (view2) => {
             setTimeout(() => {
-              let { $cursor } = view.state.selection;
+              let { $cursor } = view2.state.selection;
               if ($cursor)
-                run(view, $cursor.pos, $cursor.pos, "", rules, plugin);
+                run(view2, $cursor.pos, $cursor.pos, "", rules, plugin);
             });
           }
         }
@@ -13908,10 +13909,10 @@ var ProseMirrorBundle = (() => {
     });
     return plugin;
   }
-  function run(view, from2, to, text2, rules, plugin) {
-    if (view.composing)
+  function run(view2, from2, to, text2, rules, plugin) {
+    if (view2.composing)
       return false;
-    let state = view.state, $from = state.doc.resolve(from2);
+    let state = view2.state, $from = state.doc.resolve(from2);
     let textBefore = $from.parent.textBetween(Math.max(0, $from.parentOffset - MAX_MATCH), $from.parentOffset, null, "\uFFFC") + text2;
     for (let i = 0; i < rules.length; i++) {
       let rule = rules[i];
@@ -13929,7 +13930,7 @@ var ProseMirrorBundle = (() => {
         continue;
       if (rule.undoable)
         tr.setMeta(plugin, { transform: tr, from: from2, to, text: text2 });
-      view.dispatch(tr);
+      view2.dispatch(tr);
       return true;
     }
     return false;
@@ -14137,7 +14138,7 @@ var ProseMirrorBundle = (() => {
       enable(state) {
         return canInsert(state, nodeType);
       },
-      run(state, _, view) {
+      run(state, _, view2) {
         let { from: from2, to } = state.selection, attrs2 = null;
         if (state.selection instanceof NodeSelection && state.selection.node.type == nodeType)
           attrs2 = state.selection.node.attrs;
@@ -14152,8 +14153,8 @@ var ProseMirrorBundle = (() => {
             })
           },
           callback(attrs3) {
-            view.dispatch(view.state.tr.replaceSelectionWith(nodeType.createAndFill(attrs3)));
-            view.focus();
+            view2.dispatch(view2.state.tr.replaceSelectionWith(nodeType.createAndFill(attrs3)));
+            view2.focus();
           }
         });
       }
@@ -14197,7 +14198,7 @@ var ProseMirrorBundle = (() => {
       enable(state) {
         return !state.selection.empty;
       },
-      run(state, dispatch, view) {
+      run(state, dispatch, view2) {
         if (markActive(state, markType)) {
           toggleMark(markType)(state, dispatch);
           return true;
@@ -14212,8 +14213,8 @@ var ProseMirrorBundle = (() => {
             title: new TextField({ label: "Title" })
           },
           callback(attrs2) {
-            toggleMark(markType, attrs2)(view.state, view.dispatch);
-            view.focus();
+            toggleMark(markType, attrs2)(view2.state, view2.dispatch);
+            view2.focus();
           }
         });
       }
@@ -20625,12 +20626,21 @@ var ProseMirrorBundle = (() => {
     return markdown;
   }
   function get_hmtl() {
-    const doc3 = window.view.state.doc;
-    const serializer = DOMSerializer.fromSchema(window.view.state.schema);
-    const domFragment = serializer.serializeFragment(doc3.content);
-    const html = domFragment.innerHTML;
-    console.log("HTML:", html);
+    const fragment = DOMSerializer.fromSchema(view.state.schema).serializeFragment(
+      view.state.doc.content
+    );
+    const wrapper = document.createElement("div");
+    wrapper.appendChild(fragment);
+    const html = wrapper.innerHTML;
+    console.log("html", html);
     return html;
+  }
+  function get_doc_json() {
+    const doc3 = window.view.state.doc;
+    const json = doc3.toJSON();
+    console.log("json", json);
+    const jsonString = JSON.stringify(json);
+    return jsonString;
   }
   return __toCommonJS(prosemirror_exports);
 })();

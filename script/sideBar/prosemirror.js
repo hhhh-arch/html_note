@@ -31,20 +31,17 @@ function getMarkdown(){
 export {get_hmtl};
 function get_hmtl(){
   // 获取当前文档
-  const doc = window.view.state.doc;
+  const fragment = DOMSerializer.fromSchema(view.state.schema).serializeFragment(
+    view.state.doc.content
+  );
   
-  // 使用 schema 创建 DOMSerializer
-  const serializer = DOMSerializer.fromSchema(window.view.state.schema);
-  
-  // 将文档序列化为 DOM 片段
-  const domFragment = serializer.serializeFragment(doc.content);
-  
-  // 将 DOM 片段转换为 HTML 字符串
-  const html = domFragment.innerHTML;
-  
-  console.log('HTML:', html);
+  const wrapper = document.createElement("div");
+  wrapper.appendChild(fragment);
+  const html = wrapper.innerHTML;
+  console.log('html',html);
   return html;
 }
+export {get_doc_json};
 function get_doc_json(){
   const doc = window.view.state.doc;
   const json = doc.toJSON();

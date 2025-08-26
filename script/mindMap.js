@@ -10,7 +10,7 @@ import {
 // import {initProsemirror} from '../script/sideBar/prosemirror.js';
 
 // 从全局变量获取initProsemirror函数
-const {initProsemirror} = window.ProseMirrorBundle || {};
+const {initProsemirror,get_doc_json,get_hmtl} = window.ProseMirrorBundle || {};
 
 let _mind = null;
 let _pageUrl = null;
@@ -455,8 +455,8 @@ function updateNoteCard(nodeEle, panel, note_card_editor, mind, pageUrl) {
     console.log("updateNoteCard:", note_card_editor);
     const title = note_card_editor.querySelector('.title-style').innerHTML;
     const quote = note_card_editor.querySelector('.quote-style').innerHTML;
-    const note = loadAllMarkdown(note_card_editor.querySelector('.note-card-editor-notes-container'));
-    const note_html = note_card_editor.querySelector('.note-card-editor-notes-container').innerHTML;
+    const note = get_doc_json();
+    const note_html = get_hmtl();
     if (!check_empty_container(title) && !check_empty_container(quote) && !check_empty_container(note)) {
         console.log("remove nodeEle:", nodeEle);
         getMind().removeNodes([getMind().currentNode]);
