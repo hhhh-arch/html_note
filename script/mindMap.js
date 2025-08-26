@@ -390,19 +390,41 @@ function showNoteCardEditor(nodeEle,panel,mind,pageUrl){
   note_card_editor.appendChild(quote_container);
   const notes_container = document.createElement('div');
   notes_container.className = 'note-card-editor-notes-container';
-  notes_container.contentEditable = 'true';
+  note_card_editor.appendChild(notes_container);
+  notes_container.id = 'editor';
+  panel.appendChild(note_card_editor);  
   console.log("note:",note);
   if (note!='<br>'&&note!='<br/>'&&note!=''){
     const all_notes = parseAllDataNote(note,notes_container);
   }
   else{
-    console.log('About to call initProsemirror with container:', notes_container);
-    console.log('Container HTML before:', notes_container.innerHTML);
-    console.log('initProsemirror function:', typeof initProsemirror);
+    // 创建真实的 DOM 元素而不是 HTML 字符串
+    const contentDiv = document.createElement('div');
+    contentDiv.id = 'content';
+    contentDiv.style.display = 'none';
     
-    const editorView = initProsemirror(notes_container);
-    console.log('initProsemirror returned:', editorView);
+    const h3 = document.createElement('h3');
+    h3.textContent = 'Hello ProseMirror';
+    contentDiv.appendChild(h3);
     
+    const p1 = document.createElement('p');
+    p1.textContent = 'This is editable text. You can focus it and start typing.';
+    contentDiv.appendChild(p1);
+    
+    const p2 = document.createElement('p');
+    p2.innerHTML = 'To apply styling, you can select a piece of text and manipulate its styling from the menu. The basic schema supports <em>emphasis</em>, <strong>strong text</strong>, <a href="http://marijnhaverbeke.nl/blog">links</a>, <code>code font</code>, and images.';
+    contentDiv.appendChild(p2);
+    
+    const p3 = document.createElement('p');
+    p3.textContent = 'Block-level structure can be manipulated with key bindings (try ctrl-shift-2 to create a level 2 heading, or enter in an empty textblock to exit the parent block), or through the menu.';
+    contentDiv.appendChild(p3);
+    
+    const p4 = document.createElement('p');
+    p4.textContent = 'Try using the "list" item in the menu to wrap this paragraph in a numbered list.';
+    contentDiv.appendChild(p4);
+    contentDiv.style.display = 'none'; 
+    note_card_editor.appendChild(contentDiv);
+    const editorView = initProsemirror();
     if (editorView) {
         console.log('ProseMirror editor initialized successfully');
         console.log('Editor view:', editorView);
@@ -412,8 +434,7 @@ function showNoteCardEditor(nodeEle,panel,mind,pageUrl){
     }
   }
   setNodeEle(nodeEle);
-  note_card_editor.appendChild(notes_container);
-  panel.appendChild(note_card_editor);  
+
 
 }
 function hideNoteCardEditor(panel,note_card_editor,nodeEle,mind,pageUrl){

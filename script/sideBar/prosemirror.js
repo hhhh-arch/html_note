@@ -6,16 +6,16 @@ import {addListNodes} from "prosemirror-schema-list"
 import {exampleSetup} from "prosemirror-example-setup"
 
 export {initProsemirror};
-function initProsemirror(textArea){
+function initProsemirror(){
 
   const mySchema = new Schema({
     nodes: addListNodes(schema.spec.nodes, "paragraph block*", "block"),
     marks: schema.spec.marks
   })
   
-  window.view = new EditorView(textArea, {
+  window.view = new EditorView(document.querySelector("#editor"), {
     state: EditorState.create({
-      doc: DOMParser.fromSchema(mySchema).parse(textArea),
+      doc: DOMParser.fromSchema(mySchema).parse(document.querySelector("#content")),
       plugins: exampleSetup({schema: mySchema})
     })
   });
