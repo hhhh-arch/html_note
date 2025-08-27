@@ -25,8 +25,7 @@ var ProseMirrorBundle = (() => {
     get_hmtl: () => get_hmtl,
     initProsemirror_with_notes: () => initProsemirror_with_notes,
     initProsemirror_without_notes: () => initProsemirror_without_notes,
-    retrive_doc_json: () => retrive_doc_json,
-    set_up_note_card_editor: () => set_up_note_card_editor
+    retrive_doc_json: () => retrive_doc_json
   });
 
   // node_modules/orderedmap/dist/index.js
@@ -1180,7 +1179,7 @@ var ProseMirrorBundle = (() => {
     }
   };
   var emptyAttrs = /* @__PURE__ */ Object.create(null);
-  var Node2 = class _Node {
+  var Node = class _Node {
     /**
     @internal
     */
@@ -1581,8 +1580,8 @@ var ProseMirrorBundle = (() => {
       return node;
     }
   };
-  Node2.prototype.text = void 0;
-  var TextNode = class _TextNode extends Node2 {
+  Node.prototype.text = void 0;
+  var TextNode = class _TextNode extends Node {
     /**
     @internal
     */
@@ -2169,7 +2168,7 @@ var ProseMirrorBundle = (() => {
     create(attrs2 = null, content, marks2) {
       if (this.isText)
         throw new Error("NodeType.create can't construct text nodes");
-      return new Node2(this, this.computeAttrs(attrs2), Fragment.from(content), Mark.setFrom(marks2));
+      return new Node(this, this.computeAttrs(attrs2), Fragment.from(content), Mark.setFrom(marks2));
     }
     /**
     Like [`create`](https://prosemirror.net/docs/ref/#model.NodeType.create), but check the given content
@@ -2179,7 +2178,7 @@ var ProseMirrorBundle = (() => {
     createChecked(attrs2 = null, content, marks2) {
       content = Fragment.from(content);
       this.checkContent(content);
-      return new Node2(this, this.computeAttrs(attrs2), content, Mark.setFrom(marks2));
+      return new Node(this, this.computeAttrs(attrs2), content, Mark.setFrom(marks2));
     }
     /**
     Like [`create`](https://prosemirror.net/docs/ref/#model.NodeType.create), but see if it is
@@ -2202,7 +2201,7 @@ var ProseMirrorBundle = (() => {
       let after = matched && matched.fillBefore(Fragment.empty, true);
       if (!after)
         return null;
-      return new Node2(this, attrs2, content.append(after), Mark.setFrom(marks2));
+      return new Node(this, attrs2, content.append(after), Mark.setFrom(marks2));
     }
     /**
     Returns true if the given fragment is valid content for this node
@@ -2398,7 +2397,7 @@ var ProseMirrorBundle = (() => {
         let type = this.marks[prop], excl = type.spec.excludes;
         type.excluded = excl == null ? [type] : excl == "" ? [] : gatherMarks(this, excl.split(" "));
       }
-      this.nodeFromJSON = (json) => Node2.fromJSON(this, json);
+      this.nodeFromJSON = (json) => Node.fromJSON(this, json);
       this.markFromJSON = (json) => Mark.fromJSON(this, json);
       this.topNodeType = this.nodes[this.spec.topNode || "doc"];
       this.cached.wrappings = /* @__PURE__ */ Object.create(null);
@@ -3165,10 +3164,10 @@ var ProseMirrorBundle = (() => {
           while (keep < active.length)
             top = active.pop()[1];
           while (rendered < node.marks.length) {
-            let add4 = node.marks[rendered++];
-            let markDOM = this.serializeMark(add4, node.isInline, options);
+            let add3 = node.marks[rendered++];
+            let markDOM = this.serializeMark(add3, node.isInline, options);
             if (markDOM) {
-              active.push([add4, top]);
+              active.push([add3, top]);
               top.appendChild(markDOM.dom);
               top = markDOM.contentDOM || markDOM.dom;
             }
@@ -4350,28 +4349,6 @@ var ProseMirrorBundle = (() => {
   function joinable2(a, b) {
     return !!(a && b && !a.isLeaf && canAppendWithSubstitutedLinebreaks(a, b));
   }
-  function joinPoint(doc3, pos, dir = -1) {
-    let $pos = doc3.resolve(pos);
-    for (let d = $pos.depth; ; d--) {
-      let before, after, index = $pos.index(d);
-      if (d == $pos.depth) {
-        before = $pos.nodeBefore;
-        after = $pos.nodeAfter;
-      } else if (dir > 0) {
-        before = $pos.node(d + 1);
-        index++;
-        after = $pos.node(d).maybeChild(index);
-      } else {
-        before = $pos.node(d).maybeChild(index - 1);
-        after = $pos.node(d + 1);
-      }
-      if (before && !before.isTextblock && joinable2(before, after) && $pos.node(d).canReplace(index, index + 1))
-        return pos;
-      if (d == 0)
-        break;
-      pos = dir < 0 ? $pos.before(d) : $pos.after(d);
-    }
-  }
   function join(tr, pos, depth) {
     let convertNewlines = null;
     let { linebreakReplacement } = tr.doc.type.schema;
@@ -4567,11 +4544,11 @@ var ProseMirrorBundle = (() => {
           this.openFrontierNode(wrap2[i]);
       let slice2 = this.unplaced, fragment = parent ? parent.content : slice2.content;
       let openStart = slice2.openStart - sliceDepth;
-      let taken = 0, add4 = [];
+      let taken = 0, add3 = [];
       let { match: match2, type } = this.frontier[frontierDepth];
       if (inject) {
         for (let i = 0; i < inject.childCount; i++)
-          add4.push(inject.child(i));
+          add3.push(inject.child(i));
         match2 = match2.matchFragment(inject);
       }
       let openEndCount = fragment.size + sliceDepth - (slice2.content.size - slice2.openEnd);
@@ -4582,13 +4559,13 @@ var ProseMirrorBundle = (() => {
         taken++;
         if (taken > 1 || openStart == 0 || next.content.size) {
           match2 = matches2;
-          add4.push(closeNodeStart(next.mark(type.allowedMarks(next.marks)), taken == 1 ? openStart : 0, taken == fragment.childCount ? openEndCount : -1));
+          add3.push(closeNodeStart(next.mark(type.allowedMarks(next.marks)), taken == 1 ? openStart : 0, taken == fragment.childCount ? openEndCount : -1));
         }
       }
       let toEnd = taken == fragment.childCount;
       if (!toEnd)
         openEndCount = -1;
-      this.placed = addToFragment(this.placed, frontierDepth, Fragment.from(add4));
+      this.placed = addToFragment(this.placed, frontierDepth, Fragment.from(add3));
       this.frontier[frontierDepth].match = match2;
       if (toEnd && openEndCount < 0 && parent && parent.type == this.frontier[this.depth].type && this.frontier.length > 1)
         this.closeFrontierNode();
@@ -4636,8 +4613,8 @@ var ProseMirrorBundle = (() => {
         this.placed = addToFragment(this.placed, close2.depth, close2.fit);
       $to = close2.move;
       for (let d = close2.depth + 1; d <= $to.depth; d++) {
-        let node = $to.node(d), add4 = node.type.contentMatch.fillBefore(node.content, true, $to.index(d));
-        this.openFrontierNode(node.type, node.attrs, add4);
+        let node = $to.node(d), add3 = node.type.contentMatch.fillBefore(node.content, true, $to.index(d));
+        this.openFrontierNode(node.type, node.attrs, add3);
       }
       return $to;
     }
@@ -4649,9 +4626,9 @@ var ProseMirrorBundle = (() => {
     }
     closeFrontierNode() {
       let open = this.frontier.pop();
-      let add4 = open.match.fillBefore(Fragment.empty, true);
-      if (add4.childCount)
-        this.placed = addToFragment(this.placed, this.frontier.length, add4);
+      let add3 = open.match.fillBefore(Fragment.empty, true);
+      if (add3.childCount)
+        this.placed = addToFragment(this.placed, this.frontier.length, add3);
     }
   };
   function dropFromFragment(fragment, depth, count) {
@@ -5998,7 +5975,7 @@ var ProseMirrorBundle = (() => {
       let instance = new _EditorState($config);
       $config.fields.forEach((field) => {
         if (field.name == "doc") {
-          instance.doc = Node2.fromJSON(config2.schema, json.doc);
+          instance.doc = Node.fromJSON(config2.schema, json.doc);
         } else if (field.name == "selection") {
           instance.selection = Selection.fromJSON(instance.doc, json.selection);
         } else if (field.name == "storedMarks") {
@@ -11211,13 +11188,13 @@ var ProseMirrorBundle = (() => {
   }
   function buildNodeViews(view2) {
     let result = /* @__PURE__ */ Object.create(null);
-    function add4(obj) {
+    function add3(obj) {
       for (let prop in obj)
         if (!Object.prototype.hasOwnProperty.call(result, prop))
           result[prop] = obj[prop];
     }
-    view2.someProp("nodeViews", add4);
-    view2.someProp("markViews", add4);
+    view2.someProp("nodeViews", add3);
+    view2.someProp("markViews", add3);
     return result;
   }
   function changedNodeViews(a, b) {
@@ -11475,171 +11452,6 @@ var ProseMirrorBundle = (() => {
       bullet_list: add(bulletList, { content: "list_item+", group: listGroup }),
       list_item: add(listItem, { content: itemContent })
     });
-  }
-  function wrapInList(listType, attrs2 = null) {
-    return function(state, dispatch) {
-      let { $from, $to } = state.selection;
-      let range = $from.blockRange($to);
-      if (!range)
-        return false;
-      let tr = dispatch ? state.tr : null;
-      if (!wrapRangeInList(tr, range, listType, attrs2))
-        return false;
-      if (dispatch)
-        dispatch(tr.scrollIntoView());
-      return true;
-    };
-  }
-  function wrapRangeInList(tr, range, listType, attrs2 = null) {
-    let doJoin = false, outerRange = range, doc3 = range.$from.doc;
-    if (range.depth >= 2 && range.$from.node(range.depth - 1).type.compatibleContent(listType) && range.startIndex == 0) {
-      if (range.$from.index(range.depth - 1) == 0)
-        return false;
-      let $insert = doc3.resolve(range.start - 2);
-      outerRange = new NodeRange($insert, $insert, range.depth);
-      if (range.endIndex < range.parent.childCount)
-        range = new NodeRange(range.$from, doc3.resolve(range.$to.end(range.depth)), range.depth);
-      doJoin = true;
-    }
-    let wrap2 = findWrapping(outerRange, listType, attrs2, range);
-    if (!wrap2)
-      return false;
-    if (tr)
-      doWrapInList(tr, range, wrap2, doJoin, listType);
-    return true;
-  }
-  function doWrapInList(tr, range, wrappers, joinBefore, listType) {
-    let content = Fragment.empty;
-    for (let i = wrappers.length - 1; i >= 0; i--)
-      content = Fragment.from(wrappers[i].type.create(wrappers[i].attrs, content));
-    tr.step(new ReplaceAroundStep(range.start - (joinBefore ? 2 : 0), range.end, range.start, range.end, new Slice(content, 0, 0), wrappers.length, true));
-    let found2 = 0;
-    for (let i = 0; i < wrappers.length; i++)
-      if (wrappers[i].type == listType)
-        found2 = i + 1;
-    let splitDepth = wrappers.length - found2;
-    let splitPos = range.start + wrappers.length - (joinBefore ? 2 : 0), parent = range.parent;
-    for (let i = range.startIndex, e = range.endIndex, first = true; i < e; i++, first = false) {
-      if (!first && canSplit(tr.doc, splitPos, splitDepth)) {
-        tr.split(splitPos, splitDepth);
-        splitPos += 2 * splitDepth;
-      }
-      splitPos += parent.child(i).nodeSize;
-    }
-    return tr;
-  }
-  function splitListItem(itemType, itemAttrs) {
-    return function(state, dispatch) {
-      let { $from, $to, node } = state.selection;
-      if (node && node.isBlock || $from.depth < 2 || !$from.sameParent($to))
-        return false;
-      let grandParent = $from.node(-1);
-      if (grandParent.type != itemType)
-        return false;
-      if ($from.parent.content.size == 0 && $from.node(-1).childCount == $from.indexAfter(-1)) {
-        if ($from.depth == 3 || $from.node(-3).type != itemType || $from.index(-2) != $from.node(-2).childCount - 1)
-          return false;
-        if (dispatch) {
-          let wrap2 = Fragment.empty;
-          let depthBefore = $from.index(-1) ? 1 : $from.index(-2) ? 2 : 3;
-          for (let d = $from.depth - depthBefore; d >= $from.depth - 3; d--)
-            wrap2 = Fragment.from($from.node(d).copy(wrap2));
-          let depthAfter = $from.indexAfter(-1) < $from.node(-2).childCount ? 1 : $from.indexAfter(-2) < $from.node(-3).childCount ? 2 : 3;
-          wrap2 = wrap2.append(Fragment.from(itemType.createAndFill()));
-          let start = $from.before($from.depth - (depthBefore - 1));
-          let tr2 = state.tr.replace(start, $from.after(-depthAfter), new Slice(wrap2, 4 - depthBefore, 0));
-          let sel = -1;
-          tr2.doc.nodesBetween(start, tr2.doc.content.size, (node2, pos) => {
-            if (sel > -1)
-              return false;
-            if (node2.isTextblock && node2.content.size == 0)
-              sel = pos + 1;
-          });
-          if (sel > -1)
-            tr2.setSelection(Selection.near(tr2.doc.resolve(sel)));
-          dispatch(tr2.scrollIntoView());
-        }
-        return true;
-      }
-      let nextType = $to.pos == $from.end() ? grandParent.contentMatchAt(0).defaultType : null;
-      let tr = state.tr.delete($from.pos, $to.pos);
-      let types = nextType ? [itemAttrs ? { type: itemType, attrs: itemAttrs } : null, { type: nextType }] : void 0;
-      if (!canSplit(tr.doc, $from.pos, 2, types))
-        return false;
-      if (dispatch)
-        dispatch(tr.split($from.pos, 2, types).scrollIntoView());
-      return true;
-    };
-  }
-  function liftListItem(itemType) {
-    return function(state, dispatch) {
-      let { $from, $to } = state.selection;
-      let range = $from.blockRange($to, (node) => node.childCount > 0 && node.firstChild.type == itemType);
-      if (!range)
-        return false;
-      if (!dispatch)
-        return true;
-      if ($from.node(range.depth - 1).type == itemType)
-        return liftToOuterList(state, dispatch, itemType, range);
-      else
-        return liftOutOfList(state, dispatch, range);
-    };
-  }
-  function liftToOuterList(state, dispatch, itemType, range) {
-    let tr = state.tr, end = range.end, endOfList = range.$to.end(range.depth);
-    if (end < endOfList) {
-      tr.step(new ReplaceAroundStep(end - 1, endOfList, end, endOfList, new Slice(Fragment.from(itemType.create(null, range.parent.copy())), 1, 0), 1, true));
-      range = new NodeRange(tr.doc.resolve(range.$from.pos), tr.doc.resolve(endOfList), range.depth);
-    }
-    const target = liftTarget(range);
-    if (target == null)
-      return false;
-    tr.lift(range, target);
-    let $after = tr.doc.resolve(tr.mapping.map(end, -1) - 1);
-    if (canJoin(tr.doc, $after.pos) && $after.nodeBefore.type == $after.nodeAfter.type)
-      tr.join($after.pos);
-    dispatch(tr.scrollIntoView());
-    return true;
-  }
-  function liftOutOfList(state, dispatch, range) {
-    let tr = state.tr, list2 = range.parent;
-    for (let pos = range.end, i = range.endIndex - 1, e = range.startIndex; i > e; i--) {
-      pos -= list2.child(i).nodeSize;
-      tr.delete(pos - 1, pos + 1);
-    }
-    let $start = tr.doc.resolve(range.start), item = $start.nodeAfter;
-    if (tr.mapping.map(range.end) != range.start + $start.nodeAfter.nodeSize)
-      return false;
-    let atStart = range.startIndex == 0, atEnd = range.endIndex == list2.childCount;
-    let parent = $start.node(-1), indexBefore = $start.index(-1);
-    if (!parent.canReplace(indexBefore + (atStart ? 0 : 1), indexBefore + 1, item.content.append(atEnd ? Fragment.empty : Fragment.from(list2))))
-      return false;
-    let start = $start.pos, end = start + item.nodeSize;
-    tr.step(new ReplaceAroundStep(start - (atStart ? 1 : 0), end + (atEnd ? 1 : 0), start + 1, end - 1, new Slice((atStart ? Fragment.empty : Fragment.from(list2.copy(Fragment.empty))).append(atEnd ? Fragment.empty : Fragment.from(list2.copy(Fragment.empty))), atStart ? 0 : 1, atEnd ? 0 : 1), atStart ? 0 : 1));
-    dispatch(tr.scrollIntoView());
-    return true;
-  }
-  function sinkListItem(itemType) {
-    return function(state, dispatch) {
-      let { $from, $to } = state.selection;
-      let range = $from.blockRange($to, (node) => node.childCount > 0 && node.firstChild.type == itemType);
-      if (!range)
-        return false;
-      let startIndex = range.startIndex;
-      if (startIndex == 0)
-        return false;
-      let parent = range.parent, nodeBefore = parent.child(startIndex - 1);
-      if (nodeBefore.type != itemType)
-        return false;
-      if (dispatch) {
-        let nestedBefore = nodeBefore.lastChild && nodeBefore.lastChild.type == parent.type;
-        let inner = Fragment.from(nestedBefore ? itemType.create() : null);
-        let slice2 = new Slice(Fragment.from(itemType.create(null, Fragment.from(parent.type.create(null, inner)))), nestedBefore ? 3 : 1, 0);
-        let before = range.start, after = range.end;
-        dispatch(state.tr.step(new ReplaceAroundStep(before - (nestedBefore ? 3 : 1), after, before, after, slice2, 1, true)).scrollIntoView());
-      }
-      return true;
-    };
   }
 
   // node_modules/w3c-keyname/index.js
@@ -12511,49 +12323,6 @@ var ProseMirrorBundle = (() => {
       }
     return null;
   }
-  var joinUp = (state, dispatch) => {
-    let sel = state.selection, nodeSel = sel instanceof NodeSelection, point;
-    if (nodeSel) {
-      if (sel.node.isTextblock || !canJoin(state.doc, sel.from))
-        return false;
-      point = sel.from;
-    } else {
-      point = joinPoint(state.doc, sel.from, -1);
-      if (point == null)
-        return false;
-    }
-    if (dispatch) {
-      let tr = state.tr.join(point);
-      if (nodeSel)
-        tr.setSelection(NodeSelection.create(tr.doc, point - state.doc.resolve(point).nodeBefore.nodeSize));
-      dispatch(tr.scrollIntoView());
-    }
-    return true;
-  };
-  var joinDown = (state, dispatch) => {
-    let sel = state.selection, point;
-    if (sel instanceof NodeSelection) {
-      if (sel.node.isTextblock || !canJoin(state.doc, sel.to))
-        return false;
-      point = sel.to;
-    } else {
-      point = joinPoint(state.doc, sel.to, 1);
-      if (point == null)
-        return false;
-    }
-    if (dispatch)
-      dispatch(state.tr.join(point).scrollIntoView());
-    return true;
-  };
-  var lift2 = (state, dispatch) => {
-    let { $from, $to } = state.selection;
-    let range = $from.blockRange($to), target = range && liftTarget(range);
-    if (target == null)
-      return false;
-    if (dispatch)
-      dispatch(state.tr.lift(range, target).scrollIntoView());
-    return true;
-  };
   var newlineInCode = (state, dispatch) => {
     let { $head, $anchor } = state.selection;
     if (!$head.parent.type.spec.code || !$head.sameParent($anchor))
@@ -12671,16 +12440,6 @@ var ProseMirrorBundle = (() => {
     };
   }
   var splitBlock = splitBlockAs();
-  var selectParentNode = (state, dispatch) => {
-    let { $from, to } = state.selection, pos;
-    let same = $from.sharedDepth(to);
-    if (same == 0)
-      return false;
-    pos = $from.before(same);
-    if (dispatch)
-      dispatch(state.tr.setSelection(NodeSelection.create(state.doc, pos)));
-    return true;
-  };
   var selectAll = (state, dispatch) => {
     if (dispatch)
       dispatch(state.tr.setSelection(new AllSelection(state.doc)));
@@ -12770,131 +12529,6 @@ var ProseMirrorBundle = (() => {
   }
   var selectTextblockStart = selectTextblockSide(-1);
   var selectTextblockEnd = selectTextblockSide(1);
-  function wrapIn(nodeType, attrs2 = null) {
-    return function(state, dispatch) {
-      let { $from, $to } = state.selection;
-      let range = $from.blockRange($to), wrapping = range && findWrapping(range, nodeType, attrs2);
-      if (!wrapping)
-        return false;
-      if (dispatch)
-        dispatch(state.tr.wrap(range, wrapping).scrollIntoView());
-      return true;
-    };
-  }
-  function setBlockType2(nodeType, attrs2 = null) {
-    return function(state, dispatch) {
-      let applicable = false;
-      for (let i = 0; i < state.selection.ranges.length && !applicable; i++) {
-        let { $from: { pos: from2 }, $to: { pos: to } } = state.selection.ranges[i];
-        state.doc.nodesBetween(from2, to, (node, pos) => {
-          if (applicable)
-            return false;
-          if (!node.isTextblock || node.hasMarkup(nodeType, attrs2))
-            return;
-          if (node.type == nodeType) {
-            applicable = true;
-          } else {
-            let $pos = state.doc.resolve(pos), index = $pos.index();
-            applicable = $pos.parent.canReplaceWith(index, index + 1, nodeType);
-          }
-        });
-      }
-      if (!applicable)
-        return false;
-      if (dispatch) {
-        let tr = state.tr;
-        for (let i = 0; i < state.selection.ranges.length; i++) {
-          let { $from: { pos: from2 }, $to: { pos: to } } = state.selection.ranges[i];
-          tr.setBlockType(from2, to, nodeType, attrs2);
-        }
-        dispatch(tr.scrollIntoView());
-      }
-      return true;
-    };
-  }
-  function markApplies(doc3, ranges, type, enterAtoms) {
-    for (let i = 0; i < ranges.length; i++) {
-      let { $from, $to } = ranges[i];
-      let can = $from.depth == 0 ? doc3.inlineContent && doc3.type.allowsMarkType(type) : false;
-      doc3.nodesBetween($from.pos, $to.pos, (node, pos) => {
-        if (can || !enterAtoms && node.isAtom && node.isInline && pos >= $from.pos && pos + node.nodeSize <= $to.pos)
-          return false;
-        can = node.inlineContent && node.type.allowsMarkType(type);
-      });
-      if (can)
-        return true;
-    }
-    return false;
-  }
-  function removeInlineAtoms(ranges) {
-    let result = [];
-    for (let i = 0; i < ranges.length; i++) {
-      let { $from, $to } = ranges[i];
-      $from.doc.nodesBetween($from.pos, $to.pos, (node, pos) => {
-        if (node.isAtom && node.content.size && node.isInline && pos >= $from.pos && pos + node.nodeSize <= $to.pos) {
-          if (pos + 1 > $from.pos)
-            result.push(new SelectionRange($from, $from.doc.resolve(pos + 1)));
-          $from = $from.doc.resolve(pos + 1 + node.content.size);
-          return false;
-        }
-      });
-      if ($from.pos < $to.pos)
-        result.push(new SelectionRange($from, $to));
-    }
-    return result;
-  }
-  function toggleMark(markType, attrs2 = null, options) {
-    let removeWhenPresent = (options && options.removeWhenPresent) !== false;
-    let enterAtoms = (options && options.enterInlineAtoms) !== false;
-    let dropSpace = !(options && options.includeWhitespace);
-    return function(state, dispatch) {
-      let { empty: empty2, $cursor, ranges } = state.selection;
-      if (empty2 && !$cursor || !markApplies(state.doc, ranges, markType, enterAtoms))
-        return false;
-      if (dispatch) {
-        if ($cursor) {
-          if (markType.isInSet(state.storedMarks || $cursor.marks()))
-            dispatch(state.tr.removeStoredMark(markType));
-          else
-            dispatch(state.tr.addStoredMark(markType.create(attrs2)));
-        } else {
-          let add4, tr = state.tr;
-          if (!enterAtoms)
-            ranges = removeInlineAtoms(ranges);
-          if (removeWhenPresent) {
-            add4 = !ranges.some((r) => state.doc.rangeHasMark(r.$from.pos, r.$to.pos, markType));
-          } else {
-            add4 = !ranges.every((r) => {
-              let missing = false;
-              tr.doc.nodesBetween(r.$from.pos, r.$to.pos, (node, pos, parent) => {
-                if (missing)
-                  return false;
-                missing = !markType.isInSet(node.marks) && !!parent && parent.type.allowsMarkType(markType) && !(node.isText && /^\s*$/.test(node.textBetween(Math.max(0, r.$from.pos - pos), Math.min(node.nodeSize, r.$to.pos - pos))));
-              });
-              return !missing;
-            });
-          }
-          for (let i = 0; i < ranges.length; i++) {
-            let { $from, $to } = ranges[i];
-            if (!add4) {
-              tr.removeMark($from.pos, $to.pos, markType);
-            } else {
-              let from2 = $from.pos, to = $to.pos, start = $from.nodeAfter, end = $to.nodeBefore;
-              let spaceStart = dropSpace && start && start.isText ? /^\s*/.exec(start.text)[0].length : 0;
-              let spaceEnd = dropSpace && end && end.isText ? /\s*$/.exec(end.text)[0].length : 0;
-              if (from2 + spaceStart < to) {
-                from2 += spaceStart;
-                to -= spaceEnd;
-              }
-              tr.addMark(from2, to, markType.create(attrs2));
-            }
-          }
-          dispatch(tr.scrollIntoView());
-        }
-      }
-      return true;
-    };
-  }
   function chainCommands(...commands) {
     return function(state, dispatch, view2) {
       for (let i = 0; i < commands.length; i++)
@@ -13274,569 +12908,6 @@ var ProseMirrorBundle = (() => {
     return DecorationSet.create(state.doc, [Decoration.widget(state.selection.head, node, { key: "gapcursor" })]);
   }
 
-  // node_modules/crelt/index.js
-  function crelt() {
-    var elt = arguments[0];
-    if (typeof elt == "string") elt = document.createElement(elt);
-    var i = 1, next = arguments[1];
-    if (next && typeof next == "object" && next.nodeType == null && !Array.isArray(next)) {
-      for (var name in next) if (Object.prototype.hasOwnProperty.call(next, name)) {
-        var value = next[name];
-        if (typeof value == "string") elt.setAttribute(name, value);
-        else if (value != null) elt[name] = value;
-      }
-      i++;
-    }
-    for (; i < arguments.length; i++) add2(elt, arguments[i]);
-    return elt;
-  }
-  function add2(elt, child) {
-    if (typeof child == "string") {
-      elt.appendChild(document.createTextNode(child));
-    } else if (child == null) {
-    } else if (child.nodeType != null) {
-      elt.appendChild(child);
-    } else if (Array.isArray(child)) {
-      for (var i = 0; i < child.length; i++) add2(elt, child[i]);
-    } else {
-      throw new RangeError("Unsupported child node: " + child);
-    }
-  }
-
-  // node_modules/prosemirror-menu/dist/index.js
-  var SVG = "http://www.w3.org/2000/svg";
-  var XLINK = "http://www.w3.org/1999/xlink";
-  var prefix$2 = "ProseMirror-icon";
-  function hashPath(path) {
-    let hash = 0;
-    for (let i = 0; i < path.length; i++)
-      hash = (hash << 5) - hash + path.charCodeAt(i) | 0;
-    return hash;
-  }
-  function getIcon(root, icon) {
-    let doc3 = (root.nodeType == 9 ? root : root.ownerDocument) || document;
-    let node = doc3.createElement("div");
-    node.className = prefix$2;
-    if (icon.path) {
-      let { path, width, height } = icon;
-      let name = "pm-icon-" + hashPath(path).toString(16);
-      if (!doc3.getElementById(name))
-        buildSVG(root, name, icon);
-      let svg = node.appendChild(doc3.createElementNS(SVG, "svg"));
-      svg.style.width = width / height + "em";
-      let use = svg.appendChild(doc3.createElementNS(SVG, "use"));
-      use.setAttributeNS(XLINK, "href", /([^#]*)/.exec(doc3.location.toString())[1] + "#" + name);
-    } else if (icon.dom) {
-      node.appendChild(icon.dom.cloneNode(true));
-    } else {
-      let { text: text2, css } = icon;
-      node.appendChild(doc3.createElement("span")).textContent = text2 || "";
-      if (css)
-        node.firstChild.style.cssText = css;
-    }
-    return node;
-  }
-  function buildSVG(root, name, data) {
-    let [doc3, top] = root.nodeType == 9 ? [root, root.body] : [root.ownerDocument || document, root];
-    let collection = doc3.getElementById(prefix$2 + "-collection");
-    if (!collection) {
-      collection = doc3.createElementNS(SVG, "svg");
-      collection.id = prefix$2 + "-collection";
-      collection.style.display = "none";
-      top.insertBefore(collection, top.firstChild);
-    }
-    let sym = doc3.createElementNS(SVG, "symbol");
-    sym.id = name;
-    sym.setAttribute("viewBox", "0 0 " + data.width + " " + data.height);
-    let path = sym.appendChild(doc3.createElementNS(SVG, "path"));
-    path.setAttribute("d", data.path);
-    collection.appendChild(sym);
-  }
-  var prefix$1 = "ProseMirror-menu";
-  var MenuItem = class {
-    /**
-    Create a menu item.
-    */
-    constructor(spec) {
-      this.spec = spec;
-    }
-    /**
-    Renders the icon according to its [display
-    spec](https://prosemirror.net/docs/ref/#menu.MenuItemSpec.display), and adds an event handler which
-    executes the command when the representation is clicked.
-    */
-    render(view2) {
-      let spec = this.spec;
-      let dom = spec.render ? spec.render(view2) : spec.icon ? getIcon(view2.root, spec.icon) : spec.label ? crelt("div", null, translate(view2, spec.label)) : null;
-      if (!dom)
-        throw new RangeError("MenuItem without icon or label property");
-      if (spec.title) {
-        const title = typeof spec.title === "function" ? spec.title(view2.state) : spec.title;
-        dom.setAttribute("title", translate(view2, title));
-      }
-      if (spec.class)
-        dom.classList.add(spec.class);
-      if (spec.css)
-        dom.style.cssText += spec.css;
-      dom.addEventListener("mousedown", (e) => {
-        e.preventDefault();
-        if (!dom.classList.contains(prefix$1 + "-disabled"))
-          spec.run(view2.state, view2.dispatch, view2, e);
-      });
-      function update(state) {
-        if (spec.select) {
-          let selected = spec.select(state);
-          dom.style.display = selected ? "" : "none";
-          if (!selected)
-            return false;
-        }
-        let enabled = true;
-        if (spec.enable) {
-          enabled = spec.enable(state) || false;
-          setClass(dom, prefix$1 + "-disabled", !enabled);
-        }
-        if (spec.active) {
-          let active = enabled && spec.active(state) || false;
-          setClass(dom, prefix$1 + "-active", active);
-        }
-        return true;
-      }
-      return { dom, update };
-    }
-  };
-  function translate(view2, text2) {
-    return view2._props.translate ? view2._props.translate(text2) : text2;
-  }
-  var lastMenuEvent = { time: 0, node: null };
-  function markMenuEvent(e) {
-    lastMenuEvent.time = Date.now();
-    lastMenuEvent.node = e.target;
-  }
-  function isMenuEvent(wrapper) {
-    return Date.now() - 100 < lastMenuEvent.time && lastMenuEvent.node && wrapper.contains(lastMenuEvent.node);
-  }
-  var Dropdown = class {
-    /**
-    Create a dropdown wrapping the elements.
-    */
-    constructor(content, options = {}) {
-      this.options = options;
-      this.options = options || {};
-      this.content = Array.isArray(content) ? content : [content];
-    }
-    /**
-    Render the dropdown menu and sub-items.
-    */
-    render(view2) {
-      let content = renderDropdownItems(this.content, view2);
-      let win = view2.dom.ownerDocument.defaultView || window;
-      let label = crelt("div", {
-        class: prefix$1 + "-dropdown " + (this.options.class || ""),
-        style: this.options.css
-      }, translate(view2, this.options.label || ""));
-      if (this.options.title)
-        label.setAttribute("title", translate(view2, this.options.title));
-      let wrap2 = crelt("div", { class: prefix$1 + "-dropdown-wrap" }, label);
-      let open = null;
-      let listeningOnClose = null;
-      let close2 = () => {
-        if (open && open.close()) {
-          open = null;
-          win.removeEventListener("mousedown", listeningOnClose);
-        }
-      };
-      label.addEventListener("mousedown", (e) => {
-        e.preventDefault();
-        markMenuEvent(e);
-        if (open) {
-          close2();
-        } else {
-          open = this.expand(wrap2, content.dom);
-          win.addEventListener("mousedown", listeningOnClose = () => {
-            if (!isMenuEvent(wrap2))
-              close2();
-          });
-        }
-      });
-      function update(state) {
-        let inner = content.update(state);
-        wrap2.style.display = inner ? "" : "none";
-        return inner;
-      }
-      return { dom: wrap2, update };
-    }
-    /**
-    @internal
-    */
-    expand(dom, items) {
-      let menuDOM = crelt("div", { class: prefix$1 + "-dropdown-menu " + (this.options.class || "") }, items);
-      let done = false;
-      function close2() {
-        if (done)
-          return false;
-        done = true;
-        dom.removeChild(menuDOM);
-        return true;
-      }
-      dom.appendChild(menuDOM);
-      return { close: close2, node: menuDOM };
-    }
-  };
-  function renderDropdownItems(items, view2) {
-    let rendered = [], updates = [];
-    for (let i = 0; i < items.length; i++) {
-      let { dom, update } = items[i].render(view2);
-      rendered.push(crelt("div", { class: prefix$1 + "-dropdown-item" }, dom));
-      updates.push(update);
-    }
-    return { dom: rendered, update: combineUpdates(updates, rendered) };
-  }
-  function combineUpdates(updates, nodes2) {
-    return (state) => {
-      let something = false;
-      for (let i = 0; i < updates.length; i++) {
-        let up = updates[i](state);
-        nodes2[i].style.display = up ? "" : "none";
-        if (up)
-          something = true;
-      }
-      return something;
-    };
-  }
-  var DropdownSubmenu = class {
-    /**
-    Creates a submenu for the given group of menu elements. The
-    following options are recognized:
-    */
-    constructor(content, options = {}) {
-      this.options = options;
-      this.content = Array.isArray(content) ? content : [content];
-    }
-    /**
-    Renders the submenu.
-    */
-    render(view2) {
-      let items = renderDropdownItems(this.content, view2);
-      let win = view2.dom.ownerDocument.defaultView || window;
-      let label = crelt("div", { class: prefix$1 + "-submenu-label" }, translate(view2, this.options.label || ""));
-      let wrap2 = crelt("div", { class: prefix$1 + "-submenu-wrap" }, label, crelt("div", { class: prefix$1 + "-submenu" }, items.dom));
-      let listeningOnClose = null;
-      label.addEventListener("mousedown", (e) => {
-        e.preventDefault();
-        markMenuEvent(e);
-        setClass(wrap2, prefix$1 + "-submenu-wrap-active", false);
-        if (!listeningOnClose)
-          win.addEventListener("mousedown", listeningOnClose = () => {
-            if (!isMenuEvent(wrap2)) {
-              wrap2.classList.remove(prefix$1 + "-submenu-wrap-active");
-              win.removeEventListener("mousedown", listeningOnClose);
-              listeningOnClose = null;
-            }
-          });
-      });
-      function update(state) {
-        let inner = items.update(state);
-        wrap2.style.display = inner ? "" : "none";
-        return inner;
-      }
-      return { dom: wrap2, update };
-    }
-  };
-  function renderGrouped(view2, content) {
-    let result = document.createDocumentFragment();
-    let updates = [], separators = [];
-    for (let i = 0; i < content.length; i++) {
-      let items = content[i], localUpdates = [], localNodes = [];
-      for (let j = 0; j < items.length; j++) {
-        let { dom, update: update2 } = items[j].render(view2);
-        let span = crelt("span", { class: prefix$1 + "item" }, dom);
-        result.appendChild(span);
-        localNodes.push(span);
-        localUpdates.push(update2);
-      }
-      if (localUpdates.length) {
-        updates.push(combineUpdates(localUpdates, localNodes));
-        if (i < content.length - 1)
-          separators.push(result.appendChild(separator()));
-      }
-    }
-    function update(state) {
-      let something = false, needSep = false;
-      for (let i = 0; i < updates.length; i++) {
-        let hasContent = updates[i](state);
-        if (i)
-          separators[i - 1].style.display = needSep && hasContent ? "" : "none";
-        needSep = hasContent;
-        if (hasContent)
-          something = true;
-      }
-      return something;
-    }
-    return { dom: result, update };
-  }
-  function separator() {
-    return crelt("span", { class: prefix$1 + "separator" });
-  }
-  var icons = {
-    join: {
-      width: 800,
-      height: 900,
-      path: "M0 75h800v125h-800z M0 825h800v-125h-800z M250 400h100v-100h100v100h100v100h-100v100h-100v-100h-100z"
-    },
-    lift: {
-      width: 1024,
-      height: 1024,
-      path: "M219 310v329q0 7-5 12t-12 5q-8 0-13-5l-164-164q-5-5-5-13t5-13l164-164q5-5 13-5 7 0 12 5t5 12zM1024 749v109q0 7-5 12t-12 5h-987q-7 0-12-5t-5-12v-109q0-7 5-12t12-5h987q7 0 12 5t5 12zM1024 530v109q0 7-5 12t-12 5h-621q-7 0-12-5t-5-12v-109q0-7 5-12t12-5h621q7 0 12 5t5 12zM1024 310v109q0 7-5 12t-12 5h-621q-7 0-12-5t-5-12v-109q0-7 5-12t12-5h621q7 0 12 5t5 12zM1024 91v109q0 7-5 12t-12 5h-987q-7 0-12-5t-5-12v-109q0-7 5-12t12-5h987q7 0 12 5t5 12z"
-    },
-    selectParentNode: { text: "\u2B1A", css: "font-weight: bold" },
-    undo: {
-      width: 1024,
-      height: 1024,
-      path: "M761 1024c113-206 132-520-313-509v253l-384-384 384-384v248c534-13 594 472 313 775z"
-    },
-    redo: {
-      width: 1024,
-      height: 1024,
-      path: "M576 248v-248l384 384-384 384v-253c-446-10-427 303-313 509-280-303-221-789 313-775z"
-    },
-    strong: {
-      width: 805,
-      height: 1024,
-      path: "M317 869q42 18 80 18 214 0 214-191 0-65-23-102-15-25-35-42t-38-26-46-14-48-6-54-1q-41 0-57 5 0 30-0 90t-0 90q0 4-0 38t-0 55 2 47 6 38zM309 442q24 4 62 4 46 0 81-7t62-25 42-51 14-81q0-40-16-70t-45-46-61-24-70-8q-28 0-74 7 0 28 2 86t2 86q0 15-0 45t-0 45q0 26 0 39zM0 950l1-53q8-2 48-9t60-15q4-6 7-15t4-19 3-18 1-21 0-19v-37q0-561-12-585-2-4-12-8t-25-6-28-4-27-2-17-1l-2-47q56-1 194-6t213-5q13 0 39 0t38 0q40 0 78 7t73 24 61 40 42 59 16 78q0 29-9 54t-22 41-36 32-41 25-48 22q88 20 146 76t58 141q0 57-20 102t-53 74-78 48-93 27-100 8q-25 0-75-1t-75-1q-60 0-175 6t-132 6z"
-    },
-    em: {
-      width: 585,
-      height: 1024,
-      path: "M0 949l9-48q3-1 46-12t63-21q16-20 23-57 0-4 35-165t65-310 29-169v-14q-13-7-31-10t-39-4-33-3l10-58q18 1 68 3t85 4 68 1q27 0 56-1t69-4 56-3q-2 22-10 50-17 5-58 16t-62 19q-4 10-8 24t-5 22-4 26-3 24q-15 84-50 239t-44 203q-1 5-7 33t-11 51-9 47-3 32l0 10q9 2 105 17-1 25-9 56-6 0-18 0t-18 0q-16 0-49-5t-49-5q-78-1-117-1-29 0-81 5t-69 6z"
-    },
-    code: {
-      width: 896,
-      height: 1024,
-      path: "M608 192l-96 96 224 224-224 224 96 96 288-320-288-320zM288 192l-288 320 288 320 96-96-224-224 224-224-96-96z"
-    },
-    link: {
-      width: 951,
-      height: 1024,
-      path: "M832 694q0-22-16-38l-118-118q-16-16-38-16-24 0-41 18 1 1 10 10t12 12 8 10 7 14 2 15q0 22-16 38t-38 16q-8 0-15-2t-14-7-10-8-12-12-10-10q-18 17-18 41 0 22 16 38l117 118q15 15 38 15 22 0 38-14l84-83q16-16 16-38zM430 292q0-22-16-38l-117-118q-16-16-38-16-22 0-38 15l-84 83q-16 16-16 38 0 22 16 38l118 118q15 15 38 15 24 0 41-17-1-1-10-10t-12-12-8-10-7-14-2-15q0-22 16-38t38-16q8 0 15 2t14 7 10 8 12 12 10 10q18-17 18-41zM941 694q0 68-48 116l-84 83q-47 47-116 47-69 0-116-48l-117-118q-47-47-47-116 0-70 50-119l-50-50q-49 50-118 50-68 0-116-48l-118-118q-48-48-48-116t48-116l84-83q47-47 116-47 69 0 116 48l117 118q47 47 47 116 0 70-50 119l50 50q49-50 118-50 68 0 116 48l118 118q48 48 48 116z"
-    },
-    bulletList: {
-      width: 768,
-      height: 896,
-      path: "M0 512h128v-128h-128v128zM0 256h128v-128h-128v128zM0 768h128v-128h-128v128zM256 512h512v-128h-512v128zM256 256h512v-128h-512v128zM256 768h512v-128h-512v128z"
-    },
-    orderedList: {
-      width: 768,
-      height: 896,
-      path: "M320 512h448v-128h-448v128zM320 768h448v-128h-448v128zM320 128v128h448v-128h-448zM79 384h78v-256h-36l-85 23v50l43-2v185zM189 590c0-36-12-78-96-78-33 0-64 6-83 16l1 66c21-10 42-15 67-15s32 11 32 28c0 26-30 58-110 112v50h192v-67l-91 2c49-30 87-66 87-113l1-1z"
-    },
-    blockquote: {
-      width: 640,
-      height: 896,
-      path: "M0 448v256h256v-256h-128c0 0 0-128 128-128v-128c0 0-256 0-256 256zM640 320v-128c0 0-256 0-256 256v256h256v-256h-128c0 0 0-128 128-128z"
-    }
-  };
-  var joinUpItem = new MenuItem({
-    title: "Join with above block",
-    run: joinUp,
-    select: (state) => joinUp(state),
-    icon: icons.join
-  });
-  var liftItem = new MenuItem({
-    title: "Lift out of enclosing block",
-    run: lift2,
-    select: (state) => lift2(state),
-    icon: icons.lift
-  });
-  var selectParentNodeItem = new MenuItem({
-    title: "Select parent node",
-    run: selectParentNode,
-    select: (state) => selectParentNode(state),
-    icon: icons.selectParentNode
-  });
-  var undoItem = new MenuItem({
-    title: "Undo last change",
-    run: undo,
-    enable: (state) => undo(state),
-    icon: icons.undo
-  });
-  var redoItem = new MenuItem({
-    title: "Redo last undone change",
-    run: redo,
-    enable: (state) => redo(state),
-    icon: icons.redo
-  });
-  function wrapItem(nodeType, options) {
-    let passedOptions = {
-      run(state, dispatch) {
-        return wrapIn(nodeType, options.attrs)(state, dispatch);
-      },
-      select(state) {
-        return wrapIn(nodeType, options.attrs)(state);
-      }
-    };
-    for (let prop in options)
-      passedOptions[prop] = options[prop];
-    return new MenuItem(passedOptions);
-  }
-  function blockTypeItem(nodeType, options) {
-    let command = setBlockType2(nodeType, options.attrs);
-    let passedOptions = {
-      run: command,
-      enable(state) {
-        return command(state);
-      },
-      active(state) {
-        let { $from, to, node } = state.selection;
-        if (node)
-          return node.hasMarkup(nodeType, options.attrs);
-        return to <= $from.end() && $from.parent.hasMarkup(nodeType, options.attrs);
-      }
-    };
-    for (let prop in options)
-      passedOptions[prop] = options[prop];
-    return new MenuItem(passedOptions);
-  }
-  function setClass(dom, cls, on) {
-    if (on)
-      dom.classList.add(cls);
-    else
-      dom.classList.remove(cls);
-  }
-  var prefix = "ProseMirror-menubar";
-  function isIOS() {
-    if (typeof navigator == "undefined")
-      return false;
-    let agent2 = navigator.userAgent;
-    return !/Edge\/\d/.test(agent2) && /AppleWebKit/.test(agent2) && /Mobile\/\w+/.test(agent2);
-  }
-  function menuBar(options) {
-    return new Plugin({
-      view(editorView) {
-        return new MenuBarView(editorView, options);
-      }
-    });
-  }
-  var MenuBarView = class {
-    constructor(editorView, options) {
-      this.editorView = editorView;
-      this.options = options;
-      this.spacer = null;
-      this.maxHeight = 0;
-      this.widthForMaxHeight = 0;
-      this.floating = false;
-      this.scrollHandler = null;
-      this.root = editorView.root;
-      this.wrapper = crelt("div", { class: prefix + "-wrapper" });
-      this.menu = this.wrapper.appendChild(crelt("div", { class: prefix }));
-      this.menu.className = prefix;
-      if (editorView.dom.parentNode)
-        editorView.dom.parentNode.replaceChild(this.wrapper, editorView.dom);
-      this.wrapper.appendChild(editorView.dom);
-      let { dom, update } = renderGrouped(this.editorView, this.options.content);
-      this.contentUpdate = update;
-      this.menu.appendChild(dom);
-      this.update();
-      if (options.floating && !isIOS()) {
-        this.updateFloat();
-        let potentialScrollers = getAllWrapping(this.wrapper);
-        this.scrollHandler = (e) => {
-          let root = this.editorView.root;
-          if (!(root.body || root).contains(this.wrapper))
-            potentialScrollers.forEach((el) => el.removeEventListener("scroll", this.scrollHandler));
-          else
-            this.updateFloat(e.target.getBoundingClientRect ? e.target : void 0);
-        };
-        potentialScrollers.forEach((el) => el.addEventListener("scroll", this.scrollHandler));
-      }
-    }
-    update() {
-      if (this.editorView.root != this.root) {
-        let { dom, update } = renderGrouped(this.editorView, this.options.content);
-        this.contentUpdate = update;
-        this.menu.replaceChild(dom, this.menu.firstChild);
-        this.root = this.editorView.root;
-      }
-      this.contentUpdate(this.editorView.state);
-      if (this.floating) {
-        this.updateScrollCursor();
-      } else {
-        if (this.menu.offsetWidth != this.widthForMaxHeight) {
-          this.widthForMaxHeight = this.menu.offsetWidth;
-          this.maxHeight = 0;
-        }
-        if (this.menu.offsetHeight > this.maxHeight) {
-          this.maxHeight = this.menu.offsetHeight;
-          this.menu.style.minHeight = this.maxHeight + "px";
-        }
-      }
-    }
-    updateScrollCursor() {
-      let selection = this.editorView.root.getSelection();
-      if (!selection.focusNode)
-        return;
-      let rects = selection.getRangeAt(0).getClientRects();
-      let selRect = rects[selectionIsInverted(selection) ? 0 : rects.length - 1];
-      if (!selRect)
-        return;
-      let menuRect = this.menu.getBoundingClientRect();
-      if (selRect.top < menuRect.bottom && selRect.bottom > menuRect.top) {
-        let scrollable = findWrappingScrollable(this.wrapper);
-        if (scrollable)
-          scrollable.scrollTop -= menuRect.bottom - selRect.top;
-      }
-    }
-    updateFloat(scrollAncestor) {
-      let parent = this.wrapper, editorRect = parent.getBoundingClientRect(), top = scrollAncestor ? Math.max(0, scrollAncestor.getBoundingClientRect().top) : 0;
-      if (this.floating) {
-        if (editorRect.top >= top || editorRect.bottom < this.menu.offsetHeight + 10) {
-          this.floating = false;
-          this.menu.style.position = this.menu.style.left = this.menu.style.top = this.menu.style.width = "";
-          this.menu.style.display = "";
-          this.spacer.parentNode.removeChild(this.spacer);
-          this.spacer = null;
-        } else {
-          let border = (parent.offsetWidth - parent.clientWidth) / 2;
-          this.menu.style.left = editorRect.left + border + "px";
-          this.menu.style.display = editorRect.top > (this.editorView.dom.ownerDocument.defaultView || window).innerHeight ? "none" : "";
-          if (scrollAncestor)
-            this.menu.style.top = top + "px";
-        }
-      } else {
-        if (editorRect.top < top && editorRect.bottom >= this.menu.offsetHeight + 10) {
-          this.floating = true;
-          let menuRect = this.menu.getBoundingClientRect();
-          this.menu.style.left = menuRect.left + "px";
-          this.menu.style.width = menuRect.width + "px";
-          if (scrollAncestor)
-            this.menu.style.top = top + "px";
-          this.menu.style.position = "fixed";
-          this.spacer = crelt("div", { class: prefix + "-spacer", style: `height: ${menuRect.height}px` });
-          parent.insertBefore(this.spacer, this.menu);
-        }
-      }
-    }
-    destroy() {
-      if (this.wrapper.parentNode)
-        this.wrapper.parentNode.replaceChild(this.editorView.dom, this.wrapper);
-    }
-  };
-  function selectionIsInverted(selection) {
-    if (selection.anchorNode == selection.focusNode)
-      return selection.anchorOffset > selection.focusOffset;
-    return selection.anchorNode.compareDocumentPosition(selection.focusNode) == Node.DOCUMENT_POSITION_FOLLOWING;
-  }
-  function findWrappingScrollable(node) {
-    for (let cur = node.parentNode; cur; cur = cur.parentNode)
-      if (cur.scrollHeight > cur.clientHeight)
-        return cur;
-  }
-  function getAllWrapping(node) {
-    let res = [node.ownerDocument.defaultView || window];
-    for (let cur = node.parentNode; cur; cur = cur.parentNode)
-      res.push(cur);
-    return res;
-  }
-
   // node_modules/prosemirror-inputrules/dist/index.js
   var InputRule = class {
     /**
@@ -13938,35 +13009,12 @@ var ProseMirrorBundle = (() => {
     }
     return false;
   }
-  var undoInputRule = (state, dispatch) => {
-    let plugins = state.plugins;
-    for (let i = 0; i < plugins.length; i++) {
-      let plugin = plugins[i], undoable;
-      if (plugin.spec.isInputRules && (undoable = plugin.getState(state))) {
-        if (dispatch) {
-          let tr = state.tr, toUndo = undoable.transform;
-          for (let j = toUndo.steps.length - 1; j >= 0; j--)
-            tr.step(toUndo.steps[j].invert(toUndo.docs[j]));
-          if (undoable.text) {
-            let marks2 = tr.doc.resolve(undoable.from).marks();
-            tr.replaceWith(undoable.from, undoable.to, state.schema.text(undoable.text, marks2));
-          } else {
-            tr.delete(undoable.from, undoable.to);
-          }
-          dispatch(tr);
-        }
-        return true;
-      }
-    }
-    return false;
-  };
   var emDash = new InputRule(/--$/, "\u2014", { inCodeMark: false });
   var ellipsis = new InputRule(/\.\.\.$/, "\u2026", { inCodeMark: false });
   var openDoubleQuote = new InputRule(/(?:^|[\s\{\[\(\<'"\u2018\u201C])(")$/, "\u201C", { inCodeMark: false });
   var closeDoubleQuote = new InputRule(/"$/, "\u201D", { inCodeMark: false });
   var openSingleQuote = new InputRule(/(?:^|[\s\{\[\(\<'"\u2018\u201C])(')$/, "\u2018", { inCodeMark: false });
   var closeSingleQuote = new InputRule(/'$/, "\u2019", { inCodeMark: false });
-  var smartQuotes = [openDoubleQuote, closeDoubleQuote, openSingleQuote, closeSingleQuote];
   function wrappingInputRule(regexp, nodeType, getAttrs = null, joinPredicate) {
     return new InputRule(regexp, (state, match2, start, end) => {
       let attrs2 = getAttrs instanceof Function ? getAttrs(match2) : getAttrs;
@@ -13989,444 +13037,6 @@ var ProseMirrorBundle = (() => {
         return null;
       return state.tr.delete(start, end).setBlockType(start, start, nodeType, attrs2);
     });
-  }
-
-  // node_modules/prosemirror-example-setup/dist/index.js
-  var prefix2 = "ProseMirror-prompt";
-  function openPrompt(options) {
-    let wrapper = document.body.appendChild(document.createElement("div"));
-    wrapper.className = prefix2;
-    let mouseOutside = (e) => {
-      if (!wrapper.contains(e.target))
-        close2();
-    };
-    setTimeout(() => window.addEventListener("mousedown", mouseOutside), 50);
-    let close2 = () => {
-      window.removeEventListener("mousedown", mouseOutside);
-      if (wrapper.parentNode)
-        wrapper.parentNode.removeChild(wrapper);
-    };
-    let domFields = [];
-    for (let name in options.fields)
-      domFields.push(options.fields[name].render());
-    let submitButton = document.createElement("button");
-    submitButton.type = "submit";
-    submitButton.className = prefix2 + "-submit";
-    submitButton.textContent = "OK";
-    let cancelButton = document.createElement("button");
-    cancelButton.type = "button";
-    cancelButton.className = prefix2 + "-cancel";
-    cancelButton.textContent = "Cancel";
-    cancelButton.addEventListener("click", close2);
-    let form = wrapper.appendChild(document.createElement("form"));
-    if (options.title)
-      form.appendChild(document.createElement("h5")).textContent = options.title;
-    domFields.forEach((field) => {
-      form.appendChild(document.createElement("div")).appendChild(field);
-    });
-    let buttons = form.appendChild(document.createElement("div"));
-    buttons.className = prefix2 + "-buttons";
-    buttons.appendChild(submitButton);
-    buttons.appendChild(document.createTextNode(" "));
-    buttons.appendChild(cancelButton);
-    let box = wrapper.getBoundingClientRect();
-    wrapper.style.top = (window.innerHeight - box.height) / 2 + "px";
-    wrapper.style.left = (window.innerWidth - box.width) / 2 + "px";
-    let submit = () => {
-      let params = getValues(options.fields, domFields);
-      if (params) {
-        close2();
-        options.callback(params);
-      }
-    };
-    form.addEventListener("submit", (e) => {
-      e.preventDefault();
-      submit();
-    });
-    form.addEventListener("keydown", (e) => {
-      if (e.keyCode == 27) {
-        e.preventDefault();
-        close2();
-      } else if (e.keyCode == 13 && !(e.ctrlKey || e.metaKey || e.shiftKey)) {
-        e.preventDefault();
-        submit();
-      } else if (e.keyCode == 9) {
-        window.setTimeout(() => {
-          if (!wrapper.contains(document.activeElement))
-            close2();
-        }, 500);
-      }
-    });
-    let input = form.elements[0];
-    if (input)
-      input.focus();
-  }
-  function getValues(fields, domFields) {
-    let result = /* @__PURE__ */ Object.create(null), i = 0;
-    for (let name in fields) {
-      let field = fields[name], dom = domFields[i++];
-      let value = field.read(dom), bad = field.validate(value);
-      if (bad) {
-        reportInvalid(dom, bad);
-        return null;
-      }
-      result[name] = field.clean(value);
-    }
-    return result;
-  }
-  function reportInvalid(dom, message) {
-    let parent = dom.parentNode;
-    let msg = parent.appendChild(document.createElement("div"));
-    msg.style.left = dom.offsetLeft + dom.offsetWidth + 2 + "px";
-    msg.style.top = dom.offsetTop - 5 + "px";
-    msg.className = "ProseMirror-invalid";
-    msg.textContent = message;
-    setTimeout(() => parent.removeChild(msg), 1500);
-  }
-  var Field = class {
-    /**
-    Create a field with the given options. Options support by all
-    field types are:
-    */
-    constructor(options) {
-      this.options = options;
-    }
-    /**
-    Read the field's value from its DOM node.
-    */
-    read(dom) {
-      return dom.value;
-    }
-    /**
-    A field-type-specific validation function.
-    */
-    validateType(value) {
-      return null;
-    }
-    /**
-    @internal
-    */
-    validate(value) {
-      if (!value && this.options.required)
-        return "Required field";
-      return this.validateType(value) || (this.options.validate ? this.options.validate(value) : null);
-    }
-    clean(value) {
-      return this.options.clean ? this.options.clean(value) : value;
-    }
-  };
-  var TextField = class extends Field {
-    render() {
-      let input = document.createElement("input");
-      input.type = "text";
-      input.placeholder = this.options.label;
-      input.value = this.options.value || "";
-      input.autocomplete = "off";
-      return input;
-    }
-  };
-  function canInsert(state, nodeType) {
-    let $from = state.selection.$from;
-    for (let d = $from.depth; d >= 0; d--) {
-      let index = $from.index(d);
-      if ($from.node(d).canReplaceWith(index, index, nodeType))
-        return true;
-    }
-    return false;
-  }
-  function insertImageItem(nodeType) {
-    return new MenuItem({
-      title: "Insert image",
-      label: "Image",
-      enable(state) {
-        return canInsert(state, nodeType);
-      },
-      run(state, _, view2) {
-        let { from: from2, to } = state.selection, attrs2 = null;
-        if (state.selection instanceof NodeSelection && state.selection.node.type == nodeType)
-          attrs2 = state.selection.node.attrs;
-        openPrompt({
-          title: "Insert image",
-          fields: {
-            src: new TextField({ label: "Location", required: true, value: attrs2 && attrs2.src }),
-            title: new TextField({ label: "Title", value: attrs2 && attrs2.title }),
-            alt: new TextField({
-              label: "Description",
-              value: attrs2 ? attrs2.alt : state.doc.textBetween(from2, to, " ")
-            })
-          },
-          callback(attrs3) {
-            view2.dispatch(view2.state.tr.replaceSelectionWith(nodeType.createAndFill(attrs3)));
-            view2.focus();
-          }
-        });
-      }
-    });
-  }
-  function cmdItem(cmd, options) {
-    let passedOptions = {
-      label: options.title,
-      run: cmd
-    };
-    for (let prop in options)
-      passedOptions[prop] = options[prop];
-    if (!options.enable && !options.select)
-      passedOptions[options.enable ? "enable" : "select"] = (state) => cmd(state);
-    return new MenuItem(passedOptions);
-  }
-  function markActive(state, type) {
-    let { from: from2, $from, to, empty: empty2 } = state.selection;
-    if (empty2)
-      return !!type.isInSet(state.storedMarks || $from.marks());
-    else
-      return state.doc.rangeHasMark(from2, to, type);
-  }
-  function markItem(markType, options) {
-    let passedOptions = {
-      active(state) {
-        return markActive(state, markType);
-      }
-    };
-    for (let prop in options)
-      passedOptions[prop] = options[prop];
-    return cmdItem(toggleMark(markType), passedOptions);
-  }
-  function linkItem(markType) {
-    return new MenuItem({
-      title: "Add or remove link",
-      icon: icons.link,
-      active(state) {
-        return markActive(state, markType);
-      },
-      enable(state) {
-        return !state.selection.empty;
-      },
-      run(state, dispatch, view2) {
-        if (markActive(state, markType)) {
-          toggleMark(markType)(state, dispatch);
-          return true;
-        }
-        openPrompt({
-          title: "Create a link",
-          fields: {
-            href: new TextField({
-              label: "Link target",
-              required: true
-            }),
-            title: new TextField({ label: "Title" })
-          },
-          callback(attrs2) {
-            toggleMark(markType, attrs2)(view2.state, view2.dispatch);
-            view2.focus();
-          }
-        });
-      }
-    });
-  }
-  function wrapListItem(nodeType, options) {
-    return cmdItem(wrapInList(nodeType, options.attrs), options);
-  }
-  function buildMenuItems(schema3) {
-    let r = {};
-    let mark;
-    if (mark = schema3.marks.strong)
-      r.toggleStrong = markItem(mark, { title: "Toggle strong style", icon: icons.strong });
-    if (mark = schema3.marks.em)
-      r.toggleEm = markItem(mark, { title: "Toggle emphasis", icon: icons.em });
-    if (mark = schema3.marks.code)
-      r.toggleCode = markItem(mark, { title: "Toggle code font", icon: icons.code });
-    if (mark = schema3.marks.link)
-      r.toggleLink = linkItem(mark);
-    let node;
-    if (node = schema3.nodes.image)
-      r.insertImage = insertImageItem(node);
-    if (node = schema3.nodes.bullet_list)
-      r.wrapBulletList = wrapListItem(node, {
-        title: "Wrap in bullet list",
-        icon: icons.bulletList
-      });
-    if (node = schema3.nodes.ordered_list)
-      r.wrapOrderedList = wrapListItem(node, {
-        title: "Wrap in ordered list",
-        icon: icons.orderedList
-      });
-    if (node = schema3.nodes.blockquote)
-      r.wrapBlockQuote = wrapItem(node, {
-        title: "Wrap in block quote",
-        icon: icons.blockquote
-      });
-    if (node = schema3.nodes.paragraph)
-      r.makeParagraph = blockTypeItem(node, {
-        title: "Change to paragraph",
-        label: "Plain"
-      });
-    if (node = schema3.nodes.code_block)
-      r.makeCodeBlock = blockTypeItem(node, {
-        title: "Change to code block",
-        label: "Code"
-      });
-    if (node = schema3.nodes.heading)
-      for (let i = 1; i <= 10; i++)
-        r["makeHead" + i] = blockTypeItem(node, {
-          title: "Change to heading " + i,
-          label: "Level " + i,
-          attrs: { level: i }
-        });
-    if (node = schema3.nodes.horizontal_rule) {
-      let hr2 = node;
-      r.insertHorizontalRule = new MenuItem({
-        title: "Insert horizontal rule",
-        label: "Horizontal rule",
-        enable(state) {
-          return canInsert(state, hr2);
-        },
-        run(state, dispatch) {
-          dispatch(state.tr.replaceSelectionWith(hr2.create()));
-        }
-      });
-    }
-    let cut = (arr) => arr.filter((x) => x);
-    r.insertMenu = new Dropdown(cut([r.insertImage, r.insertHorizontalRule]), { label: "Insert" });
-    r.typeMenu = new Dropdown(cut([r.makeParagraph, r.makeCodeBlock, r.makeHead1 && new DropdownSubmenu(cut([
-      r.makeHead1,
-      r.makeHead2,
-      r.makeHead3,
-      r.makeHead4,
-      r.makeHead5,
-      r.makeHead6
-    ]), { label: "Heading" })]), { label: "Type..." });
-    r.inlineMenu = [cut([r.toggleStrong, r.toggleEm, r.toggleCode, r.toggleLink])];
-    r.blockMenu = [cut([
-      r.wrapBulletList,
-      r.wrapOrderedList,
-      r.wrapBlockQuote,
-      joinUpItem,
-      liftItem,
-      selectParentNodeItem
-    ])];
-    r.fullMenu = r.inlineMenu.concat([[r.insertMenu, r.typeMenu]], [[undoItem, redoItem]], r.blockMenu);
-    return r;
-  }
-  var mac5 = typeof navigator != "undefined" ? /Mac|iP(hone|[oa]d)/.test(navigator.platform) : false;
-  function buildKeymap(schema3, mapKeys) {
-    let keys2 = {}, type;
-    function bind2(key, cmd) {
-      if (mapKeys) {
-        let mapped = mapKeys[key];
-        if (mapped === false)
-          return;
-        if (mapped)
-          key = mapped;
-      }
-      keys2[key] = cmd;
-    }
-    bind2("Mod-z", undo);
-    bind2("Shift-Mod-z", redo);
-    bind2("Backspace", undoInputRule);
-    if (!mac5)
-      bind2("Mod-y", redo);
-    bind2("Alt-ArrowUp", joinUp);
-    bind2("Alt-ArrowDown", joinDown);
-    bind2("Mod-BracketLeft", lift2);
-    bind2("Escape", selectParentNode);
-    if (type = schema3.marks.strong) {
-      bind2("Mod-b", toggleMark(type));
-      bind2("Mod-B", toggleMark(type));
-    }
-    if (type = schema3.marks.em) {
-      bind2("Mod-i", toggleMark(type));
-      bind2("Mod-I", toggleMark(type));
-    }
-    if (type = schema3.marks.code)
-      bind2("Mod-`", toggleMark(type));
-    if (type = schema3.nodes.bullet_list)
-      bind2("Shift-Ctrl-8", wrapInList(type));
-    if (type = schema3.nodes.ordered_list)
-      bind2("Shift-Ctrl-9", wrapInList(type));
-    if (type = schema3.nodes.blockquote)
-      bind2("Ctrl->", wrapIn(type));
-    if (type = schema3.nodes.hard_break) {
-      let br = type, cmd = chainCommands(exitCode, (state, dispatch) => {
-        if (dispatch)
-          dispatch(state.tr.replaceSelectionWith(br.create()).scrollIntoView());
-        return true;
-      });
-      bind2("Mod-Enter", cmd);
-      bind2("Shift-Enter", cmd);
-      if (mac5)
-        bind2("Ctrl-Enter", cmd);
-    }
-    if (type = schema3.nodes.list_item) {
-      bind2("Enter", splitListItem(type));
-      bind2("Mod-[", liftListItem(type));
-      bind2("Mod-]", sinkListItem(type));
-    }
-    if (type = schema3.nodes.paragraph)
-      bind2("Shift-Ctrl-0", setBlockType2(type));
-    if (type = schema3.nodes.code_block)
-      bind2("Shift-Ctrl-\\", setBlockType2(type));
-    if (type = schema3.nodes.heading)
-      for (let i = 1; i <= 6; i++)
-        bind2("Shift-Ctrl-" + i, setBlockType2(type, { level: i }));
-    if (type = schema3.nodes.horizontal_rule) {
-      let hr2 = type;
-      bind2("Mod-_", (state, dispatch) => {
-        if (dispatch)
-          dispatch(state.tr.replaceSelectionWith(hr2.create()).scrollIntoView());
-        return true;
-      });
-    }
-    return keys2;
-  }
-  function blockQuoteRule(nodeType) {
-    return wrappingInputRule(/^\s*>\s$/, nodeType);
-  }
-  function orderedListRule(nodeType) {
-    return wrappingInputRule(/^(\d+)\.\s$/, nodeType, (match2) => ({ order: +match2[1] }), (match2, node) => node.childCount + node.attrs.order == +match2[1]);
-  }
-  function bulletListRule(nodeType) {
-    return wrappingInputRule(/^\s*([-+*])\s$/, nodeType);
-  }
-  function codeBlockRule(nodeType) {
-    return textblockTypeInputRule(/^```$/, nodeType);
-  }
-  function headingRule(nodeType, maxLevel) {
-    return textblockTypeInputRule(new RegExp("^(#{1," + maxLevel + "})\\s$"), nodeType, (match2) => ({ level: match2[1].length }));
-  }
-  function buildInputRules(schema3) {
-    let rules = smartQuotes.concat(ellipsis, emDash), type;
-    if (type = schema3.nodes.blockquote)
-      rules.push(blockQuoteRule(type));
-    if (type = schema3.nodes.ordered_list)
-      rules.push(orderedListRule(type));
-    if (type = schema3.nodes.bullet_list)
-      rules.push(bulletListRule(type));
-    if (type = schema3.nodes.code_block)
-      rules.push(codeBlockRule(type));
-    if (type = schema3.nodes.heading)
-      rules.push(headingRule(type, 6));
-    return inputRules({ rules });
-  }
-  function exampleSetup(options) {
-    let plugins = [
-      buildInputRules(options.schema),
-      keymap(buildKeymap(options.schema, options.mapKeys)),
-      keymap(baseKeymap),
-      dropCursor(),
-      gapCursor()
-    ];
-    if (options.menuBar !== false)
-      plugins.push(menuBar({
-        floating: options.floatingMenu !== false,
-        content: options.menuContent || buildMenuItems(options.schema).fullMenu
-      }));
-    if (options.history !== false)
-      plugins.push(history());
-    return plugins.concat(new Plugin({
-      props: {
-        attributes: { class: "ProseMirror-example-setup-style" }
-      }
-    }));
   }
 
   // node_modules/markdown-it/lib/common/utils.mjs
@@ -19135,7 +17745,7 @@ var ProseMirrorBundle = (() => {
     this.re = {};
     compile(this);
   }
-  LinkifyIt.prototype.add = function add3(schema3, definition) {
+  LinkifyIt.prototype.add = function add2(schema3, definition) {
     this.__schemas__[schema3] = definition;
     compile(this);
     return this;
@@ -20518,9 +19128,9 @@ var ProseMirrorBundle = (() => {
           this.text(leading);
         if (node) {
           while (active.length < len) {
-            let add4 = marks2[active.length];
-            active.push(add4);
-            this.text(this.markString(add4, true, parent, index), false);
+            let add3 = marks2[active.length];
+            active.push(add3);
+            this.text(this.markString(add3, true, parent, index), false);
             this.atBlockStart = false;
           }
           if (noEsc && node.isText)
@@ -20609,19 +19219,6 @@ var ProseMirrorBundle = (() => {
   };
 
   // script/sideBar/prosemirror.js
-  function initProsemirror_with_notes() {
-    const mySchema = new Schema({
-      nodes: addListNodes(schema.spec.nodes, "paragraph block*", "block"),
-      marks: schema.spec.marks
-    });
-    window.view = new EditorView(document.querySelector("#editor"), {
-      state: EditorState.create({
-        doc: DOMParser.fromSchema(mySchema).parse(document.querySelector("#content")),
-        plugins: exampleSetup({ schema: mySchema })
-      })
-    });
-    return window.view;
-  }
   function getMarkdown() {
     const serializer = defaultMarkdownSerializer;
     const markdown = serializer.serialize(window.view.state.doc);
@@ -20645,19 +19242,23 @@ var ProseMirrorBundle = (() => {
     const jsonString = JSON.stringify(json);
     return jsonString;
   }
-  function retrive_doc_json(json_string) {
-    const doc3 = Node2.fromJSON(window.view.state.schema, JSON.parse(json_string));
+  function retrive_doc_json(json_string, state) {
+    const doc3 = Node.fromJSON(state.schema, JSON.parse(json_string));
     console.log("doc", doc3);
     return doc3;
   }
-  function set_up_note_card_editor(json_string) {
-    const restoredDoc = retrive_doc_json(json_string);
-    const plugins = exampleSetup({ schema });
-    const state = EditorState.create({ doc: restoredDoc, schema, plugins });
-    const view2 = new EditorView(document.querySelector("#editor"), { state });
-    return view2;
-  }
   function initProsemirror_without_notes() {
+    const state = setup_prosemirror();
+    window.view = new EditorView(document.querySelector("#editor"), { state });
+    return window.view;
+  }
+  function initProsemirror_with_notes(note) {
+    const state = setup_prosemirror();
+    state.doc = retrive_doc_json(note, state);
+    window.view = new EditorView(document.querySelector("#editor"), { state });
+    return window.view;
+  }
+  function setup_prosemirror() {
     const mySchema = new Schema({
       nodes: addListNodes(schema.spec.nodes, "paragraph block*", "block"),
       marks: schema.spec.marks
@@ -20673,8 +19274,7 @@ var ProseMirrorBundle = (() => {
         buildMarkdownInputRules(mySchema)
       ]
     });
-    window.view = new EditorView(document.querySelector("#editor"), { state });
-    return window.view;
+    return state;
   }
   function buildMarkdownInputRules(schema3) {
     const rules = [];

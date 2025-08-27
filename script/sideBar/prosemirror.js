@@ -4,7 +4,7 @@ import {Schema, DOMParser,DOMSerializer,Node} from "prosemirror-model"
 import {schema} from "prosemirror-schema-basic"
 import {addListNodes} from "prosemirror-schema-list"
 import {exampleSetup} from "prosemirror-example-setup"
-import { defaultMarkdownSerializer, MarkdownParser } from "prosemirror-markdown";
+import { defaultMarkdownSerializer, MarkdownParser,MarkdownSerializer,defaultMarkdownParser } from "prosemirror-markdown";
 import {keymap} from "prosemirror-keymap"
 import {history,undo,redo} from "prosemirror-history"
 import { baseKeymap } from "prosemirror-commands"
@@ -15,22 +15,7 @@ import {
 } from "prosemirror-inputrules";
 import { dropCursor } from "prosemirror-dropcursor";
 import { gapCursor } from "prosemirror-gapcursor";
-export { initProsemirror_with_notes};
-function initProsemirror_with_notes(){
 
-  const mySchema = new Schema({
-    nodes: addListNodes(schema.spec.nodes, "paragraph block*", "block"),
-    marks: schema.spec.marks
-  })
-  
-  window.view = new EditorView(document.querySelector("#editor"), {
-    state: EditorState.create({
-      doc: DOMParser.fromSchema(mySchema).parse(document.querySelector("#content")),
-      plugins: exampleSetup({schema: mySchema})
-    })
-  });
-  return window.view;
-}
 export {getMarkdown};
 function getMarkdown(){
   const serializer = defaultMarkdownSerializer;
@@ -60,22 +45,27 @@ function get_doc_json(){
   return jsonString;
 }
 export {retrive_doc_json};
-function retrive_doc_json(json_string){
-  const doc = Node.fromJSON(window.view.state.schema, JSON.parse(json_string));
+function retrive_doc_json(json_string,state){
+  const doc = Node.fromJSON(state.schema, JSON.parse(json_string));
   console.log('doc',doc);
   return doc;
 }
-export {set_up_note_card_editor};
-function set_up_note_card_editor(json_string){
-  const restoredDoc = retrive_doc_json(json_string);
 
-  const plugins = exampleSetup({ schema });
-  const state = EditorState.create({ doc: restoredDoc, schema, plugins });
-  const view = new EditorView(document.querySelector("#editor"), { state });
-  return view;
-}
 export {initProsemirror_without_notes};
 function initProsemirror_without_notes(){
+  const state = setup_prosemirror();
+  window.view = new EditorView(document.querySelector("#editor"), {state})
+  return window.view;
+}
+export {initProsemirror_with_notes};
+function initProsemirror_with_notes(note){
+  const state = setup_prosemirror();
+  state.doc = retrive_doc_json(note,state);
+  window.view = new EditorView(document.querySelector("#editor"), {state})
+  return window.view;
+}
+
+function setup_prosemirror(){
   const mySchema = new Schema({
     nodes: addListNodes(schema.spec.nodes, "paragraph block*", "block"),
     marks: schema.spec.marks
@@ -92,8 +82,7 @@ function initProsemirror_without_notes(){
       buildMarkdownInputRules(mySchema)
   ]
 })
-  window.view = new EditorView(document.querySelector("#editor"), {state})
-  return window.view;
+  return state;
 }
 
 function buildMarkdownInputRules(schema) {
