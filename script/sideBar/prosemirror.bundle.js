@@ -23,7 +23,8 @@ var ProseMirrorBundle = (() => {
     getMarkdown: () => getMarkdown,
     get_doc_json: () => get_doc_json,
     get_hmtl: () => get_hmtl,
-    initProsemirror: () => initProsemirror,
+    initProsemirror_with_notes: () => initProsemirror_with_notes,
+    initProsemirror_without_notes: () => initProsemirror_without_notes,
     retrive_doc_json: () => retrive_doc_json,
     set_up_note_card_editor: () => set_up_note_card_editor
   });
@@ -20608,7 +20609,7 @@ var ProseMirrorBundle = (() => {
   };
 
   // script/sideBar/prosemirror.js
-  function initProsemirror() {
+  function initProsemirror_with_notes() {
     const mySchema = new Schema({
       nodes: addListNodes(schema.spec.nodes, "paragraph block*", "block"),
       marks: schema.spec.marks
@@ -20655,6 +20656,45 @@ var ProseMirrorBundle = (() => {
     const state = EditorState.create({ doc: restoredDoc, schema, plugins });
     const view2 = new EditorView(document.querySelector("#editor"), { state });
     return view2;
+  }
+  function initProsemirror_without_notes() {
+    const mySchema = new Schema({
+      nodes: addListNodes(schema.spec.nodes, "paragraph block*", "block"),
+      marks: schema.spec.marks
+    });
+    let state = EditorState.create({
+      schema: mySchema,
+      plugins: [
+        history(),
+        keymap(baseKeymap),
+        keymap({ "Mod-z": undo, "Mod-y": redo }),
+        dropCursor(),
+        gapCursor(),
+        buildMarkdownInputRules(mySchema)
+      ]
+    });
+    window.view = new EditorView(document.querySelector("#editor"), { state });
+    return window.view;
+  }
+  function buildMarkdownInputRules(schema3) {
+    const rules = [];
+    const { heading: heading2, bullet_list, ordered_list, blockquote: blockquote2, code_block } = schema3.nodes;
+    if (heading2) {
+      rules.push(textblockTypeInputRule(/^(#{1,6})\s$/, heading2, (m) => ({ level: m[1].length })));
+    }
+    if (blockquote2) {
+      rules.push(wrappingInputRule(/^\s*>\s$/, blockquote2));
+    }
+    if (bullet_list) {
+      rules.push(wrappingInputRule(/^\s*([-+*])\s$/, bullet_list));
+    }
+    if (ordered_list) {
+      rules.push(wrappingInputRule(/^(\d+)\.\s$/, ordered_list, (match2) => ({ order: +match2[1] })));
+    }
+    if (code_block) {
+      rules.push(textblockTypeInputRule(/^```$/, code_block));
+    }
+    return inputRules({ rules });
   }
   return __toCommonJS(prosemirror_exports);
 })();

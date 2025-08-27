@@ -10,7 +10,7 @@ import {
 // import {initProsemirror} from '../script/sideBar/prosemirror.js';
 
 // 从全局变量获取initProsemirror函数
-const {initProsemirror,get_doc_json,get_hmtl,set_up_note_card_editor} = window.ProseMirrorBundle || {};
+const {initProsemirror_with_notes,initProsemirror_without_notes,get_doc_json,get_hmtl,set_up_note_card_editor} = window.ProseMirrorBundle || {};
 
 let _mind = null;
 let _pageUrl = null;
@@ -401,7 +401,7 @@ function showNoteCardEditor(nodeEle, panel, mind, pageUrl) {
     panel.appendChild(note_card_editor);
     console.log("note:", note);
     if (note != '<br>' && note != '<br/>' && note != '') {
-        const editorView = set_up_note_card_editor(note);
+        // const editorView = set_up_note_card_editor(note);
 
     } else {
         // 创建真实的 DOM 元素而不是 HTML 字符串
@@ -430,7 +430,7 @@ function showNoteCardEditor(nodeEle, panel, mind, pageUrl) {
         contentDiv.appendChild(p4);
         contentDiv.style.display = 'none';
         note_card_editor.appendChild(contentDiv);
-        const editorView = initProsemirror();
+        const editorView = initProsemirror_without_notes();
         if (editorView) {
             console.log('ProseMirror editor initialized successfully');
             console.log('Editor view:', editorView);
@@ -719,4 +719,5 @@ function create_note_list() {
     });
 
 }
+
 

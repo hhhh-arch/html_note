@@ -4,9 +4,19 @@ import {Schema, DOMParser,DOMSerializer,Node} from "prosemirror-model"
 import {schema} from "prosemirror-schema-basic"
 import {addListNodes} from "prosemirror-schema-list"
 import {exampleSetup} from "prosemirror-example-setup"
-import { defaultMarkdownSerializer } from "prosemirror-markdown";
-export {initProsemirror};
-function initProsemirror(){
+import { defaultMarkdownSerializer, MarkdownParser } from "prosemirror-markdown";
+import {keymap} from "prosemirror-keymap"
+import {history,undo,redo} from "prosemirror-history"
+import { baseKeymap } from "prosemirror-commands"
+import {
+  inputRules,
+  textblockTypeInputRule,
+  wrappingInputRule,
+} from "prosemirror-inputrules";
+import { dropCursor } from "prosemirror-dropcursor";
+import { gapCursor } from "prosemirror-gapcursor";
+export { initProsemirror_with_notes};
+function initProsemirror_with_notes(){
 
   const mySchema = new Schema({
     nodes: addListNodes(schema.spec.nodes, "paragraph block*", "block"),
@@ -63,4 +73,57 @@ function set_up_note_card_editor(json_string){
   const state = EditorState.create({ doc: restoredDoc, schema, plugins });
   const view = new EditorView(document.querySelector("#editor"), { state });
   return view;
+}
+export {initProsemirror_without_notes};
+function initProsemirror_without_notes(){
+  const mySchema = new Schema({
+    nodes: addListNodes(schema.spec.nodes, "paragraph block*", "block"),
+    marks: schema.spec.marks
+  });
+  
+  let state = EditorState.create({
+    schema: mySchema,
+    plugins: [
+      history(),
+      keymap(baseKeymap),
+      keymap({"Mod-z": undo, "Mod-y": redo}),
+      dropCursor(),
+      gapCursor(),
+      buildMarkdownInputRules(mySchema)
+  ]
+})
+  window.view = new EditorView(document.querySelector("#editor"), {state})
+  return window.view;
+}
+
+function buildMarkdownInputRules(schema) {
+  const rules = [];
+  const { heading, bullet_list, ordered_list, blockquote, code_block } = schema.nodes;
+
+  // "# " -> heading
+  if (heading) {
+    rules.push(textblockTypeInputRule(/^(#{1,6})\s$/, heading, m => ({ level: m[1].length })));
+  }
+
+  // "> " -> blockquote
+  if (blockquote) {
+    rules.push(wrappingInputRule(/^\s*>\s$/, blockquote));
+  }
+
+  // "- " / "* " / "+ " -> bullet list
+  if (bullet_list) {
+    rules.push(wrappingInputRule(/^\s*([-+*])\s$/, bullet_list));
+  }
+
+  // "1. " -> ordered list
+  if (ordered_list) {
+    rules.push(wrappingInputRule(/^(\d+)\.\s$/, ordered_list, (match) => ({ order: +match[1] })));
+  }
+
+  // "```" -> code block
+  if (code_block) {
+    rules.push(textblockTypeInputRule(/^```$/, code_block));
+  }
+
+  return inputRules({ rules });
 }
