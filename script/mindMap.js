@@ -10,7 +10,10 @@ import {
 // import {initProsemirror} from '../script/sideBar/prosemirror.js';
 
 // 从全局变量获取initProsemirror函数
-const {initProsemirror_without_notes,get_doc_json,get_hmtl,initProsemirror_with_notes} = window.ProseMirrorBundle || {};
+const {initProsemirror_without_notes,
+  get_doc_json,get_hmtl,
+  initProsemirror_with_notes,
+  setup_markdown_input_rules} = window.ProseMirrorBundle || {};
 
 let _mind = null;
 let _pageUrl = null;
@@ -441,7 +444,7 @@ function showNoteCardEditor(nodeEle, panel, mind, pageUrl) {
     }
     setNodeEle(nodeEle);
 
-
+    setup_menu_botton();
 }
 
 function hideNoteCardEditor(panel, note_card_editor, nodeEle, mind, pageUrl) {
@@ -647,7 +650,7 @@ function show_note_list() {
         return;
     }
     update_note_list_toolbar();
-    create_note_list();
+    //create_note_list();
 }
 
 function update_note_list_toolbar() {
@@ -719,5 +722,7 @@ function create_note_list() {
     });
 
 }
-
+function setup_menu_botton(){
+  const markdown_dropdownSubmenu = setup_markdown_input_rules();
+}
 
