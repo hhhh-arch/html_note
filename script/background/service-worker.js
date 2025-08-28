@@ -119,17 +119,26 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         });
       }
     });
-// chrome.runtime.onInstalled.addListener(() => {
-//     chrome.contextMenus.create({
-//       id: 'openSidePanel',
-//       title: 'Open side panel',
-//       contexts: ['all']
-//     });
-//   });
+chrome.runtime.onInstalled.addListener(() => {
+    chrome.contextMenus.create({
+      id: 'openSidePanel',
+      title: 'Open side panel',
+      contexts: ['all']
+    });
+  });
   
-//   chrome.contextMenus.onClicked.addListener((info, tab) => {
-//     if (info.menuItemId === 'openSidePanel') {
-//       // This will open the panel in all the pages on the current window.
-//       chrome.sidePanel.open({ windowId: tab.windowId });
-//     }
-//   });
+  chrome.contextMenus.onClicked.addListener((info, tab) => {
+    if (info.menuItemId === 'openSidePanel') {
+      // This will open the panel in all the pages on the current window.
+      chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+        if (tabs[0] && tabs[0].id) {
+          chrome.tabs.sendMessage(tabs[0].id, {
+            type: 'context_menu_item_clicked'
+          });
+        }
+    });
+
+
+    }
+
+  });

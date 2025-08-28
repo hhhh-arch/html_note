@@ -74,18 +74,7 @@ class HTMLNoteHighlighter {
     document.addEventListener('mouseout',(e)=>{
       highlightElement_mouseOutHandler(e);
     })
-    document.addEventListener('click', (e) => {
-      const marginWidth = 50; // 假设右侧50px是触发区域
-      if (window.innerWidth - e.clientX < marginWidth) {
-        chrome.runtime.sendMessage({ type: 'open_side_panel' });
-        chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-          console.log('message:',message);
-          if (message.type === 'side_panel_ready') {
-            chrome.runtime.sendMessage({ type: 'init_mindmap', pageUrl: window.location.href });
-          }
-        });
-      }
-    });
+
     chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       console.log('message:',message);
       if (message.type === 'sync_mindMap_data') {
@@ -94,7 +83,14 @@ class HTMLNoteHighlighter {
       if (message.type === 'toggle_fullscreen') {
         // chrome.runtime.sendMessage({ type: 'close_side_panel' });
         toggleFullscreen(window.location.href);
-    }
+      }
+      if (message.type == 'context_menu_item_clicked') {
+        chrome.runtime.sendMessage({ type: 'open_side_panel' });
+      }
+      if (message.type === 'side_panel_ready') {
+        console.log('pageurl:',window.location.href);
+        chrome.runtime.sendMessage({ type: 'init_mindmap', pageUrl: window.location.href });
+      }
     });
 
 
