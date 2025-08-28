@@ -374,7 +374,9 @@ var ProseMirrorBundle = (() => {
     get_doc_json: () => get_doc_json,
     get_hmtl: () => get_hmtl,
     initProsemirror_with_notes: () => initProsemirror_with_notes,
+    initProsemirror_with_notes_white: () => initProsemirror_with_notes_white,
     initProsemirror_without_notes: () => initProsemirror_without_notes,
+    initProsemirror_without_notes_white: () => initProsemirror_without_notes_white,
     retrive_doc_json: () => retrive_doc_json,
     setup_markdown_input_rules: () => setup_markdown_input_rules
   });
@@ -20067,6 +20069,31 @@ var ProseMirrorBundle = (() => {
       ]
     });
     return state;
+  }
+  function setup_prosemirror_with_decorations() {
+    const state = setup_prosemirror();
+    let purplePlugin = new Plugin({
+      props: {
+        decorations(state2) {
+          return DecorationSet.create(state2.doc, [
+            Decoration.inline(0, state2.doc.content.size, { style: "color: white" })
+          ]);
+        }
+      }
+    });
+    state.plugins.push(purplePlugin);
+    return state;
+  }
+  function initProsemirror_without_notes_white() {
+    const state = setup_prosemirror_with_decorations();
+    window.view = new EditorView(document.querySelector("#editor"), { state });
+    return window.view;
+  }
+  function initProsemirror_with_notes_white(note) {
+    const state = setup_prosemirror_with_decorations();
+    state.doc = retrive_doc_json(note, state);
+    window.view = new EditorView(document.querySelector("#editor"), { state });
+    return window.view;
   }
   function buildMarkdownInputRules(schema3) {
     const rules = [];

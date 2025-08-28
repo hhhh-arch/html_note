@@ -1,5 +1,5 @@
-import {EditorState} from "prosemirror-state"
-import {EditorView} from "prosemirror-view"
+import {EditorState, Plugin} from "prosemirror-state"
+import {EditorView,DecorationSet,Decoration} from "prosemirror-view"
 import {MenuItem,DropdownSubmenu} from "prosemirror-menu"
 import {Schema, DOMParser,DOMSerializer,Node} from "prosemirror-model"
 import {schema} from "prosemirror-schema-basic"
@@ -86,6 +86,35 @@ function setup_prosemirror(){
 })
   return state;
 }
+
+function setup_prosemirror_with_decorations(){
+  const state = setup_prosemirror();
+  let purplePlugin = new Plugin({
+    props: {
+      decorations(state) {
+        return DecorationSet.create(state.doc, [
+          Decoration.inline(0, state.doc.content.size, {style: "color: white"})
+        ])
+      }
+    }
+  })
+  state.plugins.push(purplePlugin);
+  return state;
+}
+export {initProsemirror_without_notes_white};
+function initProsemirror_without_notes_white(){
+  const state = setup_prosemirror_with_decorations();
+  window.view = new EditorView(document.querySelector("#editor"), {state})
+  return window.view;
+}
+export {initProsemirror_with_notes_white};
+function initProsemirror_with_notes_white(note){
+  const state = setup_prosemirror_with_decorations();
+  state.doc = retrive_doc_json(note,state);
+  window.view = new EditorView(document.querySelector("#editor"), {state})
+  return window.view;
+}
+
 
 function buildMarkdownInputRules(schema) {
   const rules = [];

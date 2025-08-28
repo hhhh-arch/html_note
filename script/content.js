@@ -1,4 +1,5 @@
-
+import {showNoteEditor} from './editor.js';
+import CryptoJS from '../libs/crypto-js.min.js';
 class HTMLNoteHighlighter {
   constructor() {
     this.isActive = false;
@@ -956,10 +957,7 @@ function changeColorbyGroupId(color, groupId) {
   
   update_storage_color(groupId,color);
 }
-  // editor.js
-  function showNoteEditor(highlightElement, groupId, mouseEvent) {
-    // ...
-  }
+
 
 function createhighlightBotton(rect) {
   const btn = document.createElement('button');
@@ -1065,10 +1063,8 @@ function highlightElement_data(highlightElement){
     const index_highlightElement = parentNode.innerText.indexOf(highlightElement.innerText);
     console.log(`[debug] parentNode.innerText.26:${parentNode.innerText.substring(index_highlightElement,index_highlightElement+highlightElement.innerText.length)}`);
     console.log(`[debug] index_highlightElement: ${index_highlightElement}`);
-    const color = highlightElement.getAttribute('data-color');
-    if (!color){
-      color = getDefaultColor();
-    }
+    const color = highlightElement.getAttribute('data-color')||getDefaultColor();
+
     return {
       hash_parentNode: hash_parentNode,
       index_highlightElement: index_highlightElement,

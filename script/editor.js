@@ -1,3 +1,10 @@
+import {
+    initProsemirror_without_notes_white,
+    initProsemirror_with_notes_white,
+    get_doc_json,get_hmtl,
+    setup_markdown_input_rules,
+    retrive_doc_json} from './sideBar/prosemirror.js';
+export {showNoteEditor};
 function showNoteEditor(highlightElement, groupId, mouseEvent) {
     document.querySelectorAll('.note-editor').forEach(el => el.remove());
     // 取同组第一个的 data-note
@@ -155,12 +162,14 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
 
     // 在编辑器添加到文档后，再处理内容
     const textArea = editor.querySelector('.note-editor-textarea');
+    textArea.id = 'editor';
     if (currentNote != '') {
-        console.log("currentNote", currentNote);
-        const allTemps = parseAllDataNote(currentNote, textArea);
+        initProsemirror_with_notes_white(currentNote);
+        // console.log("currentNote", currentNote);
+        // const allTemps = parseAllDataNote(currentNote, textArea);
 
-        const newContainer = createAnNewContainer(textArea);
-        markdownInputMonitor(textArea, newContainer);
+        // const newContainer = createAnNewContainer(textArea);
+        // markdownInputMonitor(textArea, newContainer);
 
         // // 确保元素在文档中后再设置选择范围
         // if (lastLine && document.contains(lastLine)) {
@@ -206,8 +215,9 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
         //   }
     // }
     else {
-        const newContainer = createAnNewContainer(textArea);
-        markdownInputMonitor(textArea, newContainer);
+        initProsemirror_without_notes_white();
+        // const newContainer = createAnNewContainer(textArea);
+        // markdownInputMonitor(textArea, newContainer);
 
     }
 
@@ -327,7 +337,7 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
                 if (note.length > 0) {
                     console.log(`[debug] note in onblur: ${note}`);
                     document.querySelectorAll('.html-note-highlight[data-group-id="' + groupId + '"]').forEach(span => {
-                        const notes = loadAllMarkdown(textArea);
+                        const notes = get_doc_json();
                         console.log(`[debug] notes in onblur: ${notes}`);
                         span.setAttribute('data-note', notes);
                         //span.title = note ;
@@ -479,7 +489,7 @@ function saveNotesContent(textArea, tags, groupId, currentPageUrl, currentNote) 
             return; // 如果焦点转移到了tag输入框，不关闭编辑器
         }
 
-        const note = loadAllMarkdown(textArea);
+        const note = get_doc_json();
         const tagsValue = tags.value.trim();
 
         // 保存tags到本地存储
