@@ -93,7 +93,7 @@ function setup_prosemirror_with_decorations(){
     props: {
       decorations(state) {
         return DecorationSet.create(state.doc, [
-          Decoration.inline(0, state.doc.content.size, {style: "color: white"})
+          Decoration.inline(0, state.doc.content.size, {style: "color: white !important"})
         ])
       }
     }
@@ -103,15 +103,25 @@ function setup_prosemirror_with_decorations(){
 }
 export {initProsemirror_without_notes_white};
 function initProsemirror_without_notes_white(){
+  const editor = document.querySelector("#editor");
+  const shadow = editor.attachShadow({mode: 'open'});
+  const shadowContainer = document.createElement('div');
+  shadowContainer.className = 'prosemirror-shadow-container';
+  shadow.appendChild(shadowContainer);
   const state = setup_prosemirror_with_decorations();
-  window.view = new EditorView(document.querySelector("#editor"), {state})
+  window.view = new EditorView(shadowContainer, {state})
   return window.view;
 }
 export {initProsemirror_with_notes_white};
 function initProsemirror_with_notes_white(note){
+  const editor = document.querySelector("#editor");
+  const shadow = editor.attachShadow({mode: 'open'});
+  const shadowContainer = document.createElement('div');
+  shadowContainer.className = 'prosemirror-shadow-container';
+  shadow.appendChild(shadowContainer);
   const state = setup_prosemirror_with_decorations();
   state.doc = retrive_doc_json(note,state);
-  window.view = new EditorView(document.querySelector("#editor"), {state})
+  window.view = new EditorView(shadowContainer, {state})
   return window.view;
 }
 

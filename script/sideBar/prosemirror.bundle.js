@@ -20076,7 +20076,7 @@ var ProseMirrorBundle = (() => {
       props: {
         decorations(state2) {
           return DecorationSet.create(state2.doc, [
-            Decoration.inline(0, state2.doc.content.size, { style: "color: white" })
+            Decoration.inline(0, state2.doc.content.size, { style: "color: white !important" })
           ]);
         }
       }
@@ -20085,14 +20085,122 @@ var ProseMirrorBundle = (() => {
     return state;
   }
   function initProsemirror_without_notes_white() {
+    const editor = document.querySelector("#editor");
+    const shadow = editor.attachShadow({ mode: "open" });
+    const shadowContainer = document.createElement("div");
+    shadowContainer.className = "prosemirror-shadow-container";
+    shadow.appendChild(shadowContainer);
     const state = setup_prosemirror_with_decorations();
-    window.view = new EditorView(document.querySelector("#editor"), { state });
+    window.view = new EditorView(shadowContainer, { state });
     return window.view;
   }
   function initProsemirror_with_notes_white(note) {
+    const editor = document.querySelector("#editor");
+    const shadow = editor.attachShadow({ mode: "open" });
+    const style = document.createElement("style");
+    style.textContent = `
+    /* Markdown Elements Styling */
+    
+    /* ===== HEADINGS ===== */
+    h1 {
+      color: #ffffff !important;
+      font-size: 2.2em !important;
+      font-weight: bold !important;
+      margin: 0.8em 0 0.6em 0 !important;
+      line-height: 1.2 !important;
+      text-indent: 0 !important;
+      position: static !important;
+      left: auto !important;
+    }
+    
+    h2 {
+      color: #f8f9fa !important;
+      font-size: 1.8em !important;
+      font-weight: bold !important;
+      margin: 0.7em 0 0.5em 0 !important;
+      line-height: 1.3 !important;
+    }
+    
+    h3 {
+      color: #f1f3f4 !important;
+      font-size: 1.5em !important;
+      font-weight: bold !important;
+      margin: 0.6em 0 0.4em 0 !important;
+      line-height: 1.4 !important;
+    }
+    
+    h4 {
+      color: #e8eaed !important;
+      font-size: 1.3em !important;
+      font-weight: bold !important;
+      margin: 0.5em 0 0.3em 0 !important;
+      line-height: 1.4 !important;
+    }
+    
+    h5 {
+      color: #dadce0 !important;
+      font-size: 1.1em !important;
+      font-weight: bold !important;
+      margin: 0.4em 0 0.2em 0 !important;
+      line-height: 1.5 !important;
+    }
+    
+    h6 {
+      color: #d0d3d6 !important;
+      font-size: 1em !important;
+      font-weight: bold !important;
+      margin: 0.3em 0 0.1em 0 !important;
+      line-height: 1.5 !important;
+    }
+    
+    /* ===== BLOCKQUOTE ===== */
+    blockquote {
+      color: #e8eaed !important;
+      background-color: rgba(255, 255, 255, 0.05) !important;
+      border-left: 4px solid #ffffff !important;
+      margin: 1em 0 !important;
+      padding: 0.8em 1em !important;
+      font-style: italic !important;
+      border-radius: 0 4px 4px 0 !important;
+    }
+    
+    /* ===== LISTS ===== */
+    ul, ol {
+      color: #f1f3f4 !important;
+      margin: 0.8em 0 !important;
+      padding-left: 2em !important;
+    }
+    
+    ul li, ol li {
+      color: #f1f3f4 !important;
+      margin: 0.4em 0 !important;
+      line-height: 1.5 !important;
+    }
+    
+    ul li::marker, ol li::marker {
+      color: #ffffff !important;
+    }
+    
+    /* \u5176\u4ED6\u57FA\u7840\u6837\u5F0F */
+    p {
+      color: #f1f3f4 !important;
+      margin: 1em 0 !important;
+    }
+    
+    .ProseMirror {
+      word-wrap: break-word;
+      white-space: pre-wrap;
+      font-variant-ligatures: none;
+      font-feature-settings: "liga" 0;
+    }
+  `;
+    shadow.appendChild(style);
+    const shadowContainer = document.createElement("div");
+    shadowContainer.className = "prosemirror-shadow-container";
+    shadow.appendChild(shadowContainer);
     const state = setup_prosemirror_with_decorations();
     state.doc = retrive_doc_json(note, state);
-    window.view = new EditorView(document.querySelector("#editor"), { state });
+    window.view = new EditorView(shadowContainer, { state });
     return window.view;
   }
   function buildMarkdownInputRules(schema3) {
