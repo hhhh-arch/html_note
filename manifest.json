@@ -23,7 +23,7 @@
         "dist/content.js"
 ],
       
-      "css": ["script/fullScreenMindMap/styleFullScreen.css","libs/mind-elixir/style.css","style.css"]
+      "css": ["script/fullScreenMindMap/styleFullScreen.css","libs/mind-elixir/style.css","style.css","script/prosemirror.css"]
     }
   ],
   "icons": {
