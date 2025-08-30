@@ -20,6 +20,7 @@
     {
       "matches": ["<all_urls>"],
       "js": [
+        "libs/purify.min.js",
         "dist/content.js"
 ],
       

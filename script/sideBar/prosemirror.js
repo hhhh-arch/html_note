@@ -16,7 +16,6 @@ import {
 } from "prosemirror-inputrules";
 import { dropCursor } from "prosemirror-dropcursor";
 import { gapCursor } from "prosemirror-gapcursor";
-import '../../libs/purify.min.js';
 const DOMPurify = window.DOMPurify;
 export {getMarkdown};
 function getMarkdown(){
@@ -34,7 +33,7 @@ function get_hmtl(){
   
   const wrapper = document.createElement("div");
   wrapper.appendChild(fragment);
-  const html = DOMPurify.sanitize(wrapper.innerHTML);
+  const html = DOMPurify.sanitize(wrapper.innerHTML,{ USE_PROFILES: { html: true } });
   console.log('html',html);
   return html;
 }

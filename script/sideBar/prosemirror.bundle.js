@@ -1,13 +1,8 @@
 var ProseMirrorBundle = (() => {
-  var __create = Object.create;
   var __defProp = Object.defineProperty;
   var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
   var __getOwnPropNames = Object.getOwnPropertyNames;
-  var __getProtoOf = Object.getPrototypeOf;
   var __hasOwnProp = Object.prototype.hasOwnProperty;
-  var __commonJS = (cb, mod) => function __require() {
-    return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
-  };
   var __export = (target, all) => {
     for (var name in all)
       __defProp(target, name, { get: all[name], enumerable: true });
@@ -20,352 +15,7 @@ var ProseMirrorBundle = (() => {
     }
     return to;
   };
-  var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
-    // If the importer is in node compatibility mode or this is not an ESM
-    // file that has been converted to a CommonJS file using a Babel-
-    // compatible transform (i.e. "__esModule" has not been set), then set
-    // "default" to the CommonJS "module.exports" for node compatibility.
-    isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
-    mod
-  ));
   var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
-
-  // libs/purify.min.js
-  var require_purify_min = __commonJS({
-    "libs/purify.min.js"(exports, module) {
-      !function(e, t) {
-        "object" == typeof exports && "undefined" != typeof module ? module.exports = t() : "function" == typeof define && define.amd ? define(t) : (e = "undefined" != typeof globalThis ? globalThis : e || self).DOMPurify = t();
-      }(exports, function() {
-        "use strict";
-        const { entries: e, setPrototypeOf: t, isFrozen: n, getPrototypeOf: o, getOwnPropertyDescriptor: r } = Object;
-        let { freeze: i, seal: a, create: l } = Object, { apply: c, construct: s } = "undefined" != typeof Reflect && Reflect;
-        i || (i = function(e2) {
-          return e2;
-        }), a || (a = function(e2) {
-          return e2;
-        }), c || (c = function(e2, t2, n2) {
-          return e2.apply(t2, n2);
-        }), s || (s = function(e2, t2) {
-          return new e2(...t2);
-        });
-        const u = R(Array.prototype.forEach), m = R(Array.prototype.lastIndexOf), p = R(Array.prototype.pop), f = R(Array.prototype.push), d = R(Array.prototype.splice), h = R(String.prototype.toLowerCase), g = R(String.prototype.toString), T = R(String.prototype.match), y = R(String.prototype.replace), E = R(String.prototype.indexOf), A = R(String.prototype.trim), _ = R(Object.prototype.hasOwnProperty), S = R(RegExp.prototype.test), b = (N = TypeError, function() {
-          for (var e2 = arguments.length, t2 = new Array(e2), n2 = 0; n2 < e2; n2++) t2[n2] = arguments[n2];
-          return s(N, t2);
-        });
-        var N;
-        function R(e2) {
-          return function(t2) {
-            t2 instanceof RegExp && (t2.lastIndex = 0);
-            for (var n2 = arguments.length, o2 = new Array(n2 > 1 ? n2 - 1 : 0), r2 = 1; r2 < n2; r2++) o2[r2 - 1] = arguments[r2];
-            return c(e2, t2, o2);
-          };
-        }
-        function w(e2, o2) {
-          let r2 = arguments.length > 2 && void 0 !== arguments[2] ? arguments[2] : h;
-          t && t(e2, null);
-          let i2 = o2.length;
-          for (; i2--; ) {
-            let t2 = o2[i2];
-            if ("string" == typeof t2) {
-              const e3 = r2(t2);
-              e3 !== t2 && (n(o2) || (o2[i2] = e3), t2 = e3);
-            }
-            e2[t2] = true;
-          }
-          return e2;
-        }
-        function O(e2) {
-          for (let t2 = 0; t2 < e2.length; t2++) {
-            _(e2, t2) || (e2[t2] = null);
-          }
-          return e2;
-        }
-        function D(t2) {
-          const n2 = l(null);
-          for (const [o2, r2] of e(t2)) {
-            _(t2, o2) && (Array.isArray(r2) ? n2[o2] = O(r2) : r2 && "object" == typeof r2 && r2.constructor === Object ? n2[o2] = D(r2) : n2[o2] = r2);
-          }
-          return n2;
-        }
-        function v(e2, t2) {
-          for (; null !== e2; ) {
-            const n2 = r(e2, t2);
-            if (n2) {
-              if (n2.get) return R(n2.get);
-              if ("function" == typeof n2.value) return R(n2.value);
-            }
-            e2 = o(e2);
-          }
-          return function() {
-            return null;
-          };
-        }
-        const L = i(["a", "abbr", "acronym", "address", "area", "article", "aside", "audio", "b", "bdi", "bdo", "big", "blink", "blockquote", "body", "br", "button", "canvas", "caption", "center", "cite", "code", "col", "colgroup", "content", "data", "datalist", "dd", "decorator", "del", "details", "dfn", "dialog", "dir", "div", "dl", "dt", "element", "em", "fieldset", "figcaption", "figure", "font", "footer", "form", "h1", "h2", "h3", "h4", "h5", "h6", "head", "header", "hgroup", "hr", "html", "i", "img", "input", "ins", "kbd", "label", "legend", "li", "main", "map", "mark", "marquee", "menu", "menuitem", "meter", "nav", "nobr", "ol", "optgroup", "option", "output", "p", "picture", "pre", "progress", "q", "rp", "rt", "ruby", "s", "samp", "section", "select", "shadow", "small", "source", "spacer", "span", "strike", "strong", "style", "sub", "summary", "sup", "table", "tbody", "td", "template", "textarea", "tfoot", "th", "thead", "time", "tr", "track", "tt", "u", "ul", "var", "video", "wbr"]), C = i(["svg", "a", "altglyph", "altglyphdef", "altglyphitem", "animatecolor", "animatemotion", "animatetransform", "circle", "clippath", "defs", "desc", "ellipse", "filter", "font", "g", "glyph", "glyphref", "hkern", "image", "line", "lineargradient", "marker", "mask", "metadata", "mpath", "path", "pattern", "polygon", "polyline", "radialgradient", "rect", "stop", "style", "switch", "symbol", "text", "textpath", "title", "tref", "tspan", "view", "vkern"]), x = i(["feBlend", "feColorMatrix", "feComponentTransfer", "feComposite", "feConvolveMatrix", "feDiffuseLighting", "feDisplacementMap", "feDistantLight", "feDropShadow", "feFlood", "feFuncA", "feFuncB", "feFuncG", "feFuncR", "feGaussianBlur", "feImage", "feMerge", "feMergeNode", "feMorphology", "feOffset", "fePointLight", "feSpecularLighting", "feSpotLight", "feTile", "feTurbulence"]), I = i(["animate", "color-profile", "cursor", "discard", "font-face", "font-face-format", "font-face-name", "font-face-src", "font-face-uri", "foreignobject", "hatch", "hatchpath", "mesh", "meshgradient", "meshpatch", "meshrow", "missing-glyph", "script", "set", "solidcolor", "unknown", "use"]), M = i(["math", "menclose", "merror", "mfenced", "mfrac", "mglyph", "mi", "mlabeledtr", "mmultiscripts", "mn", "mo", "mover", "mpadded", "mphantom", "mroot", "mrow", "ms", "mspace", "msqrt", "mstyle", "msub", "msup", "msubsup", "mtable", "mtd", "mtext", "mtr", "munder", "munderover", "mprescripts"]), k = i(["maction", "maligngroup", "malignmark", "mlongdiv", "mscarries", "mscarry", "msgroup", "mstack", "msline", "msrow", "semantics", "annotation", "annotation-xml", "mprescripts", "none"]), U = i(["#text"]), z = i(["accept", "action", "align", "alt", "autocapitalize", "autocomplete", "autopictureinpicture", "autoplay", "background", "bgcolor", "border", "capture", "cellpadding", "cellspacing", "checked", "cite", "class", "clear", "color", "cols", "colspan", "controls", "controlslist", "coords", "crossorigin", "datetime", "decoding", "default", "dir", "disabled", "disablepictureinpicture", "disableremoteplayback", "download", "draggable", "enctype", "enterkeyhint", "face", "for", "headers", "height", "hidden", "high", "href", "hreflang", "id", "inputmode", "integrity", "ismap", "kind", "label", "lang", "list", "loading", "loop", "low", "max", "maxlength", "media", "method", "min", "minlength", "multiple", "muted", "name", "nonce", "noshade", "novalidate", "nowrap", "open", "optimum", "pattern", "placeholder", "playsinline", "popover", "popovertarget", "popovertargetaction", "poster", "preload", "pubdate", "radiogroup", "readonly", "rel", "required", "rev", "reversed", "role", "rows", "rowspan", "spellcheck", "scope", "selected", "shape", "size", "sizes", "span", "srclang", "start", "src", "srcset", "step", "style", "summary", "tabindex", "title", "translate", "type", "usemap", "valign", "value", "width", "wrap", "xmlns", "slot"]), P = i(["accent-height", "accumulate", "additive", "alignment-baseline", "amplitude", "ascent", "attributename", "attributetype", "azimuth", "basefrequency", "baseline-shift", "begin", "bias", "by", "class", "clip", "clippathunits", "clip-path", "clip-rule", "color", "color-interpolation", "color-interpolation-filters", "color-profile", "color-rendering", "cx", "cy", "d", "dx", "dy", "diffuseconstant", "direction", "display", "divisor", "dur", "edgemode", "elevation", "end", "exponent", "fill", "fill-opacity", "fill-rule", "filter", "filterunits", "flood-color", "flood-opacity", "font-family", "font-size", "font-size-adjust", "font-stretch", "font-style", "font-variant", "font-weight", "fx", "fy", "g1", "g2", "glyph-name", "glyphref", "gradientunits", "gradienttransform", "height", "href", "id", "image-rendering", "in", "in2", "intercept", "k", "k1", "k2", "k3", "k4", "kerning", "keypoints", "keysplines", "keytimes", "lang", "lengthadjust", "letter-spacing", "kernelmatrix", "kernelunitlength", "lighting-color", "local", "marker-end", "marker-mid", "marker-start", "markerheight", "markerunits", "markerwidth", "maskcontentunits", "maskunits", "max", "mask", "media", "method", "mode", "min", "name", "numoctaves", "offset", "operator", "opacity", "order", "orient", "orientation", "origin", "overflow", "paint-order", "path", "pathlength", "patterncontentunits", "patterntransform", "patternunits", "points", "preservealpha", "preserveaspectratio", "primitiveunits", "r", "rx", "ry", "radius", "refx", "refy", "repeatcount", "repeatdur", "restart", "result", "rotate", "scale", "seed", "shape-rendering", "slope", "specularconstant", "specularexponent", "spreadmethod", "startoffset", "stddeviation", "stitchtiles", "stop-color", "stop-opacity", "stroke-dasharray", "stroke-dashoffset", "stroke-linecap", "stroke-linejoin", "stroke-miterlimit", "stroke-opacity", "stroke", "stroke-width", "style", "surfacescale", "systemlanguage", "tabindex", "tablevalues", "targetx", "targety", "transform", "transform-origin", "text-anchor", "text-decoration", "text-rendering", "textlength", "type", "u1", "u2", "unicode", "values", "viewbox", "visibility", "version", "vert-adv-y", "vert-origin-x", "vert-origin-y", "width", "word-spacing", "wrap", "writing-mode", "xchannelselector", "ychannelselector", "x", "x1", "x2", "xmlns", "y", "y1", "y2", "z", "zoomandpan"]), H = i(["accent", "accentunder", "align", "bevelled", "close", "columnsalign", "columnlines", "columnspan", "denomalign", "depth", "dir", "display", "displaystyle", "encoding", "fence", "frame", "height", "href", "id", "largeop", "length", "linethickness", "lspace", "lquote", "mathbackground", "mathcolor", "mathsize", "mathvariant", "maxsize", "minsize", "movablelimits", "notation", "numalign", "open", "rowalign", "rowlines", "rowspacing", "rowspan", "rspace", "rquote", "scriptlevel", "scriptminsize", "scriptsizemultiplier", "selection", "separator", "separators", "stretchy", "subscriptshift", "supscriptshift", "symmetric", "voffset", "width", "xmlns"]), F = i(["xlink:href", "xml:id", "xlink:title", "xml:space", "xmlns:xlink"]), B = a(/\{\{[\w\W]*|[\w\W]*\}\}/gm), W = a(/<%[\w\W]*|[\w\W]*%>/gm), G = a(/\$\{[\w\W]*/gm), Y = a(/^data-[\-\w.\u00B7-\uFFFF]+$/), j = a(/^aria-[\-\w]+$/), X = a(/^(?:(?:(?:f|ht)tps?|mailto|tel|callto|sms|cid|xmpp|matrix):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i), q = a(/^(?:\w+script|data):/i), $ = a(/[\u0000-\u0020\u00A0\u1680\u180E\u2000-\u2029\u205F\u3000]/g), K = a(/^html$/i), V = a(/^[a-z][.\w]*(-[.\w]+)+$/i);
-        var Z = Object.freeze({ __proto__: null, ARIA_ATTR: j, ATTR_WHITESPACE: $, CUSTOM_ELEMENT: V, DATA_ATTR: Y, DOCTYPE_NAME: K, ERB_EXPR: W, IS_ALLOWED_URI: X, IS_SCRIPT_OR_DATA: q, MUSTACHE_EXPR: B, TMPLIT_EXPR: G });
-        const J = 1, Q = 3, ee = 7, te = 8, ne = 9, oe = function() {
-          return "undefined" == typeof window ? null : window;
-        };
-        var re = function t2() {
-          let n2 = arguments.length > 0 && void 0 !== arguments[0] ? arguments[0] : oe();
-          const o2 = (e2) => t2(e2);
-          if (o2.version = "3.2.6", o2.removed = [], !n2 || !n2.document || n2.document.nodeType !== ne || !n2.Element) return o2.isSupported = false, o2;
-          let { document: r2 } = n2;
-          const a2 = r2, c2 = a2.currentScript, { DocumentFragment: s2, HTMLTemplateElement: N2, Node: R2, Element: O2, NodeFilter: B2, NamedNodeMap: W2 = n2.NamedNodeMap || n2.MozNamedAttrMap, HTMLFormElement: G2, DOMParser: Y2, trustedTypes: j2 } = n2, q2 = O2.prototype, $2 = v(q2, "cloneNode"), V2 = v(q2, "remove"), re2 = v(q2, "nextSibling"), ie3 = v(q2, "childNodes"), ae = v(q2, "parentNode");
-          if ("function" == typeof N2) {
-            const e2 = r2.createElement("template");
-            e2.content && e2.content.ownerDocument && (r2 = e2.content.ownerDocument);
-          }
-          let le, ce = "";
-          const { implementation: se, createNodeIterator: ue, createDocumentFragment: me, getElementsByTagName: pe } = r2, { importNode: fe } = a2;
-          let de = { afterSanitizeAttributes: [], afterSanitizeElements: [], afterSanitizeShadowDOM: [], beforeSanitizeAttributes: [], beforeSanitizeElements: [], beforeSanitizeShadowDOM: [], uponSanitizeAttribute: [], uponSanitizeElement: [], uponSanitizeShadowNode: [] };
-          o2.isSupported = "function" == typeof e && "function" == typeof ae && se && void 0 !== se.createHTMLDocument;
-          const { MUSTACHE_EXPR: he, ERB_EXPR: ge, TMPLIT_EXPR: Te, DATA_ATTR: ye, ARIA_ATTR: Ee, IS_SCRIPT_OR_DATA: Ae, ATTR_WHITESPACE: _e, CUSTOM_ELEMENT: Se } = Z;
-          let { IS_ALLOWED_URI: be } = Z, Ne = null;
-          const Re = w({}, [...L, ...C, ...x, ...M, ...U]);
-          let we = null;
-          const Oe = w({}, [...z, ...P, ...H, ...F]);
-          let De = Object.seal(l(null, { tagNameCheck: { writable: true, configurable: false, enumerable: true, value: null }, attributeNameCheck: { writable: true, configurable: false, enumerable: true, value: null }, allowCustomizedBuiltInElements: { writable: true, configurable: false, enumerable: true, value: false } })), ve = null, Le = null, Ce = true, xe = true, Ie = false, Me = true, ke = false, Ue = true, ze = false, Pe = false, He = false, Fe = false, Be = false, We = false, Ge = true, Ye = false, je = true, Xe = false, qe = {}, $e = null;
-          const Ke = w({}, ["annotation-xml", "audio", "colgroup", "desc", "foreignobject", "head", "iframe", "math", "mi", "mn", "mo", "ms", "mtext", "noembed", "noframes", "noscript", "plaintext", "script", "style", "svg", "template", "thead", "title", "video", "xmp"]);
-          let Ve = null;
-          const Ze = w({}, ["audio", "video", "img", "source", "image", "track"]);
-          let Je = null;
-          const Qe = w({}, ["alt", "class", "for", "id", "label", "name", "pattern", "placeholder", "role", "summary", "title", "value", "style", "xmlns"]), et = "http://www.w3.org/1998/Math/MathML", tt = "http://www.w3.org/2000/svg", nt = "http://www.w3.org/1999/xhtml";
-          let ot = nt, rt = false, it = null;
-          const at = w({}, [et, tt, nt], g);
-          let lt = w({}, ["mi", "mo", "mn", "ms", "mtext"]), ct = w({}, ["annotation-xml"]);
-          const st = w({}, ["title", "style", "font", "a", "script"]);
-          let ut = null;
-          const mt = ["application/xhtml+xml", "text/html"];
-          let pt = null, ft = null;
-          const dt = r2.createElement("form"), ht = function(e2) {
-            return e2 instanceof RegExp || e2 instanceof Function;
-          }, gt = function() {
-            let e2 = arguments.length > 0 && void 0 !== arguments[0] ? arguments[0] : {};
-            if (!ft || ft !== e2) {
-              if (e2 && "object" == typeof e2 || (e2 = {}), e2 = D(e2), ut = -1 === mt.indexOf(e2.PARSER_MEDIA_TYPE) ? "text/html" : e2.PARSER_MEDIA_TYPE, pt = "application/xhtml+xml" === ut ? g : h, Ne = _(e2, "ALLOWED_TAGS") ? w({}, e2.ALLOWED_TAGS, pt) : Re, we = _(e2, "ALLOWED_ATTR") ? w({}, e2.ALLOWED_ATTR, pt) : Oe, it = _(e2, "ALLOWED_NAMESPACES") ? w({}, e2.ALLOWED_NAMESPACES, g) : at, Je = _(e2, "ADD_URI_SAFE_ATTR") ? w(D(Qe), e2.ADD_URI_SAFE_ATTR, pt) : Qe, Ve = _(e2, "ADD_DATA_URI_TAGS") ? w(D(Ze), e2.ADD_DATA_URI_TAGS, pt) : Ze, $e = _(e2, "FORBID_CONTENTS") ? w({}, e2.FORBID_CONTENTS, pt) : Ke, ve = _(e2, "FORBID_TAGS") ? w({}, e2.FORBID_TAGS, pt) : D({}), Le = _(e2, "FORBID_ATTR") ? w({}, e2.FORBID_ATTR, pt) : D({}), qe = !!_(e2, "USE_PROFILES") && e2.USE_PROFILES, Ce = false !== e2.ALLOW_ARIA_ATTR, xe = false !== e2.ALLOW_DATA_ATTR, Ie = e2.ALLOW_UNKNOWN_PROTOCOLS || false, Me = false !== e2.ALLOW_SELF_CLOSE_IN_ATTR, ke = e2.SAFE_FOR_TEMPLATES || false, Ue = false !== e2.SAFE_FOR_XML, ze = e2.WHOLE_DOCUMENT || false, Fe = e2.RETURN_DOM || false, Be = e2.RETURN_DOM_FRAGMENT || false, We = e2.RETURN_TRUSTED_TYPE || false, He = e2.FORCE_BODY || false, Ge = false !== e2.SANITIZE_DOM, Ye = e2.SANITIZE_NAMED_PROPS || false, je = false !== e2.KEEP_CONTENT, Xe = e2.IN_PLACE || false, be = e2.ALLOWED_URI_REGEXP || X, ot = e2.NAMESPACE || nt, lt = e2.MATHML_TEXT_INTEGRATION_POINTS || lt, ct = e2.HTML_INTEGRATION_POINTS || ct, De = e2.CUSTOM_ELEMENT_HANDLING || {}, e2.CUSTOM_ELEMENT_HANDLING && ht(e2.CUSTOM_ELEMENT_HANDLING.tagNameCheck) && (De.tagNameCheck = e2.CUSTOM_ELEMENT_HANDLING.tagNameCheck), e2.CUSTOM_ELEMENT_HANDLING && ht(e2.CUSTOM_ELEMENT_HANDLING.attributeNameCheck) && (De.attributeNameCheck = e2.CUSTOM_ELEMENT_HANDLING.attributeNameCheck), e2.CUSTOM_ELEMENT_HANDLING && "boolean" == typeof e2.CUSTOM_ELEMENT_HANDLING.allowCustomizedBuiltInElements && (De.allowCustomizedBuiltInElements = e2.CUSTOM_ELEMENT_HANDLING.allowCustomizedBuiltInElements), ke && (xe = false), Be && (Fe = true), qe && (Ne = w({}, U), we = [], true === qe.html && (w(Ne, L), w(we, z)), true === qe.svg && (w(Ne, C), w(we, P), w(we, F)), true === qe.svgFilters && (w(Ne, x), w(we, P), w(we, F)), true === qe.mathMl && (w(Ne, M), w(we, H), w(we, F))), e2.ADD_TAGS && (Ne === Re && (Ne = D(Ne)), w(Ne, e2.ADD_TAGS, pt)), e2.ADD_ATTR && (we === Oe && (we = D(we)), w(we, e2.ADD_ATTR, pt)), e2.ADD_URI_SAFE_ATTR && w(Je, e2.ADD_URI_SAFE_ATTR, pt), e2.FORBID_CONTENTS && ($e === Ke && ($e = D($e)), w($e, e2.FORBID_CONTENTS, pt)), je && (Ne["#text"] = true), ze && w(Ne, ["html", "head", "body"]), Ne.table && (w(Ne, ["tbody"]), delete ve.tbody), e2.TRUSTED_TYPES_POLICY) {
-                if ("function" != typeof e2.TRUSTED_TYPES_POLICY.createHTML) throw b('TRUSTED_TYPES_POLICY configuration option must provide a "createHTML" hook.');
-                if ("function" != typeof e2.TRUSTED_TYPES_POLICY.createScriptURL) throw b('TRUSTED_TYPES_POLICY configuration option must provide a "createScriptURL" hook.');
-                le = e2.TRUSTED_TYPES_POLICY, ce = le.createHTML("");
-              } else void 0 === le && (le = function(e3, t3) {
-                if ("object" != typeof e3 || "function" != typeof e3.createPolicy) return null;
-                let n3 = null;
-                const o3 = "data-tt-policy-suffix";
-                t3 && t3.hasAttribute(o3) && (n3 = t3.getAttribute(o3));
-                const r3 = "dompurify" + (n3 ? "#" + n3 : "");
-                try {
-                  return e3.createPolicy(r3, { createHTML: (e4) => e4, createScriptURL: (e4) => e4 });
-                } catch (e4) {
-                  return console.warn("TrustedTypes policy " + r3 + " could not be created."), null;
-                }
-              }(j2, c2)), null !== le && "string" == typeof ce && (ce = le.createHTML(""));
-              i && i(e2), ft = e2;
-            }
-          }, Tt = w({}, [...C, ...x, ...I]), yt = w({}, [...M, ...k]), Et = function(e2) {
-            f(o2.removed, { element: e2 });
-            try {
-              ae(e2).removeChild(e2);
-            } catch (t3) {
-              V2(e2);
-            }
-          }, At = function(e2, t3) {
-            try {
-              f(o2.removed, { attribute: t3.getAttributeNode(e2), from: t3 });
-            } catch (e3) {
-              f(o2.removed, { attribute: null, from: t3 });
-            }
-            if (t3.removeAttribute(e2), "is" === e2) if (Fe || Be) try {
-              Et(t3);
-            } catch (e3) {
-            }
-            else try {
-              t3.setAttribute(e2, "");
-            } catch (e3) {
-            }
-          }, _t = function(e2) {
-            let t3 = null, n3 = null;
-            if (He) e2 = "<remove></remove>" + e2;
-            else {
-              const t4 = T(e2, /^[\r\n\t ]+/);
-              n3 = t4 && t4[0];
-            }
-            "application/xhtml+xml" === ut && ot === nt && (e2 = '<html xmlns="http://www.w3.org/1999/xhtml"><head></head><body>' + e2 + "</body></html>");
-            const o3 = le ? le.createHTML(e2) : e2;
-            if (ot === nt) try {
-              t3 = new Y2().parseFromString(o3, ut);
-            } catch (e3) {
-            }
-            if (!t3 || !t3.documentElement) {
-              t3 = se.createDocument(ot, "template", null);
-              try {
-                t3.documentElement.innerHTML = rt ? ce : o3;
-              } catch (e3) {
-              }
-            }
-            const i2 = t3.body || t3.documentElement;
-            return e2 && n3 && i2.insertBefore(r2.createTextNode(n3), i2.childNodes[0] || null), ot === nt ? pe.call(t3, ze ? "html" : "body")[0] : ze ? t3.documentElement : i2;
-          }, St = function(e2) {
-            return ue.call(e2.ownerDocument || e2, e2, B2.SHOW_ELEMENT | B2.SHOW_COMMENT | B2.SHOW_TEXT | B2.SHOW_PROCESSING_INSTRUCTION | B2.SHOW_CDATA_SECTION, null);
-          }, bt = function(e2) {
-            return e2 instanceof G2 && ("string" != typeof e2.nodeName || "string" != typeof e2.textContent || "function" != typeof e2.removeChild || !(e2.attributes instanceof W2) || "function" != typeof e2.removeAttribute || "function" != typeof e2.setAttribute || "string" != typeof e2.namespaceURI || "function" != typeof e2.insertBefore || "function" != typeof e2.hasChildNodes);
-          }, Nt = function(e2) {
-            return "function" == typeof R2 && e2 instanceof R2;
-          };
-          function Rt(e2, t3, n3) {
-            u(e2, (e3) => {
-              e3.call(o2, t3, n3, ft);
-            });
-          }
-          const wt = function(e2) {
-            let t3 = null;
-            if (Rt(de.beforeSanitizeElements, e2, null), bt(e2)) return Et(e2), true;
-            const n3 = pt(e2.nodeName);
-            if (Rt(de.uponSanitizeElement, e2, { tagName: n3, allowedTags: Ne }), Ue && e2.hasChildNodes() && !Nt(e2.firstElementChild) && S(/<[/\w!]/g, e2.innerHTML) && S(/<[/\w!]/g, e2.textContent)) return Et(e2), true;
-            if (e2.nodeType === ee) return Et(e2), true;
-            if (Ue && e2.nodeType === te && S(/<[/\w]/g, e2.data)) return Et(e2), true;
-            if (!Ne[n3] || ve[n3]) {
-              if (!ve[n3] && Dt(n3)) {
-                if (De.tagNameCheck instanceof RegExp && S(De.tagNameCheck, n3)) return false;
-                if (De.tagNameCheck instanceof Function && De.tagNameCheck(n3)) return false;
-              }
-              if (je && !$e[n3]) {
-                const t4 = ae(e2) || e2.parentNode, n4 = ie3(e2) || e2.childNodes;
-                if (n4 && t4) {
-                  for (let o3 = n4.length - 1; o3 >= 0; --o3) {
-                    const r3 = $2(n4[o3], true);
-                    r3.__removalCount = (e2.__removalCount || 0) + 1, t4.insertBefore(r3, re2(e2));
-                  }
-                }
-              }
-              return Et(e2), true;
-            }
-            return e2 instanceof O2 && !function(e3) {
-              let t4 = ae(e3);
-              t4 && t4.tagName || (t4 = { namespaceURI: ot, tagName: "template" });
-              const n4 = h(e3.tagName), o3 = h(t4.tagName);
-              return !!it[e3.namespaceURI] && (e3.namespaceURI === tt ? t4.namespaceURI === nt ? "svg" === n4 : t4.namespaceURI === et ? "svg" === n4 && ("annotation-xml" === o3 || lt[o3]) : Boolean(Tt[n4]) : e3.namespaceURI === et ? t4.namespaceURI === nt ? "math" === n4 : t4.namespaceURI === tt ? "math" === n4 && ct[o3] : Boolean(yt[n4]) : e3.namespaceURI === nt ? !(t4.namespaceURI === tt && !ct[o3]) && !(t4.namespaceURI === et && !lt[o3]) && !yt[n4] && (st[n4] || !Tt[n4]) : !("application/xhtml+xml" !== ut || !it[e3.namespaceURI]));
-            }(e2) ? (Et(e2), true) : "noscript" !== n3 && "noembed" !== n3 && "noframes" !== n3 || !S(/<\/no(script|embed|frames)/i, e2.innerHTML) ? (ke && e2.nodeType === Q && (t3 = e2.textContent, u([he, ge, Te], (e3) => {
-              t3 = y(t3, e3, " ");
-            }), e2.textContent !== t3 && (f(o2.removed, { element: e2.cloneNode() }), e2.textContent = t3)), Rt(de.afterSanitizeElements, e2, null), false) : (Et(e2), true);
-          }, Ot = function(e2, t3, n3) {
-            if (Ge && ("id" === t3 || "name" === t3) && (n3 in r2 || n3 in dt)) return false;
-            if (xe && !Le[t3] && S(ye, t3)) ;
-            else if (Ce && S(Ee, t3)) ;
-            else if (!we[t3] || Le[t3]) {
-              if (!(Dt(e2) && (De.tagNameCheck instanceof RegExp && S(De.tagNameCheck, e2) || De.tagNameCheck instanceof Function && De.tagNameCheck(e2)) && (De.attributeNameCheck instanceof RegExp && S(De.attributeNameCheck, t3) || De.attributeNameCheck instanceof Function && De.attributeNameCheck(t3)) || "is" === t3 && De.allowCustomizedBuiltInElements && (De.tagNameCheck instanceof RegExp && S(De.tagNameCheck, n3) || De.tagNameCheck instanceof Function && De.tagNameCheck(n3)))) return false;
-            } else if (Je[t3]) ;
-            else if (S(be, y(n3, _e, ""))) ;
-            else if ("src" !== t3 && "xlink:href" !== t3 && "href" !== t3 || "script" === e2 || 0 !== E(n3, "data:") || !Ve[e2]) {
-              if (Ie && !S(Ae, y(n3, _e, ""))) ;
-              else if (n3) return false;
-            } else ;
-            return true;
-          }, Dt = function(e2) {
-            return "annotation-xml" !== e2 && T(e2, Se);
-          }, vt = function(e2) {
-            Rt(de.beforeSanitizeAttributes, e2, null);
-            const { attributes: t3 } = e2;
-            if (!t3 || bt(e2)) return;
-            const n3 = { attrName: "", attrValue: "", keepAttr: true, allowedAttributes: we, forceKeepAttr: void 0 };
-            let r3 = t3.length;
-            for (; r3--; ) {
-              const i2 = t3[r3], { name: a3, namespaceURI: l2, value: c3 } = i2, s3 = pt(a3), m2 = c3;
-              let f2 = "value" === a3 ? m2 : A(m2);
-              if (n3.attrName = s3, n3.attrValue = f2, n3.keepAttr = true, n3.forceKeepAttr = void 0, Rt(de.uponSanitizeAttribute, e2, n3), f2 = n3.attrValue, !Ye || "id" !== s3 && "name" !== s3 || (At(a3, e2), f2 = "user-content-" + f2), Ue && S(/((--!?|])>)|<\/(style|title)/i, f2)) {
-                At(a3, e2);
-                continue;
-              }
-              if (n3.forceKeepAttr) continue;
-              if (!n3.keepAttr) {
-                At(a3, e2);
-                continue;
-              }
-              if (!Me && S(/\/>/i, f2)) {
-                At(a3, e2);
-                continue;
-              }
-              ke && u([he, ge, Te], (e3) => {
-                f2 = y(f2, e3, " ");
-              });
-              const d2 = pt(e2.nodeName);
-              if (Ot(d2, s3, f2)) {
-                if (le && "object" == typeof j2 && "function" == typeof j2.getAttributeType) if (l2) ;
-                else switch (j2.getAttributeType(d2, s3)) {
-                  case "TrustedHTML":
-                    f2 = le.createHTML(f2);
-                    break;
-                  case "TrustedScriptURL":
-                    f2 = le.createScriptURL(f2);
-                }
-                if (f2 !== m2) try {
-                  l2 ? e2.setAttributeNS(l2, a3, f2) : e2.setAttribute(a3, f2), bt(e2) ? Et(e2) : p(o2.removed);
-                } catch (t4) {
-                  At(a3, e2);
-                }
-              } else At(a3, e2);
-            }
-            Rt(de.afterSanitizeAttributes, e2, null);
-          }, Lt = function e2(t3) {
-            let n3 = null;
-            const o3 = St(t3);
-            for (Rt(de.beforeSanitizeShadowDOM, t3, null); n3 = o3.nextNode(); ) Rt(de.uponSanitizeShadowNode, n3, null), wt(n3), vt(n3), n3.content instanceof s2 && e2(n3.content);
-            Rt(de.afterSanitizeShadowDOM, t3, null);
-          };
-          return o2.sanitize = function(e2) {
-            let t3 = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : {}, n3 = null, r3 = null, i2 = null, l2 = null;
-            if (rt = !e2, rt && (e2 = "<!-->"), "string" != typeof e2 && !Nt(e2)) {
-              if ("function" != typeof e2.toString) throw b("toString is not a function");
-              if ("string" != typeof (e2 = e2.toString())) throw b("dirty is not a string, aborting");
-            }
-            if (!o2.isSupported) return e2;
-            if (Pe || gt(t3), o2.removed = [], "string" == typeof e2 && (Xe = false), Xe) {
-              if (e2.nodeName) {
-                const t4 = pt(e2.nodeName);
-                if (!Ne[t4] || ve[t4]) throw b("root node is forbidden and cannot be sanitized in-place");
-              }
-            } else if (e2 instanceof R2) n3 = _t("<!---->"), r3 = n3.ownerDocument.importNode(e2, true), r3.nodeType === J && "BODY" === r3.nodeName || "HTML" === r3.nodeName ? n3 = r3 : n3.appendChild(r3);
-            else {
-              if (!Fe && !ke && !ze && -1 === e2.indexOf("<")) return le && We ? le.createHTML(e2) : e2;
-              if (n3 = _t(e2), !n3) return Fe ? null : We ? ce : "";
-            }
-            n3 && He && Et(n3.firstChild);
-            const c3 = St(Xe ? e2 : n3);
-            for (; i2 = c3.nextNode(); ) wt(i2), vt(i2), i2.content instanceof s2 && Lt(i2.content);
-            if (Xe) return e2;
-            if (Fe) {
-              if (Be) for (l2 = me.call(n3.ownerDocument); n3.firstChild; ) l2.appendChild(n3.firstChild);
-              else l2 = n3;
-              return (we.shadowroot || we.shadowrootmode) && (l2 = fe.call(a2, l2, true)), l2;
-            }
-            let m2 = ze ? n3.outerHTML : n3.innerHTML;
-            return ze && Ne["!doctype"] && n3.ownerDocument && n3.ownerDocument.doctype && n3.ownerDocument.doctype.name && S(K, n3.ownerDocument.doctype.name) && (m2 = "<!DOCTYPE " + n3.ownerDocument.doctype.name + ">\n" + m2), ke && u([he, ge, Te], (e3) => {
-              m2 = y(m2, e3, " ");
-            }), le && We ? le.createHTML(m2) : m2;
-          }, o2.setConfig = function() {
-            gt(arguments.length > 0 && void 0 !== arguments[0] ? arguments[0] : {}), Pe = true;
-          }, o2.clearConfig = function() {
-            ft = null, Pe = false;
-          }, o2.isValidAttribute = function(e2, t3, n3) {
-            ft || gt({});
-            const o3 = pt(e2), r3 = pt(t3);
-            return Ot(o3, r3, n3);
-          }, o2.addHook = function(e2, t3) {
-            "function" == typeof t3 && f(de[e2], t3);
-          }, o2.removeHook = function(e2, t3) {
-            if (void 0 !== t3) {
-              const n3 = m(de[e2], t3);
-              return -1 === n3 ? void 0 : d(de[e2], n3, 1)[0];
-            }
-            return p(de[e2]);
-          }, o2.removeHooks = function(e2) {
-            de[e2] = [];
-          }, o2.removeAllHooks = function() {
-            de = { afterSanitizeAttributes: [], afterSanitizeElements: [], afterSanitizeShadowDOM: [], beforeSanitizeAttributes: [], beforeSanitizeElements: [], beforeSanitizeShadowDOM: [], uponSanitizeAttribute: [], uponSanitizeElement: [], uponSanitizeShadowNode: [] };
-          }, o2;
-        }();
-        return re;
-      });
-    }
-  });
 
   // script/sideBar/prosemirror.js
   var prosemirror_exports = {};
@@ -404,8 +54,8 @@ var ProseMirrorBundle = (() => {
     // value, or adding a binding to the end of the map. If `newKey` is
     // given, the key of the binding will be replaced with that key.
     update: function(key, value, newKey) {
-      var self2 = newKey && newKey != key ? this.remove(newKey) : this;
-      var found2 = self2.find(key), content = self2.content.slice();
+      var self = newKey && newKey != key ? this.remove(newKey) : this;
+      var found2 = self.find(key), content = self.content.slice();
       if (found2 == -1) {
         content.push(newKey || key, value);
       } else {
@@ -6132,14 +5782,14 @@ var ProseMirrorBundle = (() => {
       return (this.updated & UPDATED_SCROLL) > 0;
     }
   };
-  function bind(f, self2) {
-    return !self2 || !f ? f : f.bind(self2);
+  function bind(f, self) {
+    return !self || !f ? f : f.bind(self);
   }
   var FieldDesc = class {
-    constructor(name, desc, self2) {
+    constructor(name, desc, self) {
       this.name = name;
-      this.init = bind(desc.init, self2);
-      this.apply = bind(desc.apply, self2);
+      this.init = bind(desc.init, self);
+      this.apply = bind(desc.apply, self);
     }
   };
   var baseFields = [
@@ -6371,13 +6021,13 @@ var ProseMirrorBundle = (() => {
       return instance;
     }
   };
-  function bindProps(obj, self2, target) {
+  function bindProps(obj, self, target) {
     for (let prop in obj) {
       let val = obj[prop];
       if (val instanceof Function)
-        val = val.bind(self2);
+        val = val.bind(self);
       else if (prop == "handleDOMEvents")
-        val = bindProps(val, self2, {});
+        val = bindProps(val, self, {});
       target[prop] = val;
     }
     return target;
@@ -7447,13 +7097,13 @@ var ProseMirrorBundle = (() => {
   };
   var WidgetViewDesc = class extends ViewDesc {
     constructor(parent, widget, view2, pos) {
-      let self2, dom = widget.type.toDOM;
+      let self, dom = widget.type.toDOM;
       if (typeof dom == "function")
         dom = dom(view2, () => {
-          if (!self2)
+          if (!self)
             return pos;
-          if (self2.parent)
-            return self2.parent.posBeforeChild(self2);
+          if (self.parent)
+            return self.parent.posBeforeChild(self);
         });
       if (!widget.type.spec.raw) {
         if (dom.nodeType != 1) {
@@ -7467,7 +7117,7 @@ var ProseMirrorBundle = (() => {
       super(parent, [], dom, null);
       this.widget = widget;
       this.widget = widget;
-      self2 = this;
+      self = this;
     }
     matchesWidget(widget) {
       return this.dirty == NOT_DIRTY && widget.type.eq(this.widget.type);
@@ -15292,9 +14942,9 @@ var ProseMirrorBundle = (() => {
     return -1;
   };
   Ruler.prototype.__compile__ = function() {
-    const self2 = this;
+    const self = this;
     const chains = [""];
-    self2.__rules__.forEach(function(rule) {
+    self.__rules__.forEach(function(rule) {
       if (!rule.enabled) {
         return;
       }
@@ -15304,17 +14954,17 @@ var ProseMirrorBundle = (() => {
         }
       });
     });
-    self2.__cache__ = {};
+    self.__cache__ = {};
     chains.forEach(function(chain) {
-      self2.__cache__[chain] = [];
-      self2.__rules__.forEach(function(rule) {
+      self.__cache__[chain] = [];
+      self.__rules__.forEach(function(rule) {
         if (!rule.enabled) {
           return;
         }
         if (chain && rule.alt.indexOf(chain) < 0) {
           return;
         }
-        self2.__cache__[chain].push(rule.fn);
+        self.__cache__[chain].push(rule.fn);
       });
     });
   };
@@ -18353,16 +18003,16 @@ var ProseMirrorBundle = (() => {
   }
   var defaultSchemas = {
     "http:": {
-      validate: function(text2, pos, self2) {
+      validate: function(text2, pos, self) {
         const tail = text2.slice(pos);
-        if (!self2.re.http) {
-          self2.re.http = new RegExp(
-            "^\\/\\/" + self2.re.src_auth + self2.re.src_host_port_strict + self2.re.src_path,
+        if (!self.re.http) {
+          self.re.http = new RegExp(
+            "^\\/\\/" + self.re.src_auth + self.re.src_host_port_strict + self.re.src_path,
             "i"
           );
         }
-        if (self2.re.http.test(tail)) {
-          return tail.match(self2.re.http)[0].length;
+        if (self.re.http.test(tail)) {
+          return tail.match(self.re.http)[0].length;
         }
         return 0;
       }
@@ -18370,39 +18020,39 @@ var ProseMirrorBundle = (() => {
     "https:": "http:",
     "ftp:": "http:",
     "//": {
-      validate: function(text2, pos, self2) {
+      validate: function(text2, pos, self) {
         const tail = text2.slice(pos);
-        if (!self2.re.no_http) {
-          self2.re.no_http = new RegExp(
-            "^" + self2.re.src_auth + // Don't allow single-level domains, because of false positives like '//test'
+        if (!self.re.no_http) {
+          self.re.no_http = new RegExp(
+            "^" + self.re.src_auth + // Don't allow single-level domains, because of false positives like '//test'
             // with code comments
-            "(?:localhost|(?:(?:" + self2.re.src_domain + ")\\.)+" + self2.re.src_domain_root + ")" + self2.re.src_port + self2.re.src_host_terminator + self2.re.src_path,
+            "(?:localhost|(?:(?:" + self.re.src_domain + ")\\.)+" + self.re.src_domain_root + ")" + self.re.src_port + self.re.src_host_terminator + self.re.src_path,
             "i"
           );
         }
-        if (self2.re.no_http.test(tail)) {
+        if (self.re.no_http.test(tail)) {
           if (pos >= 3 && text2[pos - 3] === ":") {
             return 0;
           }
           if (pos >= 3 && text2[pos - 3] === "/") {
             return 0;
           }
-          return tail.match(self2.re.no_http)[0].length;
+          return tail.match(self.re.no_http)[0].length;
         }
         return 0;
       }
     },
     "mailto:": {
-      validate: function(text2, pos, self2) {
+      validate: function(text2, pos, self) {
         const tail = text2.slice(pos);
-        if (!self2.re.mailto) {
-          self2.re.mailto = new RegExp(
-            "^" + self2.re.src_email_name + "@" + self2.re.src_host_strict,
+        if (!self.re.mailto) {
+          self.re.mailto = new RegExp(
+            "^" + self.re.src_email_name + "@" + self.re.src_host_strict,
             "i"
           );
         }
-        if (self2.re.mailto.test(tail)) {
-          return tail.match(self2.re.mailto)[0].length;
+        if (self.re.mailto.test(tail)) {
+          return tail.match(self.re.mailto)[0].length;
         }
         return 0;
       }
@@ -18410,9 +18060,9 @@ var ProseMirrorBundle = (() => {
   };
   var tlds_2ch_src_re = "a[cdefgilmnoqrstuwxz]|b[abdefghijmnorstvwyz]|c[acdfghiklmnoruvwxyz]|d[ejkmoz]|e[cegrstu]|f[ijkmor]|g[abdefghilmnpqrstuwy]|h[kmnrtu]|i[delmnoqrst]|j[emop]|k[eghimnprwyz]|l[abcikrstuvy]|m[acdeghklmnopqrstuvwxyz]|n[acefgilopruz]|om|p[aefghklmnrstwy]|qa|r[eosuw]|s[abcdeghijklmnortuvxyz]|t[cdfghjklmnortvwz]|u[agksyz]|v[aceginu]|w[fs]|y[et]|z[amw]";
   var tlds_default = "biz|com|edu|gov|net|org|pro|web|xxx|aero|asia|coop|info|museum|name|shop|\u0440\u0444".split("|");
-  function resetScanCache(self2) {
-    self2.__index__ = -1;
-    self2.__text_cache__ = "";
+  function resetScanCache(self) {
+    self.__index__ = -1;
+    self.__text_cache__ = "";
   }
   function createValidator(re) {
     return function(text2, pos) {
@@ -18424,15 +18074,15 @@ var ProseMirrorBundle = (() => {
     };
   }
   function createNormalizer() {
-    return function(match2, self2) {
-      self2.normalize(match2);
+    return function(match2, self) {
+      self.normalize(match2);
     };
   }
-  function compile(self2) {
-    const re = self2.re = re_default(self2.__opts__);
-    const tlds2 = self2.__tlds__.slice();
-    self2.onCompile();
-    if (!self2.__tlds_replaced__) {
+  function compile(self) {
+    const re = self.re = re_default(self.__opts__);
+    const tlds2 = self.__tlds__.slice();
+    self.onCompile();
+    if (!self.__tlds_replaced__) {
       tlds2.push(tlds_2ch_src_re);
     }
     tlds2.push(re.src_xn);
@@ -18445,17 +18095,17 @@ var ProseMirrorBundle = (() => {
     re.link_no_ip_fuzzy = RegExp(untpl(re.tpl_link_no_ip_fuzzy), "i");
     re.host_fuzzy_test = RegExp(untpl(re.tpl_host_fuzzy_test), "i");
     const aliases = [];
-    self2.__compiled__ = {};
+    self.__compiled__ = {};
     function schemaError(name, val) {
       throw new Error('(LinkifyIt) Invalid schema "' + name + '": ' + val);
     }
-    Object.keys(self2.__schemas__).forEach(function(name) {
-      const val = self2.__schemas__[name];
+    Object.keys(self.__schemas__).forEach(function(name) {
+      const val = self.__schemas__[name];
       if (val === null) {
         return;
       }
       const compiled = { validate: null, link: null };
-      self2.__compiled__[name] = compiled;
+      self.__compiled__[name] = compiled;
       if (isObject(val)) {
         if (isRegExp(val.validate)) {
           compiled.validate = createValidator(val.validate);
@@ -18480,39 +18130,39 @@ var ProseMirrorBundle = (() => {
       schemaError(name, val);
     });
     aliases.forEach(function(alias) {
-      if (!self2.__compiled__[self2.__schemas__[alias]]) {
+      if (!self.__compiled__[self.__schemas__[alias]]) {
         return;
       }
-      self2.__compiled__[alias].validate = self2.__compiled__[self2.__schemas__[alias]].validate;
-      self2.__compiled__[alias].normalize = self2.__compiled__[self2.__schemas__[alias]].normalize;
+      self.__compiled__[alias].validate = self.__compiled__[self.__schemas__[alias]].validate;
+      self.__compiled__[alias].normalize = self.__compiled__[self.__schemas__[alias]].normalize;
     });
-    self2.__compiled__[""] = { validate: null, normalize: createNormalizer() };
-    const slist = Object.keys(self2.__compiled__).filter(function(name) {
-      return name.length > 0 && self2.__compiled__[name];
+    self.__compiled__[""] = { validate: null, normalize: createNormalizer() };
+    const slist = Object.keys(self.__compiled__).filter(function(name) {
+      return name.length > 0 && self.__compiled__[name];
     }).map(escapeRE2).join("|");
-    self2.re.schema_test = RegExp("(^|(?!_)(?:[><\uFF5C]|" + re.src_ZPCc + "))(" + slist + ")", "i");
-    self2.re.schema_search = RegExp("(^|(?!_)(?:[><\uFF5C]|" + re.src_ZPCc + "))(" + slist + ")", "ig");
-    self2.re.schema_at_start = RegExp("^" + self2.re.schema_search.source, "i");
-    self2.re.pretest = RegExp(
-      "(" + self2.re.schema_test.source + ")|(" + self2.re.host_fuzzy_test.source + ")|@",
+    self.re.schema_test = RegExp("(^|(?!_)(?:[><\uFF5C]|" + re.src_ZPCc + "))(" + slist + ")", "i");
+    self.re.schema_search = RegExp("(^|(?!_)(?:[><\uFF5C]|" + re.src_ZPCc + "))(" + slist + ")", "ig");
+    self.re.schema_at_start = RegExp("^" + self.re.schema_search.source, "i");
+    self.re.pretest = RegExp(
+      "(" + self.re.schema_test.source + ")|(" + self.re.host_fuzzy_test.source + ")|@",
       "i"
     );
-    resetScanCache(self2);
+    resetScanCache(self);
   }
-  function Match(self2, shift2) {
-    const start = self2.__index__;
-    const end = self2.__last_index__;
-    const text2 = self2.__text_cache__.slice(start, end);
-    this.schema = self2.__schema__.toLowerCase();
+  function Match(self, shift2) {
+    const start = self.__index__;
+    const end = self.__last_index__;
+    const text2 = self.__text_cache__.slice(start, end);
+    this.schema = self.__schema__.toLowerCase();
     this.index = start + shift2;
     this.lastIndex = end + shift2;
     this.raw = text2;
     this.text = text2;
     this.url = text2;
   }
-  function createMatch(self2, shift2) {
-    const match2 = new Match(self2, shift2);
-    self2.__compiled__[match2.schema].normalize(match2, self2);
+  function createMatch(self, shift2) {
+    const match2 = new Match(self, shift2);
+    self.__compiled__[match2.schema].normalize(match2, self);
     return match2;
   }
   function LinkifyIt(schemas, options) {
@@ -19139,7 +18789,7 @@ var ProseMirrorBundle = (() => {
     return this;
   };
   MarkdownIt.prototype.configure = function(presets) {
-    const self2 = this;
+    const self = this;
     if (isString(presets)) {
       const presetName = presets;
       presets = config[presetName];
@@ -19151,15 +18801,15 @@ var ProseMirrorBundle = (() => {
       throw new Error("Wrong `markdown-it` preset, can't be empty");
     }
     if (presets.options) {
-      self2.set(presets.options);
+      self.set(presets.options);
     }
     if (presets.components) {
       Object.keys(presets.components).forEach(function(name) {
         if (presets.components[name].rules) {
-          self2[name].ruler.enableOnly(presets.components[name].rules);
+          self[name].ruler.enableOnly(presets.components[name].rules);
         }
         if (presets.components[name].rules2) {
-          self2[name].ruler2.enableOnly(presets.components[name].rules2);
+          self[name].ruler2.enableOnly(presets.components[name].rules2);
         }
       });
     }
@@ -20011,7 +19661,6 @@ var ProseMirrorBundle = (() => {
   };
 
   // script/sideBar/prosemirror.js
-  var import_purify_min = __toESM(require_purify_min());
   var DOMPurify = window.DOMPurify;
   function getMarkdown() {
     const serializer = defaultMarkdownSerializer;
@@ -20025,7 +19674,7 @@ var ProseMirrorBundle = (() => {
     );
     const wrapper = document.createElement("div");
     wrapper.appendChild(fragment);
-    const html = DOMPurify.sanitize(wrapper.innerHTML);
+    const html = DOMPurify.sanitize(wrapper.innerHTML, { USE_PROFILES: { html: true } });
     console.log("html", html);
     return html;
   }
@@ -20086,23 +19735,15 @@ var ProseMirrorBundle = (() => {
   }
   function initProsemirror_without_notes_white() {
     const editor = document.querySelector("#editor");
-    const shadow = editor.attachShadow({ mode: "open" });
-    const shadowContainer = document.createElement("div");
-    shadowContainer.className = "prosemirror-shadow-container";
-    shadow.appendChild(shadowContainer);
     const state = setup_prosemirror_with_decorations();
-    window.view = new EditorView(shadowContainer, { state });
+    window.view = new EditorView(editor, { state });
     return window.view;
   }
   function initProsemirror_with_notes_white(note) {
     const editor = document.querySelector("#editor");
-    const shadow = editor.attachShadow({ mode: "open" });
-    const shadowContainer = document.createElement("div");
-    shadowContainer.className = "prosemirror-shadow-container";
-    shadow.appendChild(shadowContainer);
     const state = setup_prosemirror_with_decorations();
     state.doc = retrive_doc_json(note, state);
-    window.view = new EditorView(shadowContainer, { state });
+    window.view = new EditorView(editor, { state });
     return window.view;
   }
   function buildMarkdownInputRules(schema3) {
@@ -20229,5 +19870,4 @@ var ProseMirrorBundle = (() => {
   }
   return __toCommonJS(prosemirror_exports);
 })();
-/*! @license DOMPurify 3.2.6 | (c) Cure53 and other contributors | Released under the Apache license 2.0 and Mozilla Public License 2.0 | github.com/cure53/DOMPurify/blob/3.2.6/LICENSE */
 //# sourceMappingURL=prosemirror.bundle.js.map
