@@ -1,914 +1,907 @@
 import {showNoteEditor} from './editor.js';
 import CryptoJS from '../libs/crypto-js.min.js';
+
 class HTMLNoteHighlighter {
-  constructor() {
-    this.isActive = false;
-    this.noteCounter = 0;
-    this.highlightButton = null; // 悬浮高亮按钮
-    this.defaultColor = getDefaultColor(); // 获取存储的默认颜色
-    this.init();
-  }
+    constructor() {
+        this.isActive = false;
+        this.noteCounter = 0;
+        this.highlightButton = null; // 悬浮高亮按钮
+        this.defaultColor = getDefaultColor(); // 获取存储的默认颜色
+        this.init();
+    }
 
-  init() {
-    // 初始化事件监听
-    this.setupEventListeners();
-    // 恢复已保存的高亮和笔记
-    this.restoreHighlights();
-    // 创建工具栏
-    //this.createToolbar();
-    load_groupId_list(window.location.href);
-    show_loose_highlightElement(window.location.href);
-  }
-
-
-  
-  /**
-   * 设置默认颜色并保存到localStorage
-   * @param {string} color - 要设置的默认颜色
-   */
-  setDefaultColor(color) {
-    this.defaultColor = color;
-    localStorage.setItem('html-note-default-color', color);
-  }
-
-  setupEventListeners() {
-    // 监听选区变化，弹出高亮按钮
-    document.addEventListener('selectionchange', () => {
-      //console.log('showHighlightButtonForSelection')
-      this.showHighlightButtonForSelection();
-    });
-    
+    init() {
+        // 初始化事件监听
+        this.setupEventListeners();
+        // 恢复已保存的高亮和笔记
+        this.restoreHighlights();
+        // 创建工具栏
+        //this.createToolbar();
+        load_groupId_list(window.location.href);
+        show_loose_highlightElement(window.location.href);
+    }
 
 
-    // 监听点击高亮区域，弹出工具栏和编辑框
-    document.addEventListener('click', (e) => {
+    /**
+     * 设置默认颜色并保存到localStorage
+     * @param {string} color - 要设置的默认颜色
+     */
+    setDefaultColor(color) {
+        this.defaultColor = color;
+        localStorage.setItem('html-note-default-color', color);
+    }
+
+    setupEventListeners() {
+        // 监听选区变化，弹出高亮按钮
+        document.addEventListener('selectionchange', () => {
+            //console.log('showHighlightButtonForSelection')
+            this.showHighlightButtonForSelection();
+        });
+
+
+        // 监听点击高亮区域，弹出工具栏和编辑框
+        document.addEventListener('click', (e) => {
 //       console.log('[debug] 点击事件触发，目标元素:', e.target);
 //       console.log('[debug] 目标元素类名:', e.target.className);
-      
-      if (e.target.classList.contains('html-note-highlight')) {
-        const groupId = e.target.getAttribute('data-group-id');
+
+            if (e.target.classList.contains('html-note-highlight')) {
+                const groupId = e.target.getAttribute('data-group-id');
 //         console.log('[debug] 点击了高亮元素，groupId:', groupId);
 
-        if (groupId) {
-          // 选中所有同组的高亮
+                if (groupId) {
+                    // 选中所有同组的高亮
 //           console.log('[debug] 有groupId，查找同组元素');
-          const allSpans = document.querySelectorAll('.html-note-highlight[data-group-id="' + groupId + '"]');
+                    const allSpans = document.querySelectorAll('.html-note-highlight[data-group-id="' + groupId + '"]');
 //           console.log('[debug] 找到同组元素数量:', allSpans.length);
-          // 传第一个span和groupId给工具栏
-          this.showToolbarForHighlight(allSpans[0], groupId,e);
+                    // 传第一个span和groupId给工具栏
+                    this.showToolbarForHighlight(allSpans[0], groupId, e);
 //            console.log('[debug] showToolbarForHighlight 调用完成');
-          showNoteEditor(allSpans[0], groupId, e);
+                    showNoteEditor(allSpans[0], groupId, e);
 //            console.log('[debug] showNoteEditor 调用完成');
-          //TODO: 这里点击编辑框出不来
-        } else {
+                    //TODO: 这里点击编辑框出不来
+                } else {
 //           console.log('[debug] 没有groupId，直接处理单个元素');
-          this.showToolbarForHighlight(e.target, undefined, e);
-          showNoteEditor(e.target, undefined, e);
-        }
-      } else {
+                    this.showToolbarForHighlight(e.target, undefined, e);
+                    showNoteEditor(e.target, undefined, e);
+                }
+            } else {
 //         console.log('[debug] 点击的不是高亮元素');
-      }
-    });
-    document.addEventListener('mouseover',(e)=>{
-      highlightElement_mouseOverHandler(e);
-    })
-    document.addEventListener('mouseout',(e)=>{
-      highlightElement_mouseOutHandler(e);
-    })
+            }
+        });
+        document.addEventListener('mouseover', (e) => {
+            highlightElement_mouseOverHandler(e);
+        })
+        document.addEventListener('mouseout', (e) => {
+            highlightElement_mouseOutHandler(e);
+        })
 
-    chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-      console.log('message:',message);
-      if (message.type === 'sync_mindMap_data') {
-        chrome.runtime.sendMessage({ type: 'sync_mindMap_data_ready', pageUrl: window.location.href });
-      }
-      if (message.type === 'toggle_fullscreen') {
-        // chrome.runtime.sendMessage({ type: 'close_side_panel' });
-        toggleFullscreen(window.location.href);
-      }
-      if (message.type == 'context_menu_item_clicked') {
-        chrome.runtime.sendMessage({ type: 'open_side_panel' });
-      }
-      if (message.type === 'side_panel_ready') {
-        console.log('pageurl:',window.location.href);
-        chrome.runtime.sendMessage({ type: 'init_mindmap', pageUrl: window.location.href });
-      }
-    });
-
-
-  }
+        chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+            console.log('message:', message);
+            if (message.type === 'sync_mindMap_data') {
+                chrome.runtime.sendMessage({type: 'sync_mindMap_data_ready', pageUrl: window.location.href});
+            }
+            if (message.type === 'toggle_fullscreen') {
+                // chrome.runtime.sendMessage({ type: 'close_side_panel' });
+                toggleFullscreen(window.location.href);
+            }
+            if (message.type == 'context_menu_item_clicked') {
+                chrome.runtime.sendMessage({type: 'open_side_panel'});
+            }
+            if (message.type === 'side_panel_ready') {
+                console.log('pageurl:', window.location.href);
+                chrome.runtime.sendMessage({type: 'init_mindmap', pageUrl: window.location.href});
+            }
+        });
 
 
-
-
-  showHighlightButtonForSelection() {
-    // 移除已有按钮
-    if (this.highlightButton) {
-      this.highlightButton.remove();
-      this.highlightButton = null;
     }
-    const selection = window.getSelection();
-    if (!selection.rangeCount || selection.isCollapsed) return;
-    const range = selection.getRangeAt(0);
-    const rect = range.getBoundingClientRect();
-    if (rect.width === 0 && rect.height === 0) return;
-    // 创建按钮
-    const btn = createhighlightBotton(rect);
-   
-    this.highlightButton = btn;
-    btn.onclick = () => {
-      this.highlightSelectionWithDefaultColor();
-      btn.remove();
-      this.highlightButton = null;
-      
-      //TODO: storage for the highlight
-    };
-  }
 
-  highlightSelectionWithDefaultColor() {
-    try {
-      const selection = window.getSelection();
-      if (!selection || !selection.rangeCount || selection.isCollapsed) {
-        console.log('[debug] 没有有效的选区');
-        return;
-      }
-  
-      const range = selection.getRangeAt(0);
-      const selectedText = selection.toString().trim();
-      if (selectedText.length === 0) return;
-  
-      if (this.isAlreadyHighlighted(range)) {
-        this.showNotification('该文本已经高亮过了');
-        selection.removeAllRanges();
-        return;
-      }
-  
-      // 生成本次高亮的 group id
-      const groupId = 'note-group-' + Date.now() + '-' + Math.floor(Math.random() * 10000);
-      this._currentHighlightGroupId = groupId;
-     
-      // 👇 使用 extract + insert 替代 surround，绕过 DOMException
-      this.wrapRangeWithSpan(range, this.createHighlightSpan(groupId));
-      
-      selection.removeAllRanges();
-      const highlightElement = document.querySelector('.html-note-highlight[data-group-id="' + groupId + '"]');
 
-      if (highlightElement){
+    showHighlightButtonForSelection() {
+        // 移除已有按钮
+        if (this.highlightButton) {
+            this.highlightButton.remove();
+            this.highlightButton = null;
+        }
+        const selection = window.getSelection();
+        if (!selection.rangeCount || selection.isCollapsed) return;
+        const range = selection.getRangeAt(0);
+        const rect = range.getBoundingClientRect();
+        if (rect.width === 0 && rect.height === 0) return;
+        // 创建按钮
+        const btn = createhighlightBotton(rect);
 
-        storageHighlight(highlightElement,window.location.href);
-      }
-      else{
-        console.error(`highlightElement is null for groupId: ${groupId}`);
-      }
-    } catch (error) {
-      console.error('高亮文本时出错:', error);
-      this.showNotification('高亮失败（可能选中内容结构复杂）');
+        this.highlightButton = btn;
+        btn.onclick = () => {
+            this.highlightSelectionWithDefaultColor();
+            btn.remove();
+            this.highlightButton = null;
+
+            //TODO: storage for the highlight
+        };
     }
-  }
 
-  /**
-   * 创建高亮span元素（使用默认颜色）
-   * @param {string} groupId - 高亮组的ID，用于批量操作
-   * @returns {HTMLElement} 创建的高亮span元素
-   */
-  createHighlightSpan(groupId) {
-    const highlightSpan = document.createElement('span');
-    highlightSpan.className = 'html-note-highlight';
-    highlightSpan.setAttribute('data-note-id', `note-${++this.noteCounter}`);
-    highlightSpan.setAttribute('data-note', '');
-    highlightSpan.setAttribute('data-timestamp', Date.now().toString());
-    // 每次都重新获取最新的默认颜色
-    const color = getDefaultColor();
-    // console.log('[debug] createHighlightSpan 用的 color:', color);
-    highlightSpan.style.backgroundColor = color;
-    highlightSpan.setAttribute('data-color', color);
-    if (groupId) highlightSpan.setAttribute('data-group-id', groupId);
-    return highlightSpan;
-  }
+    highlightSelectionWithDefaultColor() {
+        try {
+            const selection = window.getSelection();
+            if (!selection || !selection.rangeCount || selection.isCollapsed) {
+                console.log('[debug] 没有有效的选区');
+                return;
+            }
+
+            const range = selection.getRangeAt(0);
+            const selectedText = selection.toString().trim();
+            if (selectedText.length === 0) return;
+
+            if (this.isAlreadyHighlighted(range)) {
+                this.showNotification('该文本已经高亮过了');
+                selection.removeAllRanges();
+                return;
+            }
+
+            // 生成本次高亮的 group id
+            const groupId = 'note-group-' + Date.now() + '-' + Math.floor(Math.random() * 10000);
+            this._currentHighlightGroupId = groupId;
+
+            // 👇 使用 extract + insert 替代 surround，绕过 DOMException
+            this.wrapRangeWithSpan(range, this.createHighlightSpan(groupId));
+
+            selection.removeAllRanges();
+            const highlightElement = document.querySelector('.html-note-highlight[data-group-id="' + groupId + '"]');
+
+            if (highlightElement) {
+
+                storageHighlight(highlightElement, window.location.href);
+            } else {
+                console.error(`highlightElement is null for groupId: ${groupId}`);
+            }
+        } catch (error) {
+            console.error('高亮文本时出错:', error);
+            this.showNotification('高亮失败（可能选中内容结构复杂）');
+        }
+    }
+
+    /**
+     * 创建高亮span元素（使用默认颜色）
+     * @param {string} groupId - 高亮组的ID，用于批量操作
+     * @returns {HTMLElement} 创建的高亮span元素
+     */
+    createHighlightSpan(groupId) {
+        const highlightSpan = document.createElement('span');
+        highlightSpan.className = 'html-note-highlight';
+        highlightSpan.setAttribute('data-note-id', `note-${++this.noteCounter}`);
+        highlightSpan.setAttribute('data-note', '');
+        highlightSpan.setAttribute('data-timestamp', Date.now().toString());
+        // 每次都重新获取最新的默认颜色
+        const color = getDefaultColor();
+        // console.log('[debug] createHighlightSpan 用的 color:', color);
+        highlightSpan.style.backgroundColor = color;
+        highlightSpan.setAttribute('data-color', color);
+        if (groupId) highlightSpan.setAttribute('data-group-id', groupId);
+        return highlightSpan;
+    }
 
 
+    wrapRangeWithSpan(range, highlightSpan) {
+        try {
+            // 检查是否是跨块级元素的选区
+            const groupId = highlightSpan.getAttribute('data-group-id');
+            if (this.isCrossBlockSelection(range)) {
+                const color = highlightSpan.getAttribute('data-color') || getDefaultColor();
+                //console.log('[debug] wrapRangeWithSpan 传入 wrapCrossBlockSelection 的 color:', color);
+                this.wrapCrossBlockSelection(range, color, groupId);
+            } else {
+                // 对于简单的选区，使用原来的方法
+                const contents = range.extractContents();
+                highlightSpan.appendChild(contents);
+                range.insertNode(highlightSpan);
+            }
+            // 清理可能的空文本节点
+            this.cleanupEmptyNodes(highlightSpan);
+        } catch (error) {
+            console.error('wrapRangeWithSpan 报错:', error);
+            throw error;
+        }
+    }
 
-  wrapRangeWithSpan(range, highlightSpan) {
-    try {
-      // 检查是否是跨块级元素的选区
-      const groupId = highlightSpan.getAttribute('data-group-id');
-      if (this.isCrossBlockSelection(range)) {
-        const color = highlightSpan.getAttribute('data-color') || getDefaultColor();
-        //console.log('[debug] wrapRangeWithSpan 传入 wrapCrossBlockSelection 的 color:', color);
-        this.wrapCrossBlockSelection(range, color, groupId);
-      } else {
-        // 对于简单的选区，使用原来的方法
-        const contents = range.extractContents();
-        highlightSpan.appendChild(contents);
+    isCrossBlockSelection(range) {
+        // 检查选区是否跨越多个块级元素
+        const startContainer = range.startContainer;
+        const endContainer = range.endContainer;
+
+        // 如果开始和结束是同一个节点，不是跨块级元素
+        if (startContainer === endContainer) {
+            return false;
+        }
+
+        // 获取选区内的所有节点
+        const nodes = [];
+        let node = startContainer;
+
+        while (node && node !== endContainer.nextSibling) {
+            if (node.nodeType === Node.ELEMENT_NODE) {
+                nodes.push(node);
+            }
+            node = this.getNextNode(node, endContainer);
+        }
+
+        // 检查是否有多个块级元素
+        const blockElements = nodes.filter(node =>
+            this.isBlockElement(node)
+        );
+
+        // 如果只有一个块级元素，检查是否跨越了多个子元素
+        if (blockElements.length === 1) {
+            const blockElement = blockElements[0];
+            const startNode = range.startContainer;
+            const endNode = range.endContainer;
+
+            // 检查是否跨越了多个子元素
+            if (startNode !== endNode) {
+                return true;
+            }
+        }
+
+        return blockElements.length > 1;
+    }
+
+    isBlockElement(element) {
+        const blockTags = ['DIV', 'P', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'SECTION', 'ARTICLE', 'HEADER', 'FOOTER', 'MAIN', 'ASIDE', 'NAV', 'BLOCKQUOTE', 'PRE', 'LI', 'DT', 'DD'];
+        return blockTags.includes(element.tagName);
+    }
+
+    getNextNode(node, endNode) {
+        if (node === endNode) return null;
+
+        if (node.firstChild) {
+            return node.firstChild;
+        }
+
+        while (node) {
+            if (node.nextSibling) {
+                return node.nextSibling;
+            }
+            node = node.parentNode;
+        }
+
+        return null;
+    }
+
+    wrapCrossBlockSelection(range, color = null, groupId) {
+        if (!color) {
+            color = getDefaultColor();
+        }
+        console.log('[debug] wrapCrossBlockSelection 用的 color:', color);
+        try {
+            const textNodes = this.getTextNodesInRange(range);
+            if (textNodes.length === 0) {
+                this.fallbackHighlight(range, color);
+                return;
+            }
+            const highlightSpans = [];
+            textNodes.forEach(({node, startOffset, endOffset}) => {
+                if (startOffset === endOffset) return;
+                const textContent = node.textContent;
+                const selectedText = textContent.substring(startOffset, endOffset);
+                if (selectedText.trim()) {
+                    const highlightSpan = createHighlightSpanWithColor(color, groupId, ++this.noteCounter);
+                    highlightSpan.textContent = selectedText;
+                    const beforeText = textContent.substring(0, startOffset);
+                    const afterText = textContent.substring(endOffset);
+                    if (beforeText) {
+                        const beforeNode = document.createTextNode(beforeText);
+                        node.parentNode.insertBefore(beforeNode, node);
+                    }
+                    node.parentNode.insertBefore(highlightSpan, node.nextSibling);
+                    highlightSpans.push(highlightSpan);
+                    if (afterText) {
+                        const afterNode = document.createTextNode(afterText);
+                        node.parentNode.insertBefore(afterNode, highlightSpan.nextSibling);
+                    }
+                    node.parentNode.removeChild(node);
+                }
+            });
+            this.mergeAdjacentHighlights(highlightSpans);
+        } catch (error) {
+            console.error('跨块级元素高亮失败，尝试备用方法:', error);
+            this.fallbackHighlight(range, color);
+        }
+    }
+
+    getTextNodesInRange(range) {
+        const textNodes = [];
+        const {startContainer, endContainer, startOffset, endOffset} = range;
+        const ancestor = range.commonAncestorContainer;
+
+        // 用 TreeWalker 遍历所有文本节点
+        const walker = document.createTreeWalker(
+            ancestor.nodeType === 1 ? ancestor : ancestor.parentNode,
+            NodeFilter.SHOW_TEXT,
+            {
+                acceptNode: (node) => {
+                    // 只处理有内容的文本节点
+                    if (!node.textContent.trim()) return NodeFilter.FILTER_REJECT;
+                    // 判断节点和选区的关系
+                    const nodeRange = document.createRange();
+                    nodeRange.selectNodeContents(node);
+                    if (
+                        nodeRange.compareBoundaryPoints(Range.END_TO_START, range) <= 0 &&
+                        nodeRange.compareBoundaryPoints(Range.START_TO_END, range) >= 0
+                    ) {
+                        return NodeFilter.FILTER_ACCEPT;
+                    }
+                    return NodeFilter.FILTER_REJECT;
+                }
+            },
+            false
+        );
+
+        let node;
+        while ((node = walker.nextNode())) {
+            let nodeStart = 0;
+            let nodeEnd = node.textContent.length;
+            if (node === startContainer) nodeStart = startOffset;
+            if (node === endContainer) nodeEnd = endOffset;
+            if (nodeStart < nodeEnd) {
+                textNodes.push({node, startOffset: nodeStart, endOffset: nodeEnd});
+            }
+        }
+        return textNodes;
+    }
+
+    getAllTextNodes(element) {
+        const textNodes = [];
+        const walker = document.createTreeWalker(
+            element,
+            NodeFilter.SHOW_TEXT,
+            null,
+            false
+        );
+
+        let node;
+        while (node = walker.nextNode()) {
+            textNodes.push(node);
+        }
+
+        return textNodes;
+    }
+
+    fallbackHighlight(range, color) {
+        // 备用方法：只高亮文本内容，不改变HTML结构
+        const selectedText = range.toString();
+        if (!selectedText.trim()) return;
+
+        // 如果没有指定颜色，使用默认颜色
+        if (!color) {
+            color = getDefaultColor();
+        }
+
+        // 创建一个文本节点来替换选区
+        const textNode = document.createTextNode(selectedText);
+        const highlightSpan = createHighlightSpanWithColor(color, this._currentHighlightGroupId, ++this.noteCounter);
+        highlightSpan.appendChild(textNode);
+
+        // 删除原始内容并插入高亮span
+        range.deleteContents();
         range.insertNode(highlightSpan);
-      }
-      // 清理可能的空文本节点
-      this.cleanupEmptyNodes(highlightSpan);
-    } catch (error) {
-      console.error('wrapRangeWithSpan 报错:', error);
-      throw error;
     }
-  }
 
-  isCrossBlockSelection(range) {
-    // 检查选区是否跨越多个块级元素
-    const startContainer = range.startContainer;
-    const endContainer = range.endContainer;
-    
-    // 如果开始和结束是同一个节点，不是跨块级元素
-    if (startContainer === endContainer) {
-      return false;
-    }
-    
-    // 获取选区内的所有节点
-    const nodes = [];
-    let node = startContainer;
-    
-    while (node && node !== endContainer.nextSibling) {
-      if (node.nodeType === Node.ELEMENT_NODE) {
-        nodes.push(node);
-      }
-      node = this.getNextNode(node, endContainer);
-    }
-    
-    // 检查是否有多个块级元素
-    const blockElements = nodes.filter(node => 
-      this.isBlockElement(node)
-    );
-    
-    // 如果只有一个块级元素，检查是否跨越了多个子元素
-    if (blockElements.length === 1) {
-      const blockElement = blockElements[0];
-      const startNode = range.startContainer;
-      const endNode = range.endContainer;
-      
-      // 检查是否跨越了多个子元素
-      if (startNode !== endNode) {
-        return true;
-      }
-    }
-    
-    return blockElements.length > 1;
-  }
+    getNodesInRange(range) {
+        const nodes = [];
+        const startContainer = range.startContainer;
+        const endContainer = range.endContainer;
 
-  isBlockElement(element) {
-    const blockTags = ['DIV', 'P', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'SECTION', 'ARTICLE', 'HEADER', 'FOOTER', 'MAIN', 'ASIDE', 'NAV', 'BLOCKQUOTE', 'PRE', 'LI', 'DT', 'DD'];
-    return blockTags.includes(element.tagName);
-  }
-
-  getNextNode(node, endNode) {
-    if (node === endNode) return null;
-    
-    if (node.firstChild) {
-      return node.firstChild;
-    }
-    
-    while (node) {
-      if (node.nextSibling) {
-        return node.nextSibling;
-      }
-      node = node.parentNode;
-    }
-    
-    return null;
-  }
-
-  wrapCrossBlockSelection(range, color = null, groupId) {
-    if (!color) {
-      color = getDefaultColor();
-    }
-    console.log('[debug] wrapCrossBlockSelection 用的 color:', color);
-    try {
-      const textNodes = this.getTextNodesInRange(range);
-      if (textNodes.length === 0) {
-        this.fallbackHighlight(range, color);
-        return;
-      }
-      const highlightSpans = [];
-      textNodes.forEach(({ node, startOffset, endOffset }) => {
-        if (startOffset === endOffset) return;
-        const textContent = node.textContent;
-        const selectedText = textContent.substring(startOffset, endOffset);
-        if (selectedText.trim()) {
-          const highlightSpan = createHighlightSpanWithColor(color, groupId, ++this.noteCounter);
-          highlightSpan.textContent = selectedText;
-          const beforeText = textContent.substring(0, startOffset);
-          const afterText = textContent.substring(endOffset);
-          if (beforeText) {
-            const beforeNode = document.createTextNode(beforeText);
-            node.parentNode.insertBefore(beforeNode, node);
-          }
-          node.parentNode.insertBefore(highlightSpan, node.nextSibling);
-          highlightSpans.push(highlightSpan);
-          if (afterText) {
-            const afterNode = document.createTextNode(afterText);
-            node.parentNode.insertBefore(afterNode, highlightSpan.nextSibling);
-          }
-          node.parentNode.removeChild(node);
+        // 如果开始和结束是同一个节点
+        if (startContainer === endContainer) {
+            nodes.push(startContainer);
+            return nodes;
         }
-      });
-      this.mergeAdjacentHighlights(highlightSpans);
-    } catch (error) {
-      console.error('跨块级元素高亮失败，尝试备用方法:', error);
-      this.fallbackHighlight(range, color);
-    }
-  }
 
-  getTextNodesInRange(range) {
-    const textNodes = [];
-    const { startContainer, endContainer, startOffset, endOffset } = range;
-    const ancestor = range.commonAncestorContainer;
+        // 获取所有在选区内的节点
+        let node = startContainer;
+        const endNode = endContainer.nextSibling;
 
-    // 用 TreeWalker 遍历所有文本节点
-    const walker = document.createTreeWalker(
-      ancestor.nodeType === 1 ? ancestor : ancestor.parentNode,
-      NodeFilter.SHOW_TEXT,
-      {
-        acceptNode: (node) => {
-          // 只处理有内容的文本节点
-          if (!node.textContent.trim()) return NodeFilter.FILTER_REJECT;
-          // 判断节点和选区的关系
-          const nodeRange = document.createRange();
-          nodeRange.selectNodeContents(node);
-          if (
-            nodeRange.compareBoundaryPoints(Range.END_TO_START, range) <= 0 &&
-            nodeRange.compareBoundaryPoints(Range.START_TO_END, range) >= 0
-          ) {
-            return NodeFilter.FILTER_ACCEPT;
-          }
-          return NodeFilter.FILTER_REJECT;
+        while (node && node !== endNode) {
+            nodes.push(node);
+            node = this.getNextNode(node, endContainer);
         }
-      },
-      false
-    );
 
-    let node;
-    while ((node = walker.nextNode())) {
-      let nodeStart = 0;
-      let nodeEnd = node.textContent.length;
-      if (node === startContainer) nodeStart = startOffset;
-      if (node === endContainer) nodeEnd = endOffset;
-      if (nodeStart < nodeEnd) {
-        textNodes.push({ node, startOffset: nodeStart, endOffset: nodeEnd });
-      }
-    }
-    return textNodes;
-  }
-
-  getAllTextNodes(element) {
-    const textNodes = [];
-    const walker = document.createTreeWalker(
-      element,
-      NodeFilter.SHOW_TEXT,
-      null,
-      false
-    );
-    
-    let node;
-    while (node = walker.nextNode()) {
-      textNodes.push(node);
-    }
-    
-    return textNodes;
-  }
-
-  fallbackHighlight(range, color) {
-    // 备用方法：只高亮文本内容，不改变HTML结构
-    const selectedText = range.toString();
-    if (!selectedText.trim()) return;
-    
-    // 如果没有指定颜色，使用默认颜色
-    if (!color) {
-      color = getDefaultColor();
-    }
-    
-    // 创建一个文本节点来替换选区
-    const textNode = document.createTextNode(selectedText);
-    const highlightSpan = createHighlightSpanWithColor(color, this._currentHighlightGroupId, ++this.noteCounter);
-    highlightSpan.appendChild(textNode);
-    
-    // 删除原始内容并插入高亮span
-    range.deleteContents();
-    range.insertNode(highlightSpan);
-  }
-
-  getNodesInRange(range) {
-    const nodes = [];
-    const startContainer = range.startContainer;
-    const endContainer = range.endContainer;
-    
-    // 如果开始和结束是同一个节点
-    if (startContainer === endContainer) {
-      nodes.push(startContainer);
-      return nodes;
-    }
-    
-    // 获取所有在选区内的节点
-    let node = startContainer;
-    const endNode = endContainer.nextSibling;
-    
-    while (node && node !== endNode) {
-      nodes.push(node);
-      node = this.getNextNode(node, endContainer);
-    }
-    
-    return nodes;
-  }
-
-  mergeAdjacentHighlights(highlightSpans) {
-    for (let i = 0; i < highlightSpans.length - 1; i++) {
-      const current = highlightSpans[i];
-      const next = highlightSpans[i + 1];
-      
-      if (current.nextSibling === next) {
-        // 合并相邻的高亮span
-        current.appendChild(next);
-        next.parentNode.removeChild(next);
-        highlightSpans.splice(i + 1, 1);
-        i--; // 重新检查当前位置
-      }
-    }
-  }
-
-  cleanupEmptyNodes(element) {
-    // 清理空的文本节点
-    const walker = document.createTreeWalker(
-      element,
-      NodeFilter.SHOW_TEXT,
-      null,
-      false
-    );
-    
-    const nodesToRemove = [];
-    let node;
-    while (node = walker.nextNode()) {
-      if (node.textContent.trim() === '') {
-        nodesToRemove.push(node);
-      }
-    }
-    
-    nodesToRemove.forEach(node => {
-      if (node.parentNode) {
-        node.parentNode.removeChild(node);
-      }
-    });
-  }
-
-  isAlreadyHighlighted(range) {
-    let node = range.startContainer;
-    while (node && node !== range.endContainer) {
-      if (node.nodeType === Node.ELEMENT_NODE && 
-          node.classList && 
-          node.classList.contains('html-note-highlight')) {
-        return true;
-      }
-      node = node.nextSibling || node.parentNode;
-    }
-    return false;
-  }
-
-  /**
-   * 为高亮元素显示工具栏
-   * @param {HTMLElement} highlightElement - 要高亮显示的元素
-   * @param {string} groupId - 高亮组的ID，用于批量操作同组高亮
-   */
-  showToolbarForHighlight(highlightElement, groupId,mouseEvent) {
-    // 移除已存在的工具栏、编辑框和颜色选择器
-    document.querySelectorAll('.html-note-toolbar-float, .note-editor, .color-picker-float').forEach(el => el.remove());
-    
-    // 创建工具栏容器
-    const toolbar = document.createElement('div');
-    toolbar.className = 'html-note-toolbar-float';
-    let left, top;
-    
-    // 获取高亮元素相对于视口的位置，并加上滚动偏移
-    const rect = highlightElement.getBoundingClientRect();
-    const scrollX = window.pageXOffset || document.documentElement.scrollLeft;
-    const scrollY = window.pageYOffset || document.documentElement.scrollTop;
-    
-    // 计算工具栏的最终位置
-    if (mouseEvent) {
-      // 使用鼠标点击位置，工具栏中心对准点击位置
-      left = mouseEvent.clientX + scrollX - 90; // 90 = toolbar宽度一半
-      top = mouseEvent.clientY + scrollY - 50;
-    } else {
-      // 使用高亮元素位置，工具栏中心对准高亮元素中心
-      left = rect.left + scrollX + rect.width / 2 - 90;
-      top = rect.top + scrollY - 50;
+        return nodes;
     }
 
-    // 添加调试信息
-    // console.log('[debug] 工具栏位置计算:', {
-    //   rect: { left: rect.left, top: rect.top, width: rect.width },
-    //   scroll: { x: scrollX, y: scrollY },
-    //   mouseEvent: mouseEvent ? { clientX: mouseEvent.clientX, clientY: mouseEvent.clientY } : null,
-    //   calculated: { left, top }
-    // });
-    
-    // 设置工具栏初始位置（向上偏移，准备滑动）
-    toolbar.style.left = `${left}px`;
-    toolbar.style.top = `${top}px`;
-    document.body.appendChild(toolbar);
-    
-    // 使用 requestAnimationFrame 确保DOM已渲染，然后添加滑动特效
-    requestAnimationFrame(() => {
-      toolbar.classList.add('show');
-    });
+    mergeAdjacentHighlights(highlightSpans) {
+        for (let i = 0; i < highlightSpans.length - 1; i++) {
+            const current = highlightSpans[i];
+            const next = highlightSpans[i + 1];
 
-    // 创建颜色按钮
-    const colorBtn = document.createElement('button');
-    colorBtn.className = 'toolbar-float-btn';
-    colorBtn.title = '更改颜色';
-    colorBtn.innerHTML = '<svg width="22" height="22" viewBox="0 0 22 22"><rect x="3" y="3" width="16" height="16" rx="5" fill="'+(highlightElement.getAttribute('data-color')||this.defaultColor)+'"/></svg>';
-    colorBtn.onclick = (ev) => {
-      ev.stopPropagation();
-      this.showColorPickerForHighlight(highlightElement, toolbar);
-    };
-    
-    // 创建复制按钮
-    const copyBtn = document.createElement('button');
-    copyBtn.className = 'toolbar-float-btn';
-    copyBtn.title = '复制文本';
-    copyBtn.innerHTML = '<svg width="22" height="22" viewBox="0 0 22 22"><rect x="6" y="6" width="10" height="10" rx="2" fill="#fff" stroke="#bfc4d1" stroke-width="1.5"/><rect x="3" y="3" width="10" height="10" rx="2" fill="none" stroke="#bfc4d1" stroke-width="1.5"/></svg>';
-    copyBtn.onclick = (ev) => {
-      ev.stopPropagation();
-      // 复制同组所有高亮文本
-      let text = '';
-      if (groupId) {
-        document.querySelectorAll('.html-note-highlight[data-group-id="'+groupId+'"]').forEach(span => {
-          text += span.textContent;
+            if (current.nextSibling === next) {
+                // 合并相邻的高亮span
+                current.appendChild(next);
+                next.parentNode.removeChild(next);
+                highlightSpans.splice(i + 1, 1);
+                i--; // 重新检查当前位置
+            }
+        }
+    }
+
+    cleanupEmptyNodes(element) {
+        // 清理空的文本节点
+        const walker = document.createTreeWalker(
+            element,
+            NodeFilter.SHOW_TEXT,
+            null,
+            false
+        );
+
+        const nodesToRemove = [];
+        let node;
+        while (node = walker.nextNode()) {
+            if (node.textContent.trim() === '') {
+                nodesToRemove.push(node);
+            }
+        }
+
+        nodesToRemove.forEach(node => {
+            if (node.parentNode) {
+                node.parentNode.removeChild(node);
+            }
         });
-      } else {
-        text = highlightElement.textContent;
-      }
-      navigator.clipboard.writeText(text);
-      this.showNotification('已复制高亮文本');
-    };
-    // 注释按钮
-    const noteBtn = document.createElement('button');
-    noteBtn.className = 'toolbar-float-btn';
-    noteBtn.title = '添加/编辑笔记';
-    noteBtn.innerHTML = '<svg width="22" height="22" viewBox="0 0 22 22"><rect x="4" y="4" width="14" height="14" rx="4" fill="#fff" stroke="#bfc4d1" stroke-width="1.5"/><text x="11" y="16" text-anchor="middle" font-size="12" fill="#bfc4d1">"</text></svg>';
-    noteBtn.onclick = (ev) => {
-      ev.stopPropagation();
-      chrome.runtime.sendMessage({type: 'add_noteCard_to_mindMap', pageUrl: window.location.href, groupId: groupId});
-    };
-    // 删除按钮
-    const delBtn = document.createElement('button');
-    delBtn.className = 'toolbar-float-btn';
-    delBtn.title = '删除高亮';
-    delBtn.innerHTML = '<svg width="22" height="22" viewBox="0 0 22 22"><rect x="5" y="5" width="12" height="12" rx="3" fill="#fff" stroke="#e57373" stroke-width="1.5"/><line x1="8" y1="8" x2="14" y2="14" stroke="#e57373" stroke-width="2"/><line x1="14" y1="8" x2="8" y2="14" stroke="#e57373" stroke-width="2"/></svg>';
-    delBtn.onclick = (ev) => {
-      ev.stopPropagation();
-      if (groupId) {
-        // 删除同组所有高亮
-        document.querySelectorAll('.html-note-highlight[data-group-id="'+groupId+'"]').forEach(span => {
-          this.removeHighlight(span);
-        });
-      } else {
-        // 只删除当前高亮
-        this.removeHighlight(highlightElement);
-      }
-      // 清理所有相关元素
-      toolbar.remove();
-      document.querySelectorAll('.note-editor').forEach(el => el.remove());
-      document.querySelectorAll('.color-picker-float').forEach(el => el.remove());
-      // 清理事件监听器
-      if (this._toolbarCloseHandler) {
-        document.removeEventListener('mousedown', this._toolbarCloseHandler);
-        this._toolbarCloseHandler = null;
-      }
-      this.showNotification('高亮已删除');
-    };
-    
-    // 将所有按钮添加到工具栏
-    toolbar.append(colorBtn, copyBtn, noteBtn, delBtn);
-    //document.body.appendChild(toolbar);
-    
-    // 移除已存在的工具栏关闭事件监听器
-    if (this._toolbarCloseHandler) {
-      document.removeEventListener('mousedown', this._toolbarCloseHandler);
     }
-    
-    // 创建新的工具栏关闭事件处理函数
-    this._toolbarCloseHandler = (ev) => {
-//       console.log('[debug] mousedown');
-      // 检查点击的目标是否在工具栏或编辑器中
-      const isInToolbar = toolbar.contains(ev.target);
-      const isInEditor = ev.target.closest('.note-editor');
-      const isInColorPicker = ev.target.closest('.color-picker-float');
-      
-      if (!isInToolbar && !isInEditor && !isInColorPicker) {
-//         console.log('[debug] mousedown remove toolbar');
-        toolbar.remove();
-        // 同时移除编辑器
-        document.querySelectorAll('.note-editor').forEach(el => el.remove());
-        console.log(`[debug] fuck u ')}`);
-       
-        // 移除颜色选择器
-        document.querySelectorAll('.color-picker-float').forEach(el => el.remove());
-        // 移除事件监听器
-        document.removeEventListener('mousedown', this._toolbarCloseHandler);
-        this._toolbarCloseHandler = null;
-      }
-    };
-    
-    // 添加事件监听器
-    document.addEventListener('mousedown', this._toolbarCloseHandler);
-  }
 
-  /**
-   * 显示颜色选择器浮窗
-   * @param {HTMLElement} highlightElement - 要高亮显示的元素
-   * @param {HTMLElement} toolbar - 工具栏元素，用于定位颜色选择器
-   */
-  showColorPickerForHighlight(highlightElement, toolbar) {
-    // 移除已存在的颜色选择器浮窗
-    document.querySelectorAll('.color-picker-float').forEach(el => el.remove());
-    
-    // 创建颜色选择器容器
-    const picker = document.createElement('div');
-    picker.className = 'color-picker-float';
-    console.log('[debug] showColorPickerForHighlight 用的 toolbar:');
-    // 设置颜色选择器位置（相对于工具栏）
-    picker.style.left = toolbar.style.left;
-    picker.style.top = `${parseInt(toolbar.style.top) - 56}px`;
-    
-    // 定义可选择的颜色数组
-    const colors = ['#f7c2d6','#ffeb3b','#b2f7ef','#ffd6e0','#c2e9fb','#fff9c4'];
-    
-    // 获取当前高亮元素的组ID（用于批量修改同组高亮）
-    const groupId = highlightElement.getAttribute('data-group-id');
-    
-    // 为每个颜色创建色块
-    colors.forEach(color => {
-      const swatch = document.createElement('div');
-      swatch.className = 'color-swatch-float';
-      swatch.style.background = color;
-      
-      // 如果当前高亮元素使用的是这个颜色，添加选中状态
-      if (highlightElement.getAttribute('data-color') === color) {
-        swatch.style.outline = '2px solid #333';
-      }
-      
-      // 如果这个颜色是默认颜色，添加勾选标记
-      if (color === this.defaultColor) {
-        const checkmark = document.createElement('div');
-        checkmark.style.position = 'absolute';
-        checkmark.style.top = '2px';
-        checkmark.style.right = '2px';
-        checkmark.style.width = '8px';
-        checkmark.style.height = '8px';
-        checkmark.style.background = '#333';
-        checkmark.style.borderRadius = '50%';
-        checkmark.style.display = 'flex';
-        checkmark.style.alignItems = 'center';
-        checkmark.style.justifyContent = 'center';
-        checkmark.innerHTML = '✓';
-        checkmark.style.color = '#fff';
-        checkmark.style.fontSize = '6px';
-        checkmark.style.fontWeight = 'bold';
-        swatch.style.position = 'relative';
-        swatch.appendChild(checkmark);
-      }
-      
-      // 点击色块时的处理逻辑
-      swatch.onclick = (ev) => {
-        ev.stopPropagation(); // 阻止事件冒泡
-        
-        if (groupId) {
-          // 如果有组ID，批量修改同组所有高亮元素的颜色
-          changeColorbyGroupId(color, groupId);
+    isAlreadyHighlighted(range) {
+        let node = range.startContainer;
+        while (node && node !== range.endContainer) {
+            if (node.nodeType === Node.ELEMENT_NODE &&
+                node.classList &&
+                node.classList.contains('html-note-highlight')) {
+                return true;
+            }
+            node = node.nextSibling || node.parentNode;
+        }
+        return false;
+    }
+
+    /**
+     * 为高亮元素显示工具栏
+     * @param {HTMLElement} highlightElement - 要高亮显示的元素
+     * @param {string} groupId - 高亮组的ID，用于批量操作同组高亮
+     */
+    showToolbarForHighlight(highlightElement, groupId, mouseEvent) {
+        // 移除已存在的工具栏、编辑框和颜色选择器
+        document.querySelectorAll('.html-note-toolbar-float, .note-editor, .color-picker-float').forEach(el => el.remove());
+
+        // 创建工具栏容器
+        const toolbar = document.createElement('div');
+        toolbar.className = 'html-note-toolbar-float';
+        let left, top;
+
+        // 获取高亮元素相对于视口的位置，并加上滚动偏移
+        const rect = highlightElement.getBoundingClientRect();
+        const scrollX = window.pageXOffset || document.documentElement.scrollLeft;
+        const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+
+        // 计算工具栏的最终位置
+        if (mouseEvent) {
+            // 使用鼠标点击位置，工具栏中心对准点击位置
+            left = mouseEvent.clientX + scrollX - 90; // 90 = toolbar宽度一半
+            top = mouseEvent.clientY + scrollY - 50;
         } else {
-          // 只修改当前高亮元素的颜色
-          highlightElement.style.setProperty('background-color', color, 'important');
-          highlightElement.setAttribute('data-color', color);
+            // 使用高亮元素位置，工具栏中心对准高亮元素中心
+            left = rect.left + scrollX + rect.width / 2 - 90;
+            top = rect.top + scrollY - 50;
         }
-        
-        // 移除颜色选择器
-        picker.remove();
-        // 更新toolbar颜色icon
-        const colorBtnSvg = toolbar.querySelector('button.toolbar-float-btn:first-child svg rect');
-        if (colorBtnSvg) {
-          colorBtnSvg.setAttribute('fill', color);
-        }
-      };
-      let hoverTimer;
 
-      const setDefaultBtn = document.createElement('div');
-      setDefaultBtn.className = 'set-default-btn';
-      setDefaultBtn.innerHTML = '✓';
-      
-      setDefaultBtn.addEventListener('mouseenter', () => {
-        clearTimeout(hoverTimer);  // 鼠标进入按钮，取消隐藏
-      });
-      
-      setDefaultBtn.addEventListener('mouseleave', () => {
-        hoverTimer = setTimeout(() => {
-          if (swatch.contains(setDefaultBtn)) {
-            swatch.removeChild(setDefaultBtn);
-          }
-        }, 100);
-      });
-      
-      swatch.addEventListener('mouseenter', () => {
-        if (!swatch.contains(setDefaultBtn)) {
-          swatch.appendChild(setDefaultBtn);
+        // 添加调试信息
+        // console.log('[debug] 工具栏位置计算:', {
+        //   rect: { left: rect.left, top: rect.top, width: rect.width },
+        //   scroll: { x: scrollX, y: scrollY },
+        //   mouseEvent: mouseEvent ? { clientX: mouseEvent.clientX, clientY: mouseEvent.clientY } : null,
+        //   calculated: { left, top }
+        // });
+
+        // 设置工具栏初始位置（向上偏移，准备滑动）
+        toolbar.style.left = `${left}px`;
+        toolbar.style.top = `${top}px`;
+        document.body.appendChild(toolbar);
+
+        // 使用 requestAnimationFrame 确保DOM已渲染，然后添加滑动特效
+        requestAnimationFrame(() => {
+            toolbar.classList.add('show');
+        });
+
+        // 创建颜色按钮
+        const colorBtn = document.createElement('button');
+        colorBtn.className = 'toolbar-float-btn';
+        colorBtn.title = '更改颜色';
+        colorBtn.innerHTML = '<svg width="22" height="22" viewBox="0 0 22 22"><rect x="3" y="3" width="16" height="16" rx="5" fill="' + (highlightElement.getAttribute('data-color') || this.defaultColor) + '"/></svg>';
+        colorBtn.onclick = (ev) => {
+            ev.stopPropagation();
+            this.showColorPickerForHighlight(highlightElement, toolbar);
+        };
+
+        // 创建复制按钮
+        const copyBtn = document.createElement('button');
+        copyBtn.className = 'toolbar-float-btn';
+        copyBtn.title = '复制文本';
+        copyBtn.innerHTML = '<svg width="22" height="22" viewBox="0 0 22 22"><rect x="6" y="6" width="10" height="10" rx="2" fill="#fff" stroke="#bfc4d1" stroke-width="1.5"/><rect x="3" y="3" width="10" height="10" rx="2" fill="none" stroke="#bfc4d1" stroke-width="1.5"/></svg>';
+        copyBtn.onclick = (ev) => {
+            ev.stopPropagation();
+            // 复制同组所有高亮文本
+            let text = '';
+            if (groupId) {
+                document.querySelectorAll('.html-note-highlight[data-group-id="' + groupId + '"]').forEach(span => {
+                    text += span.textContent;
+                });
+            } else {
+                text = highlightElement.textContent;
+            }
+            navigator.clipboard.writeText(text);
+            this.showNotification('已复制高亮文本');
+        };
+        // 注释按钮
+        const noteBtn = document.createElement('button');
+        noteBtn.className = 'toolbar-float-btn';
+        noteBtn.title = '添加/编辑笔记';
+        noteBtn.innerHTML = '<svg width="22" height="22" viewBox="0 0 22 22"><rect x="4" y="4" width="14" height="14" rx="4" fill="#fff" stroke="#bfc4d1" stroke-width="1.5"/><text x="11" y="16" text-anchor="middle" font-size="12" fill="#bfc4d1">"</text></svg>';
+        noteBtn.onclick = (ev) => {
+            ev.stopPropagation();
+            chrome.runtime.sendMessage({
+                type: 'add_noteCard_to_mindMap',
+                pageUrl: window.location.href,
+                groupId: groupId
+            });
+        };
+        // 删除按钮
+        const delBtn = document.createElement('button');
+        delBtn.className = 'toolbar-float-btn';
+        delBtn.title = '删除高亮';
+        delBtn.innerHTML = '<svg width="22" height="22" viewBox="0 0 22 22"><rect x="5" y="5" width="12" height="12" rx="3" fill="#fff" stroke="#e57373" stroke-width="1.5"/><line x1="8" y1="8" x2="14" y2="14" stroke="#e57373" stroke-width="2"/><line x1="14" y1="8" x2="8" y2="14" stroke="#e57373" stroke-width="2"/></svg>';
+        delBtn.onclick = (ev) => {
+            ev.stopPropagation();
+            if (groupId) {
+                // 删除同组所有高亮
+                document.querySelectorAll('.html-note-highlight[data-group-id="' + groupId + '"]').forEach(span => {
+                    this.removeHighlight(span);
+                });
+            } else {
+                // 只删除当前高亮
+                this.removeHighlight(highlightElement);
+            }
+            // 清理所有相关元素
+            toolbar.remove();
+            document.querySelectorAll('.note-editor').forEach(el => el.remove());
+            document.querySelectorAll('.color-picker-float').forEach(el => el.remove());
+            // 清理事件监听器
+            if (this._toolbarCloseHandler) {
+                document.removeEventListener('mousedown', this._toolbarCloseHandler);
+                this._toolbarCloseHandler = null;
+            }
+            this.showNotification('高亮已删除');
+        };
+
+        // 将所有按钮添加到工具栏
+        toolbar.append(colorBtn, copyBtn, noteBtn, delBtn);
+        //document.body.appendChild(toolbar);
+
+        // 移除已存在的工具栏关闭事件监听器
+        if (this._toolbarCloseHandler) {
+            document.removeEventListener('mousedown', this._toolbarCloseHandler);
         }
-        clearTimeout(hoverTimer); // 鼠标进入 swatch，取消隐藏
-      });
-      
-      swatch.addEventListener('mouseleave', () => {
-        hoverTimer = setTimeout(() => {
-          if (swatch.contains(setDefaultBtn)) {
-            swatch.removeChild(setDefaultBtn);
-          }
-        }, 100);  // 稍微延迟一下，给用户鼠标移动时间
-      });
-      setDefaultBtn.onclick = (ev) => {
+
+        // 创建新的工具栏关闭事件处理函数
+        this._toolbarCloseHandler = (ev) => {
+//       console.log('[debug] mousedown');
+            // 检查点击的目标是否在工具栏或编辑器中
+            const isInToolbar = toolbar.contains(ev.target);
+            const isInEditor = ev.target.closest('.note-editor');
+            const isInColorPicker = ev.target.closest('.color-picker-float');
+
+            if (!isInToolbar && !isInEditor && !isInColorPicker) {
+//         console.log('[debug] mousedown remove toolbar');
+                toolbar.remove();
+                // 同时移除编辑器
+                document.querySelectorAll('.note-editor').forEach(el => el.remove());
+                console.log(`[debug] fuck u ')}`);
+
+                // 移除颜色选择器
+                document.querySelectorAll('.color-picker-float').forEach(el => el.remove());
+                // 移除事件监听器
+                document.removeEventListener('mousedown', this._toolbarCloseHandler);
+                this._toolbarCloseHandler = null;
+            }
+        };
+
+        // 添加事件监听器
+        document.addEventListener('mousedown', this._toolbarCloseHandler);
+    }
+
+    /**
+     * 显示颜色选择器浮窗
+     * @param {HTMLElement} highlightElement - 要高亮显示的元素
+     * @param {HTMLElement} toolbar - 工具栏元素，用于定位颜色选择器
+     */
+    showColorPickerForHighlight(highlightElement, toolbar) {
+        // 移除已存在的颜色选择器浮窗
+        document.querySelectorAll('.color-picker-float').forEach(el => el.remove());
+
+        // 创建颜色选择器容器
+        const picker = document.createElement('div');
+        picker.className = 'color-picker-float';
+        console.log('[debug] showColorPickerForHighlight 用的 toolbar:');
+        // 设置颜色选择器位置（相对于工具栏）
+        picker.style.left = toolbar.style.left;
+        picker.style.top = `${parseInt(toolbar.style.top) - 56}px`;
+
+        // 定义可选择的颜色数组
+        const colors = ['#f7c2d6', '#ffeb3b', '#b2f7ef', '#ffd6e0', '#c2e9fb', '#fff9c4'];
+
+        // 获取当前高亮元素的组ID（用于批量修改同组高亮）
+        const groupId = highlightElement.getAttribute('data-group-id');
+
+        // 为每个颜色创建色块
+        colors.forEach(color => {
+            const swatch = document.createElement('div');
+            swatch.className = 'color-swatch-float';
+            swatch.style.background = color;
+
+            // 如果当前高亮元素使用的是这个颜色，添加选中状态
+            if (highlightElement.getAttribute('data-color') === color) {
+                swatch.style.outline = '2px solid #333';
+            }
+
+            // 如果这个颜色是默认颜色，添加勾选标记
+            if (color === this.defaultColor) {
+                const checkmark = document.createElement('div');
+                checkmark.style.position = 'absolute';
+                checkmark.style.top = '2px';
+                checkmark.style.right = '2px';
+                checkmark.style.width = '8px';
+                checkmark.style.height = '8px';
+                checkmark.style.background = '#333';
+                checkmark.style.borderRadius = '50%';
+                checkmark.style.display = 'flex';
+                checkmark.style.alignItems = 'center';
+                checkmark.style.justifyContent = 'center';
+                checkmark.innerHTML = '✓';
+                checkmark.style.color = '#fff';
+                checkmark.style.fontSize = '6px';
+                checkmark.style.fontWeight = 'bold';
+                swatch.style.position = 'relative';
+                swatch.appendChild(checkmark);
+            }
+
+            // 点击色块时的处理逻辑
+            swatch.onclick = (ev) => {
+                ev.stopPropagation(); // 阻止事件冒泡
+
+                if (groupId) {
+                    // 如果有组ID，批量修改同组所有高亮元素的颜色
+                    changeColorbyGroupId(color, groupId);
+                } else {
+                    // 只修改当前高亮元素的颜色
+                    highlightElement.style.setProperty('background-color', color, 'important');
+                    highlightElement.setAttribute('data-color', color);
+                }
+
+                // 移除颜色选择器
+                picker.remove();
+                // 更新toolbar颜色icon
+                const colorBtnSvg = toolbar.querySelector('button.toolbar-float-btn:first-child svg rect');
+                if (colorBtnSvg) {
+                    colorBtnSvg.setAttribute('fill', color);
+                }
+            };
+            let hoverTimer;
+
+            const setDefaultBtn = document.createElement('div');
+            setDefaultBtn.className = 'set-default-btn';
+            setDefaultBtn.innerHTML = '✓';
+
+            setDefaultBtn.addEventListener('mouseenter', () => {
+                clearTimeout(hoverTimer);  // 鼠标进入按钮，取消隐藏
+            });
+
+            setDefaultBtn.addEventListener('mouseleave', () => {
+                hoverTimer = setTimeout(() => {
+                    if (swatch.contains(setDefaultBtn)) {
+                        swatch.removeChild(setDefaultBtn);
+                    }
+                }, 100);
+            });
+
+            swatch.addEventListener('mouseenter', () => {
+                if (!swatch.contains(setDefaultBtn)) {
+                    swatch.appendChild(setDefaultBtn);
+                }
+                clearTimeout(hoverTimer); // 鼠标进入 swatch，取消隐藏
+            });
+
+            swatch.addEventListener('mouseleave', () => {
+                hoverTimer = setTimeout(() => {
+                    if (swatch.contains(setDefaultBtn)) {
+                        swatch.removeChild(setDefaultBtn);
+                    }
+                }, 100);  // 稍微延迟一下，给用户鼠标移动时间
+            });
+            setDefaultBtn.onclick = (ev) => {
 //         console.log('[debug] setDefaultBtn.onclick');
-        ev.stopPropagation();
-        this.setDefaultColor(color);
+                ev.stopPropagation();
+                this.setDefaultColor(color);
 
-        this.showNotification('已设为默认颜色');
-        picker.remove();
-        swatch.removeChild(setDefaultBtn);
-      };
+                this.showNotification('已设为默认颜色');
+                picker.remove();
+                swatch.removeChild(setDefaultBtn);
+            };
 
-     
-      // 将色块添加到颜色选择器中
-      picker.appendChild(swatch);
-    });
-    //TODO: 更改默认颜色的设置
-    // if mouse is over the color swatch, show the set default button
 
-    // 添加"设为默认"按钮
-    // const setDefaultBtn = document.createElement('div');
-    // setDefaultBtn.className = 'set-default-btn';
-    // setDefaultBtn.style.marginTop = '8px';
-    // setDefaultBtn.style.padding = '6px 8px';
-    // setDefaultBtn.style.background = '#f5f5f5';
-    // setDefaultBtn.style.border = '1px solid #ddd';
-    // setDefaultBtn.style.borderRadius = '4px';
-    // setDefaultBtn.style.fontSize = '12px';
-    // setDefaultBtn.style.cursor = 'pointer';
-    // setDefaultBtn.style.textAlign = 'center';
-    // setDefaultBtn.style.color = '#666';
-    // setDefaultBtn.textContent = '设为默认颜色';
-    
+            // 将色块添加到颜色选择器中
+            picker.appendChild(swatch);
+        });
+        //TODO: 更改默认颜色的设置
+        // if mouse is over the color swatch, show the set default button
 
-    
+        // 添加"设为默认"按钮
+        // const setDefaultBtn = document.createElement('div');
+        // setDefaultBtn.className = 'set-default-btn';
+        // setDefaultBtn.style.marginTop = '8px';
+        // setDefaultBtn.style.padding = '6px 8px';
+        // setDefaultBtn.style.background = '#f5f5f5';
+        // setDefaultBtn.style.border = '1px solid #ddd';
+        // setDefaultBtn.style.borderRadius = '4px';
+        // setDefaultBtn.style.fontSize = '12px';
+        // setDefaultBtn.style.cursor = 'pointer';
+        // setDefaultBtn.style.textAlign = 'center';
+        // setDefaultBtn.style.color = '#666';
+        // setDefaultBtn.textContent = '设为默认颜色';
 
-    
-    // 将颜色选择器添加到页面
-    document.body.appendChild(picker);
-    
-    // 添加点击外部关闭颜色选择器的功能
-    setTimeout(() => {
-      document.addEventListener('mousedown', function closePicker(ev) {
-        // 检查点击的目标是否在颜色选择器、工具栏或编辑器中
-        const isInPicker = picker.contains(ev.target);
-        const isInToolbar = ev.target.closest('.html-note-toolbar-float');
-        const isInEditor = ev.target.closest('.note-editor');
-        
-        if (!isInPicker && !isInToolbar && !isInEditor) {
-          picker.remove();
-          document.removeEventListener('mousedown', closePicker);
+
+        // 将颜色选择器添加到页面
+        document.body.appendChild(picker);
+
+        // 添加点击外部关闭颜色选择器的功能
+        setTimeout(() => {
+            document.addEventListener('mousedown', function closePicker(ev) {
+                // 检查点击的目标是否在颜色选择器、工具栏或编辑器中
+                const isInPicker = picker.contains(ev.target);
+                const isInToolbar = ev.target.closest('.html-note-toolbar-float');
+                const isInEditor = ev.target.closest('.note-editor');
+
+                if (!isInPicker && !isInToolbar && !isInEditor) {
+                    picker.remove();
+                    document.removeEventListener('mousedown', closePicker);
+                }
+            });
+        }, 10);
+    }
+
+
+    removeHighlight(highlightElement) {
+        // 获取高亮元素内的所有内容
+        const contents = [];
+        let child = highlightElement.firstChild;
+
+        while (child) {
+            const nextChild = child.nextSibling;
+            contents.push(child);
+            child = nextChild;
         }
-      });
-    }, 10);
-  }
 
+        // 将内容移回父元素
+        const parent = highlightElement.parentNode;
+        contents.forEach(node => {
+            parent.insertBefore(node, highlightElement);
+        });
 
+        // 移除高亮元素
+        parent.removeChild(highlightElement);
 
-  removeHighlight(highlightElement) {
-    // 获取高亮元素内的所有内容
-    const contents = [];
-    let child = highlightElement.firstChild;
-    
-    while (child) {
-      const nextChild = child.nextSibling;
-      contents.push(child);
-      child = nextChild;
-    }
-    
-    // 将内容移回父元素
-    const parent = highlightElement.parentNode;
-    contents.forEach(node => {
-      parent.insertBefore(node, highlightElement);
-    });
-    
-    // 移除高亮元素
-    parent.removeChild(highlightElement);
-    
-    // 合并相邻的文本节点
-    this.normalizeTextNodes(parent);
-    
-    // 清理相关的事件监听器
-    if (this._toolbarCloseHandler) {
-      document.removeEventListener('mousedown', this._toolbarCloseHandler);
-      this._toolbarCloseHandler = null;
-    }
-    //remove_highlightElementStorage(highlightElement,window.location.href);
-    remove_all_highlightElementStorage(window.location.href);
-  }
+        // 合并相邻的文本节点
+        this.normalizeTextNodes(parent);
 
-  normalizeTextNodes(element) {
-    // 合并相邻的文本节点
-    const walker = document.createTreeWalker(
-      element,
-      NodeFilter.SHOW_TEXT,
-      null,
-      false
-    );
-    
-    const textNodes = [];
-    let node;
-    while (node = walker.nextNode()) {
-      textNodes.push(node);
-    }
-    
-    // 合并相邻的文本节点
-    for (let i = 0; i < textNodes.length - 1; i++) {
-      const current = textNodes[i];
-      const next = textNodes[i + 1];
-      
-      if (current.parentNode === next.parentNode && 
-          current.nextSibling === next) {
-        current.textContent += next.textContent;
-        next.parentNode.removeChild(next);
-        textNodes.splice(i + 1, 1);
-        i--; // 重新检查当前位置
-      }
-    }
-  }
-
-
-
-  restoreHighlights() {
-    // 恢复已保存的高亮样式和事件
-    const highlights = document.querySelectorAll('.html-note-highlight');
-    highlights.forEach(highlight => {
-      const note = highlight.getAttribute('data-note');
-      if (note) {
-        highlight.title = note;
-      }
-    });
-  }
-
-
-
-  updateToolbarStatus() {
-    const toggleBtn = document.querySelector('.toggle-btn');
-    if (toggleBtn) {
-      if (this.isActive) {
-        toggleBtn.classList.add('active');
-        toggleBtn.querySelector('.toolbar-text').textContent = '高亮开启';
-      } else {
-        toggleBtn.classList.remove('active');
-        toggleBtn.querySelector('.toolbar-text').textContent = '高亮模式';
-      }
-    }
-  }
-
-  // showStats() {
-  //   const highlights = document.querySelectorAll('.html-note-highlight');
-  //   const notes = Array.from(highlights).filter(h => h.getAttribute('data-note'));
-    
-  //   const stats = `
-  //     总高亮数: ${highlights.length}
-  //     有笔记的高亮: ${notes.length}
-  //     无笔记的高亮: ${highlights.length - notes.length}
-  //   `;
-    
-  //   alert(stats);
-  // }
-
-  showNotification(message) {
-    // 移除已存在的通知
-    const existingNotification = document.querySelector('.html-note-notification');
-    if (existingNotification) {
-      existingNotification.remove();
+        // 清理相关的事件监听器
+        if (this._toolbarCloseHandler) {
+            document.removeEventListener('mousedown', this._toolbarCloseHandler);
+            this._toolbarCloseHandler = null;
+        }
+        //remove_highlightElementStorage(highlightElement,window.location.href);
+        remove_all_highlightElementStorage(window.location.href);
     }
 
-    const notification = document.createElement('div');
-    notification.className = 'html-note-notification';
-    notification.textContent = message;
-    
-    document.body.appendChild(notification);
-    
-    // 3秒后自动移除
-    setTimeout(() => {
-      if (notification.parentNode) {
-        notification.remove();
-      }
-    }, 3000);
-  }
+    normalizeTextNodes(element) {
+        // 合并相邻的文本节点
+        const walker = document.createTreeWalker(
+            element,
+            NodeFilter.SHOW_TEXT,
+            null,
+            false
+        );
+
+        const textNodes = [];
+        let node;
+        while (node = walker.nextNode()) {
+            textNodes.push(node);
+        }
+
+        // 合并相邻的文本节点
+        for (let i = 0; i < textNodes.length - 1; i++) {
+            const current = textNodes[i];
+            const next = textNodes[i + 1];
+
+            if (current.parentNode === next.parentNode &&
+                current.nextSibling === next) {
+                current.textContent += next.textContent;
+                next.parentNode.removeChild(next);
+                textNodes.splice(i + 1, 1);
+                i--; // 重新检查当前位置
+            }
+        }
+    }
+
+
+    restoreHighlights() {
+        // 恢复已保存的高亮样式和事件
+        const highlights = document.querySelectorAll('.html-note-highlight');
+        highlights.forEach(highlight => {
+            const note = highlight.getAttribute('data-note');
+            if (note) {
+                highlight.title = note;
+            }
+        });
+    }
+
+
+    updateToolbarStatus() {
+        const toggleBtn = document.querySelector('.toggle-btn');
+        if (toggleBtn) {
+            if (this.isActive) {
+                toggleBtn.classList.add('active');
+                toggleBtn.querySelector('.toolbar-text').textContent = '高亮开启';
+            } else {
+                toggleBtn.classList.remove('active');
+                toggleBtn.querySelector('.toolbar-text').textContent = '高亮模式';
+            }
+        }
+    }
+
+    // showStats() {
+    //   const highlights = document.querySelectorAll('.html-note-highlight');
+    //   const notes = Array.from(highlights).filter(h => h.getAttribute('data-note'));
+
+    //   const stats = `
+    //     总高亮数: ${highlights.length}
+    //     有笔记的高亮: ${notes.length}
+    //     无笔记的高亮: ${highlights.length - notes.length}
+    //   `;
+
+    //   alert(stats);
+    // }
+
+    showNotification(message) {
+        // 移除已存在的通知
+        const existingNotification = document.querySelector('.html-note-notification');
+        if (existingNotification) {
+            existingNotification.remove();
+        }
+
+        const notification = document.createElement('div');
+        notification.className = 'html-note-notification';
+        notification.textContent = message;
+
+        document.body.appendChild(notification);
+
+        // 3秒后自动移除
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.remove();
+            }
+        }, 3000);
+    }
 }
 
 // 初始化插件
 const highlighter = new HTMLNoteHighlighter();
 window.HTMLNoteHighlighter = highlighter;
-window.HTMLNoteHighlighter.showToolbarForHighlight = highlighter.showToolbarForHighlight.bind(highlighter); 
+window.HTMLNoteHighlighter.showToolbarForHighlight = highlighter.showToolbarForHighlight.bind(highlighter);
 
 /**
  * 创建高亮span元素（使用指定颜色）
@@ -918,19 +911,19 @@ window.HTMLNoteHighlighter.showToolbarForHighlight = highlighter.showToolbarForH
  * @returns {HTMLElement} 创建的高亮span元素
  */
 function createHighlightSpanWithColor(color, groupId, noteCounter) {
-  if (!color) {
-    color = getDefaultColor();
-  }
+    if (!color) {
+        color = getDefaultColor();
+    }
 //   console.log('[debug] createHighlightSpanWithColor 用的 color:', color);
-  const highlightSpan = document.createElement('span');
-  highlightSpan.className = 'html-note-highlight';
-  highlightSpan.setAttribute('data-note-id', `note-${noteCounter}`);
-  highlightSpan.setAttribute('data-note', '');
-  highlightSpan.setAttribute('data-timestamp', Date.now().toString());
-  highlightSpan.style.backgroundColor = color;
-  highlightSpan.setAttribute('data-color', color);
-  if (groupId) highlightSpan.setAttribute('data-group-id', groupId);
-  return highlightSpan;
+    const highlightSpan = document.createElement('span');
+    highlightSpan.className = 'html-note-highlight';
+    highlightSpan.setAttribute('data-note-id', `note-${noteCounter}`);
+    highlightSpan.setAttribute('data-note', '');
+    highlightSpan.setAttribute('data-timestamp', Date.now().toString());
+    highlightSpan.style.backgroundColor = color;
+    highlightSpan.setAttribute('data-color', color);
+    if (groupId) highlightSpan.setAttribute('data-group-id', groupId);
+    return highlightSpan;
 }
 
 /**
@@ -939,642 +932,655 @@ function createHighlightSpanWithColor(color, groupId, noteCounter) {
  * @param {string} groupId - 高亮组的ID
  */
 function changeColorbyGroupId(color, groupId) {
-  // 查找所有具有相同groupId的高亮元素
-  const highlightElements = document.querySelectorAll(`.html-note-highlight[data-group-id="${groupId}"]`);
-  
-  if (highlightElements.length === 0) {
-    console.warn(`未找到groupId为"${groupId}"的高亮元素`);
-    return;
-  }
-  
-  // 遍历所有匹配的高亮元素并更改颜色
-  highlightElements.forEach(highlightElement => {
-    // 使用setProperty方法设置!important样式，确保覆盖CSS规则
-    highlightElement.style.setProperty('background-color', color, 'important');
-    // 更新data-color属性以保持数据一致性
-    highlightElement.setAttribute('data-color', color);
-  });
-  
-  update_storage_color(groupId,color);
+    // 查找所有具有相同groupId的高亮元素
+    const highlightElements = document.querySelectorAll(`.html-note-highlight[data-group-id="${groupId}"]`);
+
+    if (highlightElements.length === 0) {
+        console.warn(`未找到groupId为"${groupId}"的高亮元素`);
+        return;
+    }
+
+    // 遍历所有匹配的高亮元素并更改颜色
+    highlightElements.forEach(highlightElement => {
+        // 使用setProperty方法设置!important样式，确保覆盖CSS规则
+        highlightElement.style.setProperty('background-color', color, 'important');
+        // 更新data-color属性以保持数据一致性
+        highlightElement.setAttribute('data-color', color);
+    });
+
+    update_storage_color(groupId, color);
 }
 
 
 function createhighlightBotton(rect) {
-  const btn = document.createElement('button');
-  btn.className = 'html-note-highlight-btn';
-  btn.title = '高亮所选文本';
-  btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 20 20"><rect x="3" y="14" width="14" height="3" rx="1.5" fill="#f7c2d6"/><rect x="6" y="3" width="8" height="10" rx="2" fill="#333"/></svg>';
-  btn.style.position = 'fixed';
-  btn.style.left = `${rect.left + rect.width/2 - 16}px`;
-  btn.style.top = `${rect.top - 36}px`;
-  btn.style.zIndex = 10010;
-  btn.style.background = '#fff';
-  btn.style.border = '1px solid #eee';
-  btn.style.borderRadius = '6px';
-  btn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
-  btn.style.padding = '4px';
-  btn.style.cursor = 'pointer';
-  btn.style.display = 'flex';
-  btn.style.alignItems = 'center';
-  btn.style.justifyContent = 'center';
-  btn.style.transition = 'box-shadow 0.2s';
-  btn.onmouseenter = () => btn.style.boxShadow = '0 4px 16px rgba(0,0,0,0.18)';
-  btn.onmouseleave = () => btn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
-  document.body.appendChild(btn);
-  return btn;
+    const btn = document.createElement('button');
+    btn.className = 'html-note-highlight-btn';
+    btn.title = '高亮所选文本';
+    btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 20 20"><rect x="3" y="14" width="14" height="3" rx="1.5" fill="#f7c2d6"/><rect x="6" y="3" width="8" height="10" rx="2" fill="#333"/></svg>';
+    btn.style.position = 'fixed';
+    btn.style.left = `${rect.left + rect.width / 2 - 16}px`;
+    btn.style.top = `${rect.top - 36}px`;
+    btn.style.zIndex = 10010;
+    btn.style.background = '#fff';
+    btn.style.border = '1px solid #eee';
+    btn.style.borderRadius = '6px';
+    btn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
+    btn.style.padding = '4px';
+    btn.style.cursor = 'pointer';
+    btn.style.display = 'flex';
+    btn.style.alignItems = 'center';
+    btn.style.justifyContent = 'center';
+    btn.style.transition = 'box-shadow 0.2s';
+    btn.onmouseenter = () => btn.style.boxShadow = '0 4px 16px rgba(0,0,0,0.18)';
+    btn.onmouseleave = () => btn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
+    document.body.appendChild(btn);
+    return btn;
 }
-function highlightElement_mouseOverHandler(e){
-  if (e.target.classList.contains('html-note-highlight')){
-    const groupId = e.target.getAttribute('data-group-id');
-    if (groupId){
-      const highlightElements = document.querySelectorAll(`.html-note-highlight[data-group-id="${groupId}"]`);
-      highlightElements.forEach(highlightElement=>{
-        highlightElement.classList.add('html-note-highlight-hover');
-      })
+
+function highlightElement_mouseOverHandler(e) {
+    if (e.target.classList.contains('html-note-highlight')) {
+        const groupId = e.target.getAttribute('data-group-id');
+        if (groupId) {
+            const highlightElements = document.querySelectorAll(`.html-note-highlight[data-group-id="${groupId}"]`);
+            highlightElements.forEach(highlightElement => {
+                highlightElement.classList.add('html-note-highlight-hover');
+            })
+        }
     }
-  }
 }
-function highlightElement_mouseOutHandler(e){
-  if (e.target.classList.contains('html-note-highlight')){
-    const groupId = e.target.getAttribute('data-group-id');
-    if (groupId){
-      const highlightElements = document.querySelectorAll(`.html-note-highlight[data-group-id="${groupId}"]`);
-      highlightElements.forEach(highlightElement=>{
-        highlightElement.classList.remove('html-note-highlight-hover');
-      })
+
+function highlightElement_mouseOutHandler(e) {
+    if (e.target.classList.contains('html-note-highlight')) {
+        const groupId = e.target.getAttribute('data-group-id');
+        if (groupId) {
+            const highlightElements = document.querySelectorAll(`.html-note-highlight[data-group-id="${groupId}"]`);
+            highlightElements.forEach(highlightElement => {
+                highlightElement.classList.remove('html-note-highlight-hover');
+            })
+        }
     }
-  }
 }
-function storageHighlight(highlightElement,pageUrl){
-  const groupId = highlightElement.getAttribute('data-group-id');
-  const highlightElement_data = highlightElement_dataStructure(highlightElement);
-  if (!highlightElement_data){
-    console.log(`highlightElement_dataStructure is null for highlightElement: ${highlightElement}`);
-    return;
-  }
- 
-  chrome.storage.local.get(pageUrl, function(result){
-    let groupId_list = result[pageUrl];
-    if (!groupId_list){
-      groupId_list = [groupId];
-      console.log(`[debug] can not group id list : ${groupId_list}`);
-    }
-    else{
-      groupId_list = update_groupId_list(groupId_list, groupId);
+
+function storageHighlight(highlightElement, pageUrl) {
+    const groupId = highlightElement.getAttribute('data-group-id');
+    const highlightElement_data = highlightElement_dataStructure(highlightElement);
+    if (!highlightElement_data) {
+        console.log(`highlightElement_dataStructure is null for highlightElement: ${highlightElement}`);
+        return;
     }
 
-    chrome.storage.local.set({
-      [groupId]: highlightElement_data,
-      [pageUrl]: groupId_list
-   
-  
-  
+    chrome.storage.local.get(pageUrl, function (result) {
+        let groupId_list = result[pageUrl];
+        if (!groupId_list) {
+            groupId_list = [groupId];
+            console.log(`[debug] can not group id list : ${groupId_list}`);
+        } else {
+            groupId_list = update_groupId_list(groupId_list, groupId);
+        }
+
+        chrome.storage.local.set({
+            [groupId]: highlightElement_data,
+            [pageUrl]: groupId_list
+
+
+        })
     })
-  })
-  // if previous
-  // if (previous_groupId_list){
-  //   // console.log(`previous_groupId_list: ${previous_groupId_list}`);
-  //   groupId_list = update_groupId_list(previous_groupId_list, groupId);
-  // }
-  // else{
-
-  
-
+    // if previous
+    // if (previous_groupId_list){
+    //   // console.log(`previous_groupId_list: ${previous_groupId_list}`);
+    //   groupId_list = update_groupId_list(previous_groupId_list, groupId);
+    // }
+    // else{
 
 
     // store the highlight element for this page and groupId
 
 
 }
-function highlightElement_data_hash(element){
-  const hash = CryptoJS.SHA256(element.innerText).toString();
-  //console.log(`[debug] highlightElement_data_hash: ${hash}`);
-  return hash;
+
+function highlightElement_data_hash(element) {
+    const hash = CryptoJS.SHA256(element.innerText).toString();
+    //console.log(`[debug] highlightElement_data_hash: ${hash}`);
+    return hash;
 }
 
-function highlightElement_data(highlightElement){
-  //TODO: use hash to highlightElement's parent node to store the highlightElement's data
-  const parentNode = highlightElement.parentNode;
-  if (parentNode){
-    console.log(`[debug] parentNode: ${parentNode.innerText}`);
-    const hash_parentNode = highlightElement_data_hash(parentNode);
-    // TODO: record the highlightElement's index in the highlightElement's parent node 
-    const hash_highlightElement = highlightElement_data_hash(highlightElement);
-    const index_highlightElement = parentNode.innerText.indexOf(highlightElement.innerText);
-    console.log(`[debug] parentNode.innerText.26:${parentNode.innerText.substring(index_highlightElement,index_highlightElement+highlightElement.innerText.length)}`);
-    console.log(`[debug] index_highlightElement: ${index_highlightElement}`);
-    const color = highlightElement.getAttribute('data-color')||getDefaultColor();
+function highlightElement_data(highlightElement) {
+    //TODO: use hash to highlightElement's parent node to store the highlightElement's data
+    const parentNode = highlightElement.parentNode;
+    if (parentNode) {
+        console.log(`[debug] parentNode: ${parentNode.innerText}`);
+        const hash_parentNode = highlightElement_data_hash(parentNode);
+        // TODO: record the highlightElement's index in the highlightElement's parent node
+        const hash_highlightElement = highlightElement_data_hash(highlightElement);
+        const index_highlightElement = parentNode.innerText.indexOf(highlightElement.innerText);
+        console.log(`[debug] parentNode.innerText.26:${parentNode.innerText.substring(index_highlightElement, index_highlightElement + highlightElement.innerText.length)}`);
+        console.log(`[debug] index_highlightElement: ${index_highlightElement}`);
+        const color = highlightElement.getAttribute('data-color') || getDefaultColor();
 
-    return {
-      hash_parentNode: hash_parentNode,
-      index_highlightElement: index_highlightElement,
-      highlightElement_text: highlightElement.innerText,
-      length: highlightElement.innerText.length,
-      highlightElement_tag: highlightElement.tagName,
-      parentNode_tag: parentNode.tagName,
-    }
-  }
-  else{
-    console.log(`[debug] parentNode is null for highlightElement: ${highlightElement}`);
-  }
-
-  
-}
-function highlightElement_dataStructure(highlightElement){
-  const groupId = highlightElement.getAttribute('data-group-id');
-  const highlightElements_group = [];
-  if (groupId){
-    const highlightElements = document.querySelectorAll(`.html-note-highlight[data-group-id="${groupId}"]`);
-    if (!highlightElements){
-      return null;
-    }
-    const note = highlightElements[0].getAttribute('data-note');
-    highlightElements.forEach(highlightElement=>{
-      highlightElements_group.push(highlightElement_data(highlightElement));
-    })
-    console.log(`[debug] type of highlightElements_group: ${Array.isArray(highlightElements_group)}`);
-    console.log(`[debug] highlightElements_group: ${highlightElements_group}`);
-    const color = highlightElements[0].getAttribute('data-color')||getDefaultColor();
-    return {
-      groupId: groupId,
-      highlightElements: highlightElements_group,
-      note: note,
-      color: color,
+        return {
+            hash_parentNode: hash_parentNode,
+            index_highlightElement: index_highlightElement,
+            highlightElement_text: highlightElement.innerText,
+            length: highlightElement.innerText.length,
+            highlightElement_tag: highlightElement.tagName,
+            parentNode_tag: parentNode.tagName,
+        }
+    } else {
+        console.log(`[debug] parentNode is null for highlightElement: ${highlightElement}`);
     }
 
-  }
-  return null;
 
 }
-function update_groupId_list(groupId_list, groupId){
-  console.log(`update_groupId_list: ${groupId_list}, ${groupId}`);
-  if (!groupId_list){
+
+function highlightElement_dataStructure(highlightElement) {
+    const groupId = highlightElement.getAttribute('data-group-id');
+    const highlightElements_group = [];
+    if (groupId) {
+        const highlightElements = document.querySelectorAll(`.html-note-highlight[data-group-id="${groupId}"]`);
+        if (!highlightElements) {
+            return null;
+        }
+        const note = highlightElements[0].getAttribute('data-note');
+        highlightElements.forEach(highlightElement => {
+            highlightElements_group.push(highlightElement_data(highlightElement));
+        })
+        console.log(`[debug] type of highlightElements_group: ${Array.isArray(highlightElements_group)}`);
+        console.log(`[debug] highlightElements_group: ${highlightElements_group}`);
+        const color = highlightElements[0].getAttribute('data-color') || getDefaultColor();
+        return {
+            groupId: groupId,
+            highlightElements: highlightElements_group,
+            note: note,
+            color: color,
+        }
+
+    }
     return null;
-  }
-  if(groupId_list.length === 0){
-    groupId_list = [groupId];
+
+}
+
+function update_groupId_list(groupId_list, groupId) {
+    console.log(`update_groupId_list: ${groupId_list}, ${groupId}`);
+    if (!groupId_list) {
+        return null;
+    }
+    if (groupId_list.length === 0) {
+        groupId_list = [groupId];
+        return groupId_list;
+    }
+    if (groupId_list.includes(groupId)) {
+        return groupId_list;
+    } else {
+        groupId_list.push(groupId);
+    }
+
     return groupId_list;
-  }
-  if (groupId_list.includes(groupId)){
-    return groupId_list;
-  }
-  else{
-    groupId_list.push(groupId);
-  }
-  
-  return groupId_list;
 
 }
-function load_groupId_list(pageUrl){
-  chrome.storage.local.get(pageUrl, function(result){
-    const groupId_list = result[pageUrl];
-    if (groupId_list){
-      console.log(`load_groupId_list: ${groupId_list}`);
-      load_groupId_list_Handler(groupId_list,pageUrl);
-      
-    }
-    else{
-      console.log(`load_groupId_list failed: ${pageUrl}`);
-      return null;
-    }
-  })
-  
-}
-function load_highilightElement_data_Structure(groupId,pageUrl){
-  console.log(`load_highlightElement_data_Structure:`);
-  chrome.storage.local.get(groupId, function(result){
-    //const next_priority_parentNode =searchAndInsertHighlightElement(groupId, result[groupId].highlightElements[0], result[groupId].note,result[groupId].color,null); 
-    // for (i = 1; i < result[groupId].highlightElements.length; i++) {
-    //   searchAndInsertHighlightElement(groupId, result[groupId].highlightElements[i], result[groupId].note,result[groupId].color,null);
-    // }
 
+function load_groupId_list(pageUrl) {
+    chrome.storage.local.get(pageUrl, function (result) {
+        const groupId_list = result[pageUrl];
+        if (groupId_list) {
+            console.log(`load_groupId_list: ${groupId_list}`);
+            load_groupId_list_Handler(groupId_list, pageUrl);
 
-    console.log(`[debug] length of result[groupId].highlightElements: ${result[groupId].highlightElements.length}`);
-    for (const highlightElement_dataSet of result[groupId].highlightElements){
-      console.log(`[debug] highlightElement_dataSet: ${highlightElement_dataSet}`);
-      const loose_flag = searchAndInsertHighlightElement(groupId, highlightElement_dataSet, result[groupId].note,result[groupId].color,null);
-      if (!loose_flag){
-        console.log(`[debug] storage_loose_highlightElement: ${loose_flag}`);
-        storage_loose_highlightElement(pageUrl, 1);
-        break;
-      }
-    }
-
-  })
-}
-function load_groupId_list_Handler(groupId_list,pageUrl){
- 
-  if (groupId_list){
-    console.log(`[debug] groupId_list: ${groupId_list}`);
-    groupId_list.forEach(groupId=>{
-      load_highilightElement_data_Structure(groupId,pageUrl);
+        } else {
+            console.log(`load_groupId_list failed: ${pageUrl}`);
+            return null;
+        }
     })
-  }
-  show_loose_highlightElement(pageUrl);
+
 }
-function searchAndInsertHighlightElement(groupId, highlightElement_dataSet, note,color,next_priority_parentNode){
+
+function load_highilightElement_data_Structure(groupId, pageUrl) {
+    console.log(`load_highlightElement_data_Structure:`);
+    chrome.storage.local.get(groupId, function (result) {
+        //const next_priority_parentNode =searchAndInsertHighlightElement(groupId, result[groupId].highlightElements[0], result[groupId].note,result[groupId].color,null);
+        // for (i = 1; i < result[groupId].highlightElements.length; i++) {
+        //   searchAndInsertHighlightElement(groupId, result[groupId].highlightElements[i], result[groupId].note,result[groupId].color,null);
+        // }
+
+
+        console.log(`[debug] length of result[groupId].highlightElements: ${result[groupId].highlightElements.length}`);
+        for (const highlightElement_dataSet of result[groupId].highlightElements) {
+            console.log(`[debug] highlightElement_dataSet: ${highlightElement_dataSet}`);
+            const loose_flag = searchAndInsertHighlightElement(groupId, highlightElement_dataSet, result[groupId].note, result[groupId].color, null);
+            if (!loose_flag) {
+                console.log(`[debug] storage_loose_highlightElement: ${loose_flag}`);
+                storage_loose_highlightElement(pageUrl, 1);
+                break;
+            }
+        }
+
+    })
+}
+
+function load_groupId_list_Handler(groupId_list, pageUrl) {
+
+    if (groupId_list) {
+        console.log(`[debug] groupId_list: ${groupId_list}`);
+        groupId_list.forEach(groupId => {
+            load_highilightElement_data_Structure(groupId, pageUrl);
+        })
+    }
+    show_loose_highlightElement(pageUrl);
+}
+
+function searchAndInsertHighlightElement(groupId, highlightElement_dataSet, note, color, next_priority_parentNode) {
     console.log(`[debug] load_highilightElement_data_Handler: ${highlightElement_dataSet}`);
     const parent_tag = highlightElement_dataSet.parentNode_tag;
     const all_elements = document.querySelectorAll(parent_tag);
-    if (all_elements.length === 0){
-      console.log(`[debug] all_elements is empty for parent_tag: ${parent_tag}`);
-      return false;
+    if (all_elements.length === 0) {
+        console.log(`[debug] all_elements is empty for parent_tag: ${parent_tag}`);
+        return false;
     }
     for (const element of all_elements) {
-      const element_hash = highlightElement_data_hash(element);
-      //console.log(`[debug] element_hash: ${element_hash}`);
-      if (element_hash === highlightElement_dataSet.hash_parentNode){
-        const index_highlightElement = highlightElement_dataSet.index_highlightElement;
-        const highlightElement_length = highlightElement_dataSet.length;
-        const target_text = highlightElement_dataSet.highlightElement_text;
-        console.log(`[debug] element.outerHTML: ${element.outerHTML}`);
-        console.log(`[debug] target_text: ${target_text}`);
-        // const target_node = find_textNode(element,target_text);
-        // if (target_node===null){
-        //   console.error(`[debug] target_node is null`);
-        //   return;
-        // }
-        if (element.innerText.substring(index_highlightElement,index_highlightElement+highlightElement_length).includes(target_text)){
-          for (const node of element.childNodes){
-            const target_node = find_textNode(node,target_text);
-            if (target_node===null){
-              console.error(`[debug] target_node is null`);
-              return false;
-            }
-            if (target_node.textContent.includes(target_text)){
-              console.log(`[debug] target_node.textContent: ${target_node.textContent}`);
-              const index_target_text = target_node.textContent.indexOf(target_text);
-              insert_highlightElement(target_text,index_target_text,target_node.textContent.length-index_target_text,color,groupId,target_node,note);
-              console.log(`[debug] target_node.textContent: ${target_node.textContent}`);
-              return true;
-            }
-            else{
-              continue;
-          }
-          // else if (loop_textNode(target_text,target_node,element,index_highlightElement,highlightElement_length,groupId,color)){
-          //   return;
-          // }
-          }
+        const element_hash = highlightElement_data_hash(element);
+        //console.log(`[debug] element_hash: ${element_hash}`);
+        if (element_hash === highlightElement_dataSet.hash_parentNode) {
+            const index_highlightElement = highlightElement_dataSet.index_highlightElement;
+            const highlightElement_length = highlightElement_dataSet.length;
+            const target_text = highlightElement_dataSet.highlightElement_text;
+            console.log(`[debug] element.outerHTML: ${element.outerHTML}`);
+            console.log(`[debug] target_text: ${target_text}`);
+            // const target_node = find_textNode(element,target_text);
+            // if (target_node===null){
+            //   console.error(`[debug] target_node is null`);
+            //   return;
+            // }
+            if (element.innerText.substring(index_highlightElement, index_highlightElement + highlightElement_length).includes(target_text)) {
+                for (const node of element.childNodes) {
+                    const target_node = find_textNode(node, target_text);
+                    if (target_node === null) {
+                        console.error(`[debug] target_node is null`);
+                        return false;
+                    }
+                    if (target_node.textContent.includes(target_text)) {
+                        console.log(`[debug] target_node.textContent: ${target_node.textContent}`);
+                        const index_target_text = target_node.textContent.indexOf(target_text);
+                        insert_highlightElement(target_text, index_target_text, target_node.textContent.length - index_target_text, color, groupId, target_node, note);
+                        console.log(`[debug] target_node.textContent: ${target_node.textContent}`);
+                        return true;
+                    } else {
+                        continue;
+                    }
+                    // else if (loop_textNode(target_text,target_node,element,index_highlightElement,highlightElement_length,groupId,color)){
+                    //   return;
+                    // }
+                }
 
-          const string_content = element.innerText;
-          const text_node = document.createTextNode(string_content);
-          for (const node of element.childNodes){
-            element.removeChild(node);
-          }
-          element.innerHTML = '';
-          element.appendChild(text_node);
-          console.log(`target_text in searchAndInsertHighlightElement: ${target_text}`);
-          insert_highlightElement(target_text,text_node.textContent.indexOf(target_text),target_text.length,color,groupId,text_node,note);
-          return true;
+                const string_content = element.innerText;
+                const text_node = document.createTextNode(string_content);
+                for (const node of element.childNodes) {
+                    element.removeChild(node);
+                }
+                element.innerHTML = '';
+                element.appendChild(text_node);
+                console.log(`target_text in searchAndInsertHighlightElement: ${target_text}`);
+                insert_highlightElement(target_text, text_node.textContent.indexOf(target_text), target_text.length, color, groupId, text_node, note);
+                return true;
+            } else {
+                console.log(`[debug] target text :${target_text}`)
+                console.error(`[debug] target_node.textContent.substring(index_highlightElement,index_highlightElement+highlightElement_length) is not equal to target_text: ${target_node.textContent.substring(index_highlightElement, index_highlightElement + highlightElement_length)}`);
+                return false;
+            }
+        } else {
+            // TODO: missing case
+            //console.log(`[debug] element.innerHTML: ${element.innerHTML}`);
         }
-        else{
-          console.log(`[debug] target text :${target_text}`)
-          console.error(`[debug] target_node.textContent.substring(index_highlightElement,index_highlightElement+highlightElement_length) is not equal to target_text: ${target_node.textContent.substring(index_highlightElement,index_highlightElement+highlightElement_length)}`);
-          return false;
-        }
-      }
-      else{
-        // TODO: missing case 
-        //console.log(`[debug] element.innerHTML: ${element.innerHTML}`);
-      }
     }
 
 }
-  /**
-   * 获取存储的默认颜色，如果没有则返回默认值
-   * @returns {string} 默认颜色
-   */
-function getDefaultColor(){
-  const storedColor = localStorage.getItem('html-note-default-color');
-  return storedColor || '#ffeb3b';
+
+/**
+ * 获取存储的默认颜色，如果没有则返回默认值
+ * @returns {string} 默认颜色
+ */
+function getDefaultColor() {
+    const storedColor = localStorage.getItem('html-note-default-color');
+    return storedColor || '#ffeb3b';
 
 }
-function make_highlightElement(element,color){
+
+function make_highlightElement(element, color) {
 }
-function find_textNode(element,text){
-  if (!element){
+
+function find_textNode(element, text) {
+    if (!element) {
+        return null;
+    }
+    if (element.nodeType === Node.TEXT_NODE) {
+        return element;
+    }
+    const nodes = Array.from(element.childNodes);
+    if (nodes.length === 0) {
+        return null;
+    }
+    for (const node of nodes) {
+        const found_node = find_textNode(node, text);
+        if (found_node) {
+            return found_node;
+        }
+    }
     return null;
-  }
-  if (element.nodeType === Node.TEXT_NODE){
-    return element;
-  }
-  const nodes = Array.from(element.childNodes);
-  if (nodes.length === 0){
-    return null;
-  }
-  for (const node of nodes){
-    const found_node = find_textNode(node,text);
-    if (found_node){
-      return found_node;
-    }
-  }
-  return null;
 }
-function insert_highlightElement(target_text,index_highlightElement,highlightElement_length,color,groupId,target_node,note){
-  const highlightSpan = createHighlightSpanWithColor(color,groupId,0);
-  highlightSpan.textContent = target_text;
-  highlightSpan.setAttribute('data-note',note);
-  console.log(`[debug] highlightSpan.getAttribute('data-note'): ${highlightSpan.getAttribute('data-note')}`);
-  const element = target_node.parentNode;
-  if (!element){
-    console.error(`[debug] element is null`);
-    return;
-  }
-  console.log(`[debug] element.querySelectorAll('data-group-id').length: ${element.querySelectorAll('data-group-id').length}`);
-  if (index_highlightElement > 0 && element.querySelectorAll('data-group-id').length === 0){// there is before text
-    const before_text = target_node.textContent.substring(0,index_highlightElement);
-    const before_node = document.createTextNode(before_text);
-    // console.log(`[debug] before_node: ${before_node.textContent}`);
-    element.insertBefore(before_node,target_node);
-  }
-  highlightSpan.setAttribute('data-group-id',groupId);
-  element.insertBefore(highlightSpan,target_node);
-  // console.log(`index_highlightElement+highlightElement_length: ${element.innerText.indexOf(target_node.textContent)+target_node.textContent.length}`);
-  // console.log(`target_node.textContent.length: ${element.innerText.length}`);
-  // console.log(`targetNode.textContent: ${target_node.textContent}`);
-  // console.log(`element.innerText: ${element.innerText}`);
-  // if (element.innerText.indexOf(target_node.textContent)+highlightElement_length < element.innerText.length){// there is after text
-  //   const after_text = element.innerText.substring(element.innerText.indexOf(target_node.textContent)+highlightElement_length);
-  //   const after_node = document.createTextNode(after_text);
-  //   element.insertBefore(after_node,highlightSpan.nextSibling);
-  //   console.log(`[debug] after_node: ${after_node.textContent}`);
-  // }
-  if (target_node.textContent.indexOf(target_text)+target_text.length < target_node.textContent.length){
-    const after_text = target_node.textContent.substring(target_node.textContent.indexOf(target_text)+target_text.length);
-    const after_node = document.createTextNode(after_text);
-    element.insertBefore(after_node,highlightSpan.nextSibling);
-    // console.log(`[debug] after_node: ${after_node.textContent}`);
-  }
-  // console.log(`[debug] element.removeChild(target_node): ${target_node.textContent}`);
-  
-  element.removeChild(target_node);
-  // console.log(`element.innerHTML: ${element.innerHTML}`);
-  
 
-}
-function remove_highlightElementStorage(highlightElement,pageUrl){
-  const groupId = highlightElement.getAttribute('data-group-id');
+function insert_highlightElement(target_text, index_highlightElement, highlightElement_length, color, groupId, target_node, note) {
+    const highlightSpan = createHighlightSpanWithColor(color, groupId, 0);
+    highlightSpan.textContent = target_text;
+    highlightSpan.setAttribute('data-note', note);
+    console.log(`[debug] highlightSpan.getAttribute('data-note'): ${highlightSpan.getAttribute('data-note')}`);
+    const element = target_node.parentNode;
+    if (!element) {
+        console.error(`[debug] element is null`);
+        return;
+    }
+    console.log(`[debug] element.querySelectorAll('data-group-id').length: ${element.querySelectorAll('data-group-id').length}`);
+    if (index_highlightElement > 0 && element.querySelectorAll('data-group-id').length === 0) {// there is before text
+        const before_text = target_node.textContent.substring(0, index_highlightElement);
+        const before_node = document.createTextNode(before_text);
+        // console.log(`[debug] before_node: ${before_node.textContent}`);
+        element.insertBefore(before_node, target_node);
+    }
+    highlightSpan.setAttribute('data-group-id', groupId);
+    element.insertBefore(highlightSpan, target_node);
+    // console.log(`index_highlightElement+highlightElement_length: ${element.innerText.indexOf(target_node.textContent)+target_node.textContent.length}`);
+    // console.log(`target_node.textContent.length: ${element.innerText.length}`);
+    // console.log(`targetNode.textContent: ${target_node.textContent}`);
+    // console.log(`element.innerText: ${element.innerText}`);
+    // if (element.innerText.indexOf(target_node.textContent)+highlightElement_length < element.innerText.length){// there is after text
+    //   const after_text = element.innerText.substring(element.innerText.indexOf(target_node.textContent)+highlightElement_length);
+    //   const after_node = document.createTextNode(after_text);
+    //   element.insertBefore(after_node,highlightSpan.nextSibling);
+    //   console.log(`[debug] after_node: ${after_node.textContent}`);
+    // }
+    if (target_node.textContent.indexOf(target_text) + target_text.length < target_node.textContent.length) {
+        const after_text = target_node.textContent.substring(target_node.textContent.indexOf(target_text) + target_text.length);
+        const after_node = document.createTextNode(after_text);
+        element.insertBefore(after_node, highlightSpan.nextSibling);
+        // console.log(`[debug] after_node: ${after_node.textContent}`);
+    }
+    // console.log(`[debug] element.removeChild(target_node): ${target_node.textContent}`);
 
-  chrome.storage.local.remove(groupId, function(result){
-    if (result){
-      remove_groupIdFromListStorage(pageUrl,groupId);
-    }
-  })
-}find_target_text_in_node
-function remove_groupIdFromListStorage(pageUrl,groupId){
-  chrome.storage.local.get(pageUrl, function(result){
-    if (result){
-      const groupId_list = result[pageUrl];
-      if (groupId_list){
-        if (groupId_list.includes(groupId)){
-          groupId_list.splice(groupId_list.indexOf(groupId),1);
-          chrome.storage.local.set({
-            [pageUrl]: groupId_list
-          })
-        }
-      }
-    }
-  })
-}
-function remove_all_highlightElementStorage(pageUrl){
-  chrome.storage.local.get(pageUrl, function(result){
-    if (result){
-      const groupId_list = result[pageUrl];
-      if (groupId_list){
-        groupId_list.forEach(groupId=>{
-          chrome.storage.local.remove(groupId, function(result){
-            if (result){
-              console.log(`[debug] remove_all_highlightElementStorage: ${result}`);
-            }
-          })
-        })
-      }
-    }
-  })
-  chrome.storage.local.remove(pageUrl, function(result){
-    if (result){
-      console.log(`[debug] remove_all_highlightElementStorage: ${result}`);
-    }
-  })
-}
-function find_target_text_in_node(target_text,target_node,element,index_highlightElement,highlightElement_length,groupId,color){
-  const highlightSpan = createHighlightSpanWithColor(color,groupId,0);
-  console.log(`target text in find_target_text_in_node: ${target_text}`);
-  console.log(`target_node.textContent in find_target_text_in_node: ${target_node.textContent}`);
-  console.log(`target_node.textContent.includes(target_text): ${target_node.textContent.includes(target_text)}`);
-  console.log(`target_node.textContent.length: ${target_node.textContent.length}`);
-  console.log(`target_text.length: ${target_text.length}`);
-  if (target_node.textContent.includes(target_text)&&target_node.textContent.length === target_text.length){
-    insert_highlightElement(target_text,index_highlightElement,highlightElement_length,color,groupId,target_node);
-    return;
-  }
-  else{
-    //find_target_node(target_text,element,index_highlightElement,highlightElement_length,groupId,color);
-  }
-  
-  return;
-}
-function find_target_node(target_text,element,index_highlightElement,highlightElement_length,groupId,color){
-  const nodes = Array.from(element.childNodes);
-  let count = 0;
-  for (const node of nodes){
-    if (node.nodeType === Node.TEXT_NODE){
-      count = parse_fragement_element(node, index_highlightElement,highlightElement_length,color,groupId,count);
-      
-      continue;
-    }
-    if (node.nodeType === Node.ELEMENT_NODE){
-      found_node = find_textNode(node,target_text);
-      if (found_node){
-        console.log(`index_highlightElement: ${index_highlightElement}`);
-        count = parse_fragement_element(found_node, index_highlightElement,highlightElement_length,color,groupId,count);
-        continue;
-      }
-    }
-    
-}}
-function parse_fragement_element(node, index_highlightElement,highlightElement_length,color,groupId,count){
-  console.log(`[debug] parse_fragement_element: ${node.textContent}`);
-  if (count+node.textContent.length > index_highlightElement){
-    let preNode_index = index_highlightElement-count;
-    if (preNode_index <0){
-      preNode_index = 0;
-    }
-    const pre_target_text = node.textContent.substring(preNode_index);
-    let pre_text_length = 0;
-    const target_element_end_index = index_highlightElement+highlightElement_length;
-    const current_node_end_index = count+pre_target_text.length;
-    console.log(`[debug] current_node_end_index: ${current_node_end_index}`);
-    console.log(`[debug] target_element_end_index: ${target_element_end_index}`);
-    console.log(`[debug] pre_target_text: ${pre_target_text.length}`);
-    console.log(`[debug] preNode_index: ${preNode_index}`);
-    console.log(`[debug] count: ${count}`);
-    console.log(`[debug] index_highlightElement: ${index_highlightElement}`);
-    if (current_node_end_index > target_element_end_index){
-      pre_text_length = target_element_end_index-count;
-      console.log(`[debug] pre_text_length: ${pre_text_length}`);
-    }
-    else{
-      pre_text_length = pre_target_text.length-preNode_index;
-    }
-    insert_highlightElement(pre_target_text,preNode_index,pre_text_length,color,groupId,node);
-    return count+pre_text_length;
-  }
-  count += node.textContent.length;
-  return count;
-}
-function loop_textNode(target_text,target_node,element,index_highlightElement,highlightElement_length,groupId,color){
-  const nodes = Array.from(element.childNodes);
-  // console.log(`[debug] target_text in loop_textNode: ${target_text}`);
-  // console.log(`[debug] target_node.textContent in loop_textNode: ${target_node.textContent}`);
-  // console.log(`[debug] element.innerText in loop_textNode: ${element.innerText}`);
-  // console.log(`[debug] index_highlightElement in loop_textNode: ${index_highlightElement}`);
-  // console.log(`[debug] highlightElement_length in loop_textNode: ${highlightElement_length}`);
-  // let count = 0;
-  // for (let node of nodes){
-  //   if (node.nodeType === Node.ELEMENT_NODE){
-  //     node = find_textNode(node,target_text);
-  //   }
-  //   if (node.nodeType === Node.TEXT_NODE){
-  //     console.log(`[debug] node.textContent in loop_textNode: ${node.textContent}`);
-  //     if (node.textContent.includes(target_text)){
-  //       insert_highlightElement(target_text,index_highlightElement,highlightElement_length,color,groupId,node);
-  //       return true;
-  //     }
-  //     if (count+node.textContent.length > index_highlightElement){
-  //       if (node.textContent.includes(target_text)){
-  //       const pre_index = index_highlightElement-count;
-  //       if (pre_index < 0){
-  //         console.error(`[debug] pre_index is less than 0`);
-  //       }
-  //       if (pre_index+node.textContent.length <= highlightElement_length){
-  //         const length_text = node.textContent.length-pre_index;
-  //       }
-  //       insert_highlightElement(target_text,pre_index,length_text,color,groupId,node);
-  //       return true;
-  //     }
-  //   }
-  //   }
-
-  //   count += node.textContent.length;
-
-    
-  // }
-  const already_inserted_node = element.querySelectorAll('.html-note-highlight');
-  if (already_inserted_node.length > 0){
-    const nodes  = Array.from(element.childNodes);
-    for (const node of nodes){
-      if (node.tagName === 'SPAN'){
-        if (node.classList.contains('html-note-highlight')){
-          continue;
-        }
-      }
-      if (node.textContent.includes(target_text)){
-        insert_highlightElement(target_text,index_highlightElement,highlightElement_length,color,groupId,node);
-        return true;
-      }
-    }
-  }
-  else{
-    const string_content  = element.innerText;
-    const text_node = document.createTextNode(string_content);
-    for (const node of nodes){
-      element.removeChild(node);
-    }
-    element.appendChild(text_node);
-    if (element.innerText.includes(target_text)){
-      insert_highlightElement(target_text,index_highlightElement,highlightElement_length,color,groupId,text_node);
-      return true;
-    }
-    return false;
-
-  }
-
-
-}
-function insert_highlightElement_fragement(target_text,target_node,element,index_highlightElement,highlightElement_length,groupId,color){
-  const highlightSpan = createHighlightSpanWithColor(color,groupId,0);
-  console.log(`[debug] insert_highlightElement_fragement: ${target_text}`);
-  console.log(`[debug] target_node.textContent in insert_highlightElement_fragement: ${target_node.textContent}`);
-  console.log(`[debug] element.innerText in insert_highlightElement_fragement: ${element.innerText}`);
-  console.log(`[debug] index_highlightElement in insert_highlightElement_fragement: ${index_highlightElement}`);
-  console.log(`[debug] highlightElement_length in insert_highlightElement_fragement: ${highlightElement_length}`);
-  const element_innerText = element.innerText;
-  if (element_innerText.substring(index_highlightElement,index_highlightElement+highlightElement_length).includes(target_node.textContent)){
-    highlightSpan.textContent = target_node.textContent;
-    element.insertBefore(highlightSpan,target_node.nextSibling);
     element.removeChild(target_node);
+    // console.log(`element.innerHTML: ${element.innerHTML}`);
+
+
+}
+
+function remove_highlightElementStorage(highlightElement, pageUrl) {
+    const groupId = highlightElement.getAttribute('data-group-id');
+
+    chrome.storage.local.remove(groupId, function (result) {
+        if (result) {
+            remove_groupIdFromListStorage(pageUrl, groupId);
+        }
+    })
+}
+
+find_target_text_in_node
+
+function remove_groupIdFromListStorage(pageUrl, groupId) {
+    chrome.storage.local.get(pageUrl, function (result) {
+        if (result) {
+            const groupId_list = result[pageUrl];
+            if (groupId_list) {
+                if (groupId_list.includes(groupId)) {
+                    groupId_list.splice(groupId_list.indexOf(groupId), 1);
+                    chrome.storage.local.set({
+                        [pageUrl]: groupId_list
+                    })
+                }
+            }
+        }
+    })
+}
+
+function remove_all_highlightElementStorage(pageUrl) {
+    chrome.storage.local.get(pageUrl, function (result) {
+        if (result) {
+            const groupId_list = result[pageUrl];
+            if (groupId_list) {
+                groupId_list.forEach(groupId => {
+                    chrome.storage.local.remove(groupId, function (result) {
+                        if (result) {
+                            console.log(`[debug] remove_all_highlightElementStorage: ${result}`);
+                        }
+                    })
+                })
+            }
+        }
+    })
+    chrome.storage.local.remove(pageUrl, function (result) {
+        if (result) {
+            console.log(`[debug] remove_all_highlightElementStorage: ${result}`);
+        }
+    })
+}
+
+function find_target_text_in_node(target_text, target_node, element, index_highlightElement, highlightElement_length, groupId, color) {
+    const highlightSpan = createHighlightSpanWithColor(color, groupId, 0);
+    console.log(`target text in find_target_text_in_node: ${target_text}`);
+    console.log(`target_node.textContent in find_target_text_in_node: ${target_node.textContent}`);
+    console.log(`target_node.textContent.includes(target_text): ${target_node.textContent.includes(target_text)}`);
+    console.log(`target_node.textContent.length: ${target_node.textContent.length}`);
+    console.log(`target_text.length: ${target_text.length}`);
+    if (target_node.textContent.includes(target_text) && target_node.textContent.length === target_text.length) {
+        insert_highlightElement(target_text, index_highlightElement, highlightElement_length, color, groupId, target_node);
+        return;
+    } else {
+        //find_target_node(target_text,element,index_highlightElement,highlightElement_length,groupId,color);
+    }
+
     return;
-  }
 }
-function find_textNode_in_element(target_node){
-  if (target_node.nodeType === Node.ELEMENT_NODE){
-    return target_node;
-  }
-  else {
-    return find_textNode_in_element(target_node.parentNode);
-  }
-  
-}
-function storage_loose_highlightElement(pageUrl, loose_amount){
-  const string_loose_key =  'loose_highlightElement'+pageUrl;
-  chrome.storage.local.get(string_loose_key, function(result){
-    if (result){
-      const current_loose_amount = result[string_loose_key]+loose_amount;
-      chrome.storage.local.set({
-        [string_loose_key]: current_loose_amount
-      })
-    }
-    else{// if there is no loose key
-      chrome.storage.local.set({
-        [string_loose_key]: 0
-      })
-    }
 
-    
-  })
-}
-function show_loose_highlightElement(pageUrl){
-  const string_loose_key =  'loose_highlightElement'+pageUrl;
-  chrome.storage.local.get(string_loose_key, function(result){
-    if (result){
-     if (result[string_loose_key] > 0){
-      console.log(`[debug] show_loose_highlightElement: ${result[string_loose_key]}`);
-      window.showNotification(`[debug] show_loose_highlightElement: ${result[string_loose_key]}`);
-     }
+function find_target_node(target_text, element, index_highlightElement, highlightElement_length, groupId, color) {
+    const nodes = Array.from(element.childNodes);
+    let count = 0;
+    for (const node of nodes) {
+        if (node.nodeType === Node.TEXT_NODE) {
+            count = parse_fragement_element(node, index_highlightElement, highlightElement_length, color, groupId, count);
+
+            continue;
+        }
+        if (node.nodeType === Node.ELEMENT_NODE) {
+            found_node = find_textNode(node, target_text);
+            if (found_node) {
+                console.log(`index_highlightElement: ${index_highlightElement}`);
+                count = parse_fragement_element(found_node, index_highlightElement, highlightElement_length, color, groupId, count);
+                continue;
+            }
+        }
 
     }
-  })
+}
+
+function parse_fragement_element(node, index_highlightElement, highlightElement_length, color, groupId, count) {
+    console.log(`[debug] parse_fragement_element: ${node.textContent}`);
+    if (count + node.textContent.length > index_highlightElement) {
+        let preNode_index = index_highlightElement - count;
+        if (preNode_index < 0) {
+            preNode_index = 0;
+        }
+        const pre_target_text = node.textContent.substring(preNode_index);
+        let pre_text_length = 0;
+        const target_element_end_index = index_highlightElement + highlightElement_length;
+        const current_node_end_index = count + pre_target_text.length;
+        console.log(`[debug] current_node_end_index: ${current_node_end_index}`);
+        console.log(`[debug] target_element_end_index: ${target_element_end_index}`);
+        console.log(`[debug] pre_target_text: ${pre_target_text.length}`);
+        console.log(`[debug] preNode_index: ${preNode_index}`);
+        console.log(`[debug] count: ${count}`);
+        console.log(`[debug] index_highlightElement: ${index_highlightElement}`);
+        if (current_node_end_index > target_element_end_index) {
+            pre_text_length = target_element_end_index - count;
+            console.log(`[debug] pre_text_length: ${pre_text_length}`);
+        } else {
+            pre_text_length = pre_target_text.length - preNode_index;
+        }
+        insert_highlightElement(pre_target_text, preNode_index, pre_text_length, color, groupId, node);
+        return count + pre_text_length;
+    }
+    count += node.textContent.length;
+    return count;
+}
+
+function loop_textNode(target_text, target_node, element, index_highlightElement, highlightElement_length, groupId, color) {
+    const nodes = Array.from(element.childNodes);
+    // console.log(`[debug] target_text in loop_textNode: ${target_text}`);
+    // console.log(`[debug] target_node.textContent in loop_textNode: ${target_node.textContent}`);
+    // console.log(`[debug] element.innerText in loop_textNode: ${element.innerText}`);
+    // console.log(`[debug] index_highlightElement in loop_textNode: ${index_highlightElement}`);
+    // console.log(`[debug] highlightElement_length in loop_textNode: ${highlightElement_length}`);
+    // let count = 0;
+    // for (let node of nodes){
+    //   if (node.nodeType === Node.ELEMENT_NODE){
+    //     node = find_textNode(node,target_text);
+    //   }
+    //   if (node.nodeType === Node.TEXT_NODE){
+    //     console.log(`[debug] node.textContent in loop_textNode: ${node.textContent}`);
+    //     if (node.textContent.includes(target_text)){
+    //       insert_highlightElement(target_text,index_highlightElement,highlightElement_length,color,groupId,node);
+    //       return true;
+    //     }
+    //     if (count+node.textContent.length > index_highlightElement){
+    //       if (node.textContent.includes(target_text)){
+    //       const pre_index = index_highlightElement-count;
+    //       if (pre_index < 0){
+    //         console.error(`[debug] pre_index is less than 0`);
+    //       }
+    //       if (pre_index+node.textContent.length <= highlightElement_length){
+    //         const length_text = node.textContent.length-pre_index;
+    //       }
+    //       insert_highlightElement(target_text,pre_index,length_text,color,groupId,node);
+    //       return true;
+    //     }
+    //   }
+    //   }
+
+    //   count += node.textContent.length;
+
+
+    // }
+    const already_inserted_node = element.querySelectorAll('.html-note-highlight');
+    if (already_inserted_node.length > 0) {
+        const nodes = Array.from(element.childNodes);
+        for (const node of nodes) {
+            if (node.tagName === 'SPAN') {
+                if (node.classList.contains('html-note-highlight')) {
+                    continue;
+                }
+            }
+            if (node.textContent.includes(target_text)) {
+                insert_highlightElement(target_text, index_highlightElement, highlightElement_length, color, groupId, node);
+                return true;
+            }
+        }
+    } else {
+        const string_content = element.innerText;
+        const text_node = document.createTextNode(string_content);
+        for (const node of nodes) {
+            element.removeChild(node);
+        }
+        element.appendChild(text_node);
+        if (element.innerText.includes(target_text)) {
+            insert_highlightElement(target_text, index_highlightElement, highlightElement_length, color, groupId, text_node);
+            return true;
+        }
+        return false;
+
+    }
+
 
 }
-function update_storage_color(groupId,color){
-  chrome.storage.local.get(groupId, function(result){
-    if (result){
-      result[groupId].color = color;
-      chrome.storage.local.set({
-        [groupId]: result[groupId]
-      })
+
+function insert_highlightElement_fragement(target_text, target_node, element, index_highlightElement, highlightElement_length, groupId, color) {
+    const highlightSpan = createHighlightSpanWithColor(color, groupId, 0);
+    console.log(`[debug] insert_highlightElement_fragement: ${target_text}`);
+    console.log(`[debug] target_node.textContent in insert_highlightElement_fragement: ${target_node.textContent}`);
+    console.log(`[debug] element.innerText in insert_highlightElement_fragement: ${element.innerText}`);
+    console.log(`[debug] index_highlightElement in insert_highlightElement_fragement: ${index_highlightElement}`);
+    console.log(`[debug] highlightElement_length in insert_highlightElement_fragement: ${highlightElement_length}`);
+    const element_innerText = element.innerText;
+    if (element_innerText.substring(index_highlightElement, index_highlightElement + highlightElement_length).includes(target_node.textContent)) {
+        highlightSpan.textContent = target_node.textContent;
+        element.insertBefore(highlightSpan, target_node.nextSibling);
+        element.removeChild(target_node);
+        return;
     }
-  })
 }
-function groupId_generator(highlightElement){
-  const key_groupId = 'groupId';
-  chrome.storage.local.get(key_groupId, function(result){
-    if (result){
-      const groupId_current = result[key_groupId] +1;
-      highlightElement.setAttribute('data-group-id',groupId_current);
-      chrome.storage.local.set({
-        [key_groupId]: groupId_current
-      })
-      return groupId_current;
+
+function find_textNode_in_element(target_node) {
+    if (target_node.nodeType === Node.ELEMENT_NODE) {
+        return target_node;
+    } else {
+        return find_textNode_in_element(target_node.parentNode);
     }
-    else {
-      const groupId_current = 0;
-      highlightElement.setAttribute('data-group-id',groupId_current);
-      chrome.storage.local.set({
-        [key_groupId]: groupId_current
-      })
-      return groupId_current;
-    }
-  })
+
+}
+
+function storage_loose_highlightElement(pageUrl, loose_amount) {
+    const string_loose_key = 'loose_highlightElement' + pageUrl;
+    chrome.storage.local.get(string_loose_key, function (result) {
+        if (result) {
+            const current_loose_amount = result[string_loose_key] + loose_amount;
+            chrome.storage.local.set({
+                [string_loose_key]: current_loose_amount
+            })
+        } else {// if there is no loose key
+            chrome.storage.local.set({
+                [string_loose_key]: 0
+            })
+        }
+
+
+    })
+}
+
+function show_loose_highlightElement(pageUrl) {
+    const string_loose_key = 'loose_highlightElement' + pageUrl;
+    chrome.storage.local.get(string_loose_key, function (result) {
+        if (result) {
+            if (result[string_loose_key] > 0) {
+                console.log(`[debug] show_loose_highlightElement: ${result[string_loose_key]}`);
+                window.showNotification(`[debug] show_loose_highlightElement: ${result[string_loose_key]}`);
+            }
+
+        }
+    })
+
+}
+
+function update_storage_color(groupId, color) {
+    chrome.storage.local.get(groupId, function (result) {
+        if (result) {
+            result[groupId].color = color;
+            chrome.storage.local.set({
+                [groupId]: result[groupId]
+            })
+        }
+    })
+}
+
+function groupId_generator(highlightElement) {
+    const key_groupId = 'groupId';
+    chrome.storage.local.get(key_groupId, function (result) {
+        if (result) {
+            const groupId_current = result[key_groupId] + 1;
+            highlightElement.setAttribute('data-group-id', groupId_current);
+            chrome.storage.local.set({
+                [key_groupId]: groupId_current
+            })
+            return groupId_current;
+        } else {
+            const groupId_current = 0;
+            highlightElement.setAttribute('data-group-id', groupId_current);
+            chrome.storage.local.set({
+                [key_groupId]: groupId_current
+            })
+            return groupId_current;
+        }
+    })
 }

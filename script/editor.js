@@ -1,10 +1,13 @@
 import {
     initProsemirror_without_notes_white,
     initProsemirror_with_notes_white,
-    get_doc_json,get_hmtl,
+    get_doc_json, get_hmtl,
     setup_markdown_input_rules,
-    retrive_doc_json} from './sideBar/prosemirror.js';
+    retrive_doc_json
+} from './sideBar/prosemirror.js';
+
 export {showNoteEditor};
+
 function showNoteEditor(highlightElement, groupId, mouseEvent) {
     document.querySelectorAll('.note-editor').forEach(el => el.remove());
     // 取同组第一个的 data-note
