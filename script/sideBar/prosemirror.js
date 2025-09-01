@@ -46,6 +46,20 @@ function get_hmtl() {
     console.log('html', html);
     return html;
 }
+export {init_notes_html};
+
+function init_notes_html(json_string){
+    const state = setup_prosemirror();
+    const doc = Node.fromJSON(state.schema, JSON.parse(json_string));
+    
+    state.doc = doc;
+    const fragment = DOMSerializer.fromSchema(state.schema).serializeFragment(state.doc.content);
+    const wrapper = document.createElement("div");
+    wrapper.appendChild(fragment);
+    const html = DOMPurify.sanitize(wrapper.innerHTML, {USE_PROFILES: {html: true}});
+    console.log('html', html);
+    return html;
+}
 
 export {get_doc_json};
 

@@ -27,6 +27,7 @@ var ProseMirrorBundle = (() => {
     initProsemirror_with_notes_white: () => initProsemirror_with_notes_white,
     initProsemirror_without_notes: () => initProsemirror_without_notes,
     initProsemirror_without_notes_white: () => initProsemirror_without_notes_white,
+    init_notes_html: () => init_notes_html,
     retrive_doc_json: () => retrive_doc_json,
     setup_markdown_input_rules: () => setup_markdown_input_rules
   });
@@ -19672,6 +19673,17 @@ var ProseMirrorBundle = (() => {
     const fragment = DOMSerializer.fromSchema(view.state.schema).serializeFragment(
       view.state.doc.content
     );
+    const wrapper = document.createElement("div");
+    wrapper.appendChild(fragment);
+    const html = DOMPurify.sanitize(wrapper.innerHTML, { USE_PROFILES: { html: true } });
+    console.log("html", html);
+    return html;
+  }
+  function init_notes_html(json_string) {
+    const state = setup_prosemirror();
+    const doc3 = Node2.fromJSON(state.schema, JSON.parse(json_string));
+    state.doc = doc3;
+    const fragment = DOMSerializer.fromSchema(state.schema).serializeFragment(state.doc.content);
     const wrapper = document.createElement("div");
     wrapper.appendChild(fragment);
     const html = DOMPurify.sanitize(wrapper.innerHTML, { USE_PROFILES: { html: true } });
