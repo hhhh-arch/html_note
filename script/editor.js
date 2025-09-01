@@ -540,11 +540,11 @@ function removeListener(textArea) {
 
 }
 
-function update_storage_note(groupId, note) {
-    console.log(`[debug] update_storage_note: ${note}`);
+function update_storage_note(groupId) {
+    console.log(`[debug] update_storage_note: ${get_doc_json()}`);
     chrome.storage.local.get(groupId, function (result) {
         if (result) {
-            result[groupId].note = note;
+            result[groupId].note = get_doc_json();
                 chrome.storage.local.set({
                     [groupId]: result[groupId]
                 })
