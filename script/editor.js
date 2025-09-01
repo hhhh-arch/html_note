@@ -545,9 +545,14 @@ function update_storage_note(groupId) {
     chrome.storage.local.get(groupId, function (result) {
         if (result) {
             result[groupId].note = get_doc_json();
-                chrome.storage.local.set({
-                    [groupId]: result[groupId]
-                })
+            chrome.runtime.sendMessage({
+                type: "update_storage_note",
+                groupId: groupId,
+                note: get_doc_json()
+            })
+            chrome.storage.local.set({
+                [groupId]: result[groupId]
+            })
         }
     })
 }

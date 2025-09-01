@@ -67,6 +67,15 @@ chrome.runtime.onMessage.addListener((message, sender) => {
         });
 
       }
+      if (message.type === 'update_storage_note') {
+        if (chrome.sidePanel.getOptions({tabId: sender.tab.id}).enabled == true) {
+          chrome.tabs.sendMessage(sender.tab.id, {
+            type: 'update_storage_note',
+            groupId: message.groupId,
+            note: message.note
+          });
+        }
+      }
 
     })();
   });

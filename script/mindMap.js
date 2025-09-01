@@ -85,6 +85,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         loadNoteCard(message.pageUrl, getMind(), getMind().getData());
         storage_mindMap_data();
     }
+    if (message.type === 'update_storage_note') {
+        console.log('message:', message);
+    }
 });
 
 function showMindMapPanel(pageUrl) {
