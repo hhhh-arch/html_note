@@ -504,16 +504,16 @@ function saveNotesContent(textArea, tags, groupId, currentPageUrl, currentNote) 
         if (groupId) {
             if (note != "" || currentNote != '') {
                 document.querySelectorAll('.html-note-highlight[data-group-id="' + groupId + '"]').forEach(span => {
-                    span.setAttribute('data-note', note);
-                    update_storage_note(groupId, note);
+                    span.setAttribute('data-note', get_doc_json());
+                    update_storage_note(groupId);
                     //span.title = note ;
                 });
 
             }
         } else {
             if (note != "" || currentNote != '') {
-                highlightElement.setAttribute('data-note', note);
-                update_storage_note(groupId, note);
+                highlightElement.setAttribute('data-note', get_doc_json());
+                update_storage_note(groupId);
                 //highlightElement.title = note ;
             }
         }
@@ -545,9 +545,9 @@ function update_storage_note(groupId, note) {
     chrome.storage.local.get(groupId, function (result) {
         if (result) {
             result[groupId].note = note;
-            chrome.storage.local.set({
-                [groupId]: result[groupId]
-            })
+                chrome.storage.local.set({
+                    [groupId]: result[groupId]
+                })
         }
     })
 }

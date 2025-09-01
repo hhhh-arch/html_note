@@ -14,7 +14,8 @@ const {
     initProsemirror_without_notes,
     get_doc_json, get_hmtl,
     initProsemirror_with_notes,
-    setup_markdown_input_rules
+    setup_markdown_input_rules,
+    init_notes_html
 } = window.ProseMirrorBundle || {};
 
 let _mind = null;
@@ -363,7 +364,7 @@ function create_note_card(title, quote, notes, color) {
     if (!check_empty_container(notes)) {
         notes_style.innerHTML = '<br>';
     } else {
-        notes_style.innerHTML = notes;
+        notes_style.innerHTML = init_notes_html(notes);
     }
     notes_container.appendChild(notes_style);
     note_card.appendChild(notes_container);
