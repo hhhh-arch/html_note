@@ -76,6 +76,18 @@ chrome.runtime.onMessage.addListener((message, sender) => {
           });
         }
       }
+      if (message.type === 'remove_mindmap_editor') {
+        if (chrome.sidePanel.getOptions({tabId: sender.tab.id}).enabled == true) {
+          chrome.tabs.sendMessage(sender.tab.id, {
+            type: 'remove_mindmap_editor',
+          });
+        }
+      }
+      if (message.type === 'remove_content_editor') {
+        chrome.tabs.sendMessage(chrome.windows.WINDOW_ID_CURRENT, {
+          type: 'remove_content_editor',
+        });
+      }
 
     })();
   });

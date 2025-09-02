@@ -91,6 +91,9 @@ class HTMLNoteHighlighter {
                 console.log('pageurl:', window.location.href);
                 chrome.runtime.sendMessage({type: 'init_mindmap', pageUrl: window.location.href});
             }
+            if (message.type === 'remove_content_editor') {
+                remove_content_editor();
+            }
         });
 
 
@@ -1583,4 +1586,12 @@ function groupId_generator(highlightElement) {
             return groupId_current;
         }
     })
+}
+function remove_content_editor() {
+    const content_editor = document.querySelector('.note-editor');
+    if (content_editor) {
+       saveNotesContent(textArea, tags, groupId, currentPageUrl, currentNote);
+        editor.remove();
+        document.removeEventListener('mousedown', onDocMouseDown);
+    }
 }

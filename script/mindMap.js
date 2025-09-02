@@ -88,8 +88,21 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.type === 'update_storage_note') {
         sync_note_card_notes(message.groupId, message.note);
     }
-});
+    if (message.type === 'remove_mindmap_editor') {
+        const note_card_editor = document.querySelector('.note-card-editor');
+        const panel = document.querySelector('#map');
+        if (note_card_editor) {
+            hideNoteCardEditor(panel, note_card_editor, getNodeEle(), getMind(), getPageUrl());
+        }
 
+    }
+});
+function remove_mindmap_editor() {
+    const mindmap_editor = document.querySelector('.note-card-editor');
+    if (mindmap_editor) {
+        mindmap_editor.remove();
+    }
+}
 function showMindMapPanel(pageUrl) {
 
     // if (!pageUrl){
@@ -380,9 +393,13 @@ function create_note_card(title, quote, notes, color) {
 //TODO: double click to edit the note card
 function showNoteCardEditor(nodeEle, panel, mind, pageUrl) {
     console.log("showNoteCardEditor:", nodeEle);
+    chrome.runtime.sendMessage({
+        type: "remove_content_editor",
+    });
     const title = nodeEle.nodeObj.dataset.title;
     const quote = nodeEle.nodeObj.dataset.quote;
     const note = nodeEle.nodeObj.dataset.note;
+    console.log("note:", note);
     const note_card_editor = document.createElement('div');
     note_card_editor.className = 'note-card-editor';
     const title_container = document.createElement('div');
@@ -477,7 +494,7 @@ function updateNoteCard(nodeEle, panel, note_card_editor, mind, pageUrl) {
     nodeEle.nodeObj.dataset.quote = quote;
     nodeEle.nodeObj.dataset.note = note;
     const color = nodeEle.nodeObj.dataset.color;
-    nodeEle.nodeObj.dangerouslySetInnerHTML = createDangerousHtml(title, quote, note_html, color);
+    nodeEle.nodeObj.dangerouslySetInnerHTML = createDangerousHtml(title, quote, note, color);
     nodeEle.nodeObj.topic = title || quote;
     console.log("nodeEle.nodeObj:", nodeEle.nodeObj);
     console.log("mind.getData():", getMind().getData());

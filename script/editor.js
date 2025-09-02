@@ -9,8 +9,11 @@ import {
 export {showNoteEditor};
 
 function showNoteEditor(highlightElement, groupId, mouseEvent) {
+    // remove all the note-editor
     document.querySelectorAll('.note-editor').forEach(el => el.remove());
-    // 取同组第一个的 data-note
+    chrome.runtime.sendMessage({
+        type: "remove_mindmap_editor",
+    });
     let currentNote = highlightElement.getAttribute('data-note') || '';
     let tagsString = highlightElement.getAttribute('data-tags') || '';
     if (groupId) {
