@@ -233,7 +233,7 @@ function loadNoteCard(pageUrl, mind, root_noteCard) {
                         const quote = find_quotes(highlightElement_structure.highlightElements);
                         const notes = highlightElement_structure.note;
                         //const data = initNoteCard(title, quote, notes);
-                        const title = quote;
+                        const title = '';
                         const data = generate_children_noteCard(title, quote, notes, color, groupId);
                         if (data) {
                             refresh_NoteCard(initNoteCard(pageUrl), data, getMind());
@@ -347,47 +347,58 @@ function createDangerousHtml(title, quote, notes, color) {
     temp_html.appendChild(note_card);
     return temp_html.innerHTML;
 }
-
-function create_note_card(title, quote, notes, color) {
-    const note_card = document.createElement('div');
-    note_card.className = 'note-card';
-    const title_container = document.createElement('div');
-    title_container.className = 'title-container';
-    const title_style = document.createElement('h3');
-    title_style.className = 'title-style';
-    if (!check_empty_container(title)) {
-        title_style.innerHTML = '<br>';
-    } else {
-        title_style.innerHTML = title;
-    }
-    title_container.appendChild(title_style);
-    note_card.appendChild(title_container);
-    const quote_container = document.createElement('div');
-    quote_container.className = 'quote-container';
-    const quote_style = document.createElement('p');
-    quote_style.className = 'quote-style';
-    if (!check_empty_container(quote)) {
-        quote_style.innerHTML = '<br>';
-    } else {
-        quote_style.innerHTML = quote;
-    }
-    quote_container.appendChild(quote_style); // 修复：添加quote_style到容器
-    note_card.appendChild(quote_container);
+function create_notes_container(notes) {
     const notes_container = document.createElement('div');
     notes_container.className = 'notes-container';
     const notes_style = document.createElement('p');
     notes_style.className = 'notes-style';
-    if (!check_empty_container(notes)) {
-        notes_style.innerHTML = '<br>';
-    } else {
-        notes_style.innerHTML = init_notes_html(notes);
-    }
+    notes_style.innerHTML = init_notes_html(notes);
     notes_container.appendChild(notes_style);
-    note_card.appendChild(notes_container);
+    return notes_container;
+}
 
+function create_note_card(title, quote, notes, color) {
+    const note_card = document.createElement('div');
+    note_card.className = 'note-card';
+    if (!check_empty_container(title)) {
+        const title_container = create_title_container(quote);
+        note_card.appendChild(title_container);
+        title_container.style.backgroundColor = color;
+
+    } else {
+        const title_container = create_title_container(title);
+        note_card.appendChild(title_container);
+        const quote_container = create_quote_container(quote);
+        note_card.appendChild(quote_container);
+        title_container.style.backgroundColor = color;
+
+    }
+    if (!check_empty_container(notes)) {
+    }
+    else{
+        const notes_container = create_notes_container(notes);
+        note_card.appendChild(notes_container);
+    }
     note_card.style.backgroundColor = color;
-    title_container.style.backgroundColor = color;
     return note_card;
+}
+function create_title_container(text) {
+    const title_container = document.createElement('div');
+    title_container.className = 'title-container';
+    const title_style = document.createElement('h3');
+    title_style.className = 'title-style';
+    title_style.innerHTML = text;
+    title_container.appendChild(title_style);
+    return title_container;
+}
+function create_quote_container(text) {
+    const quote_container = document.createElement('div');
+    quote_container.className = 'quote-container';
+    const quote_style = document.createElement('p');
+    quote_style.className = 'quote-style';
+    quote_style.innerHTML = text;
+    quote_container.appendChild(quote_style);
+    return quote_container;
 }
 
 //TODO: double click to edit the note card
