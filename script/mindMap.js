@@ -86,7 +86,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         storage_mindMap_data();
     }
     if (message.type === 'update_storage_note') {
-        console.log('message:', message);
+        sync_note_card_notes(message.groupId, message.note);
     }
 });
 
@@ -733,3 +733,32 @@ function setup_menu_botton() {
     const markdown_dropdownSubmenu = setup_markdown_input_rules();
 }
 
+function sync_note_card_notes(groupId, note) {
+    const update_data = getMind().getData();
+    const nodeData = update_data.nodeData;
+    const children = nodeData.children;
+    const children_list = nodeData.children_list;
+    if (!children) {
+        return ;
+    }
+    if (!children_list) {
+        return ;
+    }
+    if (!children_list.includes(groupId)) {
+        return ;
+    }
+    for (let i = 0; i < children.length; i++) {
+        if (children[i].id == groupId) {
+            children[i].dataset.note = note;
+            const title = children[i].dataset.title;
+            const quote = children[i].dataset.quote;
+            const color = children[i].dataset.color;
+            children[i].dangerouslySetInnerHTML = createDangerousHtml(title, quote, note, color);
+            break;
+        }
+    }
+    nodeData.children = children;
+    console.log("update_data:", update_data);
+    getMind().refresh(update_data);
+    storage_mindMap_data();
+}
