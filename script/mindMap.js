@@ -652,7 +652,9 @@ function create_mindMap_toolbar() {// on the right top corner and fix
 }
 
 function show_note_list() {
+    storage_mindMap_data();
     const panel = document.querySelector('#map');
+    
     if (!panel) {
         console.error('panel not found');
         return;
@@ -673,7 +675,7 @@ function show_note_list() {
         return;
     }
     update_note_list_toolbar();
-    //create_note_list();
+    create_note_list();
 }
 
 function update_note_list_toolbar() {
