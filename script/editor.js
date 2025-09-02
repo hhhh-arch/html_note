@@ -82,6 +82,7 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
 
     const editor = document.createElement('div');
     editor.className = 'note-editor';
+    editor.setAttribute('data-group-id', groupId);
     if (currentNote == '') {
         if (tagsString == '') {
             editor.innerHTML = `
@@ -376,7 +377,7 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
 
         if (!editor.contains(ev.target) && !isInToolbar && !isInColorPicker) {
             console.log("[debug] if it can chekc the editor");
-            saveNotesContent(textArea, tags, groupId, currentPageUrl, currentNote);
+            saveNotesContent(textArea, tags, groupId, currentPageUrl);
             editor.remove();
             document.removeEventListener('mousedown', onDocMouseDown);
         }
@@ -486,8 +487,8 @@ function loadTagsFromStorage(pageUrl, callback) {
 //  */
 // function addTags(currentPageUrl, editor) {
 
-
-function saveNotesContent(textArea, tags, groupId, currentPageUrl, currentNote) {
+export {saveNotesContent};
+function saveNotesContent(textArea, tags, groupId, currentPageUrl) {
     setTimeout(() => {
         // 检查是否是因为点击了tag输入框而导致的失焦
         const activeElement = document.activeElement;
@@ -505,7 +506,7 @@ function saveNotesContent(textArea, tags, groupId, currentPageUrl, currentNote) 
         }
 
         if (groupId) {
-            if (note != "" || currentNote != '') {
+            if (note != "") {
                 document.querySelectorAll('.html-note-highlight[data-group-id="' + groupId + '"]').forEach(span => {
                     span.setAttribute('data-note', get_doc_json());
                     update_storage_note(groupId);
@@ -514,7 +515,7 @@ function saveNotesContent(textArea, tags, groupId, currentPageUrl, currentNote) 
 
             }
         } else {
-            if (note != "" || currentNote != '') {
+            if (note != "") {
                 highlightElement.setAttribute('data-note', get_doc_json());
                 update_storage_note(groupId);
                 //highlightElement.title = note ;

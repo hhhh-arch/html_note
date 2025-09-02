@@ -84,8 +84,13 @@ chrome.runtime.onMessage.addListener((message, sender) => {
         }
       }
       if (message.type === 'remove_content_editor') {
-        chrome.tabs.sendMessage(chrome.windows.WINDOW_ID_CURRENT, {
-          type: 'remove_content_editor',
+
+        chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+          if (tabs[0] && tabs[0].id) {
+            chrome.tabs.sendMessage(tabs[0].id, {
+              type: 'remove_content_editor',
+            });
+          }
         });
       }
 

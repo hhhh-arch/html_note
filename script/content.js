@@ -1,4 +1,4 @@
-import {showNoteEditor} from './editor.js';
+import {showNoteEditor, saveNotesContent} from './editor.js';
 import CryptoJS from '../libs/crypto-js.min.js';
 
 class HTMLNoteHighlighter {
@@ -1589,9 +1589,22 @@ function groupId_generator(highlightElement) {
 }
 function remove_content_editor() {
     const content_editor = document.querySelector('.note-editor');
-    if (content_editor) {
-       saveNotesContent(textArea, tags, groupId, currentPageUrl, currentNote);
-        editor.remove();
-        document.removeEventListener('mousedown', onDocMouseDown);
+    if (!content_editor) {
+        return;
     }
+    const groupId = content_editor.getAttribute('data-group-id');
+    const textArea = document.querySelector('#editor');
+    if (!textArea) {
+        return;
+    }
+    // find highlight element by groupId
+    const highlightElement = document.querySelector('.html-note-highlight[data-group-id="' + groupId + '"]');
+    if (!highlightElement) {
+        return;
+    }
+    const tags = document.querySelector('.note-editor-tags');
+    saveNotesContent(textArea, tags, groupId, window.location.href);
+    document.querySelectorAll('.html-note-toolbar-float, .note-editor, .color-picker-float').forEach(el => el.remove());
+
+
 }
