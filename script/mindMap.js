@@ -361,15 +361,16 @@ function create_note_card(title, quote, notes, color) {
     const note_card = document.createElement('div');
     note_card.className = 'note-card';
     if (!check_empty_container(title)) {
-        const title_container = create_title_container(quote);
+        const title_container = create_title_container(quote, 'note-card-title-container');
         note_card.appendChild(title_container);
         title_container.style.backgroundColor = color;
 
     } else {
-        const title_container = create_title_container(title);
+        const title_container = create_title_container(title, 'note-card-title-container');
         note_card.appendChild(title_container);
-        const quote_container = create_quote_container(quote);
+        const quote_container = create_quote_container(quote, 'note-card-quote-container');
         note_card.appendChild(quote_container);
+        quote_container.style.backgroundColor = 'white';
         title_container.style.backgroundColor = color;
 
     }
@@ -382,18 +383,18 @@ function create_note_card(title, quote, notes, color) {
     note_card.style.backgroundColor = color;
     return note_card;
 }
-function create_title_container(text) {
+function create_title_container(text, className) {
     const title_container = document.createElement('div');
-    title_container.className = 'title-container';
+    title_container.className = className;
     const title_style = document.createElement('h3');
     title_style.className = 'title-style';
     title_style.innerHTML = text;
     title_container.appendChild(title_style);
     return title_container;
 }
-function create_quote_container(text) {
+function create_quote_container(text, className) {
     const quote_container = document.createElement('div');
-    quote_container.className = 'quote-container';
+    quote_container.className = className;
     const quote_style = document.createElement('p');
     quote_style.className = 'quote-style';
     quote_style.innerHTML = text;
@@ -413,15 +414,16 @@ function showNoteCardEditor(nodeEle, panel, mind, pageUrl) {
     console.log("note:", note);
     const note_card_editor = document.createElement('div');
     note_card_editor.className = 'note-card-editor';
-    const title_container = document.createElement('div');
-    title_container.className = 'note-card-editor-title-container';
-    title_container.contentEditable = 'true';
-    const title_style = document.createElement('h3');
-    title_style.className = 'title-style';
-    title_style.innerHTML = title;
-    title_style.contentEditable = 'true';
-    title_container.appendChild(title_style);
-    note_card_editor.appendChild(title_container);
+    if (!check_empty_container(title)) {
+        const title_container = create_title_container('<br>', 'note-card-editor-title-container');
+        title_container.contentEditable = 'true';
+        note_card_editor.appendChild(title_container);
+    } else {
+        const title_container = create_title_container(title, 'note-card-editor-title-container');
+        title_container.contentEditable = 'true';
+        note_card_editor.appendChild(title_container);
+    }
+    
     const quote_container = document.createElement('div');
     quote_container.className = 'note-card-editor-quote-container';
     quote_container.contentEditable = 'true';
@@ -495,18 +497,19 @@ function updateNoteCard(nodeEle, panel, note_card_editor, mind, pageUrl) {
     const quote = note_card_editor.querySelector('.quote-style').innerHTML;
     const note = get_doc_json();
     const note_html = get_hmtl();
-    if (!check_empty_container(title) && !check_empty_container(quote) && !check_empty_container(note)) {
+    if (!check_empty_container(title) && !check_empty_container(quote) && !check_empty_container(note_html)) {
         console.log("remove nodeEle:", nodeEle);
         getMind().removeNodes([getMind().currentNode]);
         remove_storage_mindMap_data(pageUrl);
         return;
     }
-    nodeEle.nodeObj.dataset.title = title || quote;
+    nodeEle.nodeObj.dataset.title = title;
     nodeEle.nodeObj.dataset.quote = quote;
     nodeEle.nodeObj.dataset.note = note;
+    const id = nodeEle.nodeObj.id;
     const color = nodeEle.nodeObj.dataset.color;
     nodeEle.nodeObj.dangerouslySetInnerHTML = createDangerousHtml(title, quote, note, color);
-    nodeEle.nodeObj.topic = title || quote;
+    nodeEle.nodeObj.topic = id;
     console.log("nodeEle.nodeObj:", nodeEle.nodeObj);
     console.log("mind.getData():", getMind().getData());
     const currentdata = getMind().getData();
