@@ -43,7 +43,7 @@ function get_hmtl() {
     const wrapper = document.createElement("div");
     wrapper.appendChild(fragment);
     const html = DOMPurify.sanitize(wrapper.innerHTML, {USE_PROFILES: {html: true}});
-    console.log('html', html);
+    //console.log('html', html);
     return html;
 }
 export {init_notes_html};
@@ -66,7 +66,7 @@ export {get_doc_json};
 function get_doc_json() {
     const doc = window.view.state.doc;
     const json = doc.toJSON();
-    console.log('json', json);
+    //console.log('json', json);
     const jsonString = JSON.stringify(json);
     return jsonString;
 }
@@ -75,7 +75,7 @@ export {retrive_doc_json};
 
 function retrive_doc_json(json_string, state) {
     const doc = Node.fromJSON(state.schema, JSON.parse(json_string));
-    console.log('doc', doc);
+    //console.log('doc', doc);
     return doc;
 }
 

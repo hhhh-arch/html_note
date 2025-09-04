@@ -75,7 +75,7 @@ class HTMLNoteHighlighter {
     })
 
         chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-            console.log('message:', message);
+            // console.log('message:', message);
             if (message.type === 'sync_mindMap_data') {
                 chrome.runtime.sendMessage({type: 'sync_mindMap_data_ready', pageUrl: window.location.href});
             }
@@ -87,7 +87,7 @@ class HTMLNoteHighlighter {
                 chrome.runtime.sendMessage({type: 'open_side_panel'});
             }
             if (message.type === 'side_panel_ready') {
-                console.log('pageurl:', window.location.href);
+                // console.log('pageurl:', window.location.href);
                 chrome.runtime.sendMessage({type: 'init_mindmap', pageUrl: window.location.href});
             }
             if (message.type === 'remove_content_editor') {
@@ -1038,10 +1038,8 @@ function highlightElement_data(highlightElement){
     const index_highlightElement = parentNode.innerText.indexOf(highlightElement.innerText);
 //     console.log(`[debug] parentNode.innerText.26:${parentNode.innerText.substring(index_highlightElement,index_highlightElement+highlightElement.innerText.length)}`);
 //     console.log(`[debug] index_highlightElement: ${index_highlightElement}`);
-    const color = highlightElement.getAttribute('data-color');
-    if (!color){
-      color = getDefaultColor();
-    }
+    const color = highlightElement.getAttribute('data-color')||getDefaultColor();
+
     return {
       hash_parentNode: hash_parentNode,
       index_highlightElement: index_highlightElement,

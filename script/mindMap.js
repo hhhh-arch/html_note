@@ -66,7 +66,7 @@ function showMindMapPanel(pageUrl) {
     //   return;
     // }
     const panel = document.querySelector('#map');
-    console.log('MindElixir:', MindElixir);
+    //console.log('MindElixir:', MindElixir);
     // const MindElixir = window.MindElixir;
     if (!panel) {
         console.error('panel not found');
@@ -76,7 +76,7 @@ function showMindMapPanel(pageUrl) {
     create_mindMap_toolbar(panel);
     const mind = initMindMap(MindElixir, pageUrl, null);
     (function overide_node_edit(mind) {
-        console.log("overide_node_edit:")
+        //console.log("overide_node_edit:")
         if (!mind || typeof mind.beginEdit !== 'function') return;
         const _beginEdit = mind.beginEdit.bind(mind);
         mind.beginEdit = function (el) {
@@ -84,7 +84,7 @@ function showMindMapPanel(pageUrl) {
             if (!nodeEle) return
             if (nodeEle.nodeObj.dangerouslySetInnerHTML) {
                 //
-                console.log("overide_node_edit:")
+                //console.log("overide_node_edit:")
                 showNoteCardEditor(nodeEle, panel, getMind(), pageUrl);
                 return;
             }
@@ -100,9 +100,9 @@ function showMindMapPanel(pageUrl) {
     //   }
     // });
     mind.bus.addListener('operation', operation => {
-        console.log("operation:", operation);
+        //console.log("operation:", operation);
         if (operation.name == 'removeNodes') {
-            console.log("removeNodes:", operation);
+            // console.log("removeNodes:", operation);
             const children_list = mind.getData().nodeData.children_list;
             const affected_nodes = operation.objs;
             affected_nodes.forEach(node => {
@@ -184,7 +184,7 @@ function loadNoteCard(pageUrl, mind, root_noteCard) {
                 chrome.storage.local.get(groupId, (result) => {
                     const highlightElement_structure = result[groupId];
                     if (highlightElement_structure) {
-                        console.log('highlightElement_structure:', highlightElement_structure);
+                        //console.log('highlightElement_structure:', highlightElement_structure);
                         const color = highlightElement_structure.color;
                         const quote = find_quotes(highlightElement_structure.highlightElements);
                         const notes = highlightElement_structure.note;
@@ -205,7 +205,7 @@ function loadNoteCard(pageUrl, mind, root_noteCard) {
 }
 
 function find_quotes(highlightElement) {
-    console.log('highlightElement:', highlightElement);
+    //console.log('highlightElement:', highlightElement);
     let quotes = '';
     highlightElement.forEach(element => {
         quotes += element.highlightElement_text;
@@ -238,11 +238,11 @@ function refresh_NoteCard(root_noteCard, children_noteCard, mind) {
         console.error('mind not found');
         return;
     }
-    console.log('mind.getData():', getMind().getData());
+    //console.log('mind.getData():', getMind().getData());
     if (children_noteCard) {
         let children_noteCard_list = getMind().getData().nodeData.children;
         if (children_noteCard_list) {
-            console.log('children_noteCard:', children_noteCard);
+            //console.log('children_noteCard:', children_noteCard);
             const children_list = getMind().getData().nodeData.children_list;
             if (!children_list.includes(children_noteCard.id)) {
                 children_list.push(children_noteCard.id);
@@ -263,7 +263,7 @@ function refresh_NoteCard(root_noteCard, children_noteCard, mind) {
             root_noteCard.nodeData.children = [children_noteCard];
         }
     }
-    console.log('root_noteCard:', root_noteCard);
+    //console.log('root_noteCard:', root_noteCard);
     // const dataToRefresh = {
     //   nodeData: root_noteCard,
     //   arrows: [],
@@ -271,8 +271,8 @@ function refresh_NoteCard(root_noteCard, children_noteCard, mind) {
     // };
     getMind().refresh(root_noteCard);
 
-    console.log('mind.getData():', getMind().getData());
-    console.log('mind.getData().nodeData.children:', getMind().getData().nodeData.children);
+    //console.log('mind.getData():', getMind().getData());
+    //console.log('mind.getData().nodeData.children:', getMind().getData().nodeData.children);
     return root_noteCard;
 }
 
@@ -360,14 +360,14 @@ function create_quote_container(text, className) {
 
 //TODO: double click to edit the note card
 function showNoteCardEditor(nodeEle, panel, mind, pageUrl) {
-    console.log("showNoteCardEditor:", nodeEle);
+    //console.log("showNoteCardEditor:", nodeEle);
     chrome.runtime.sendMessage({
         type: "remove_content_editor",
     });
     const title = nodeEle.nodeObj.dataset.title;
     const quote = nodeEle.nodeObj.dataset.quote;
     const note = nodeEle.nodeObj.dataset.note;
-    console.log("note:", note);
+    //console.log("note:", note);
     const note_card_editor = document.createElement('div');
     note_card_editor.className = 'note-card-editor';
     if (!check_empty_container(title)) {
@@ -394,7 +394,7 @@ function showNoteCardEditor(nodeEle, panel, mind, pageUrl) {
     note_card_editor.appendChild(notes_container);
     notes_container.id = 'editor';
     panel.appendChild(note_card_editor);
-    console.log("note:", note);
+    //console.log("note:", note);
     if (note != '<br>' && note != '<br/>' && note != '') {
         const editorView = initProsemirror_with_notes(note);
 
@@ -427,9 +427,9 @@ function showNoteCardEditor(nodeEle, panel, mind, pageUrl) {
         note_card_editor.appendChild(contentDiv);
         const editorView = initProsemirror_without_notes();
         if (editorView) {
-            console.log('ProseMirror editor initialized successfully');
-            console.log('Editor view:', editorView);
-            console.log('Container HTML after:', notes_container.innerHTML);
+            //console.log('ProseMirror editor initialized successfully');
+            //console.log('Editor view:', editorView);
+            //console.log('Container HTML after:', notes_container.innerHTML);
         } else {
             console.error('initProsemirror returned null/undefined');
         }
@@ -440,7 +440,7 @@ function showNoteCardEditor(nodeEle, panel, mind, pageUrl) {
 }
 
 function hideNoteCardEditor(panel, note_card_editor, nodeEle, mind, pageUrl) {
-    console.log("hideNoteCardEditor:", note_card_editor);
+    //console.log("hideNoteCardEditor:", note_card_editor);
     if (note_card_editor) {
         updateNoteCard(nodeEle, panel, note_card_editor, mind, pageUrl);
         note_card_editor.remove();
@@ -448,13 +448,13 @@ function hideNoteCardEditor(panel, note_card_editor, nodeEle, mind, pageUrl) {
 }
 
 function updateNoteCard(nodeEle, panel, note_card_editor, mind, pageUrl) {
-    console.log("updateNoteCard:", note_card_editor);
+    //console.log("updateNoteCard:", note_card_editor);
     const title = note_card_editor.querySelector('.title-style').innerHTML;
     const quote = note_card_editor.querySelector('.quote-style').innerHTML;
     const note = get_doc_json();
     const note_html = get_hmtl();
     if (!check_empty_container(title) && !check_empty_container(quote) && !check_empty_container(note_html)) {
-        console.log("remove nodeEle:", nodeEle);
+        //console.log("remove nodeEle:", nodeEle);
         getMind().removeNodes([getMind().currentNode]);
         remove_storage_mindMap_data(pageUrl);
         return;
@@ -466,10 +466,10 @@ function updateNoteCard(nodeEle, panel, note_card_editor, mind, pageUrl) {
     const color = nodeEle.nodeObj.dataset.color;
     nodeEle.nodeObj.dangerouslySetInnerHTML = createDangerousHtml(title, quote, note, color);
     nodeEle.nodeObj.topic = id;
-    console.log("nodeEle.nodeObj:", nodeEle.nodeObj);
-    console.log("mind.getData():", getMind().getData());
+    //console.log("nodeEle.nodeObj:", nodeEle.nodeObj);
+    //console.log("mind.getData():", getMind().getData());
     const currentdata = getMind().getData();
-    console.log("currentdata:", currentdata);
+    //console.log("currentdata:", currentdata);
     getMind().refresh(currentdata);
     storage_mindMap_data();
     // mind.refresh(nodeEle);
@@ -484,12 +484,12 @@ function check_empty_container(text) {
 }
 
 function storage_mindMap_data() {
-    console.log("storage_mindMap_data:", getMind().getData());
+    //console.log("storage_mindMap_data:", getMind().getData());
     const data = getMind().getData();
-    console.log("data:", data);
+    //console.log("data:", data);
     const pageUrl = data.nodeData.hyperLink;
     const key_mindMap = 'mindMap' + pageUrl;
-    console.log("key_mindMap:", key_mindMap);
+    //console.log("key_mindMap:", key_mindMap);
     chrome.storage.local.set({[key_mindMap]: data});
 }
 
@@ -497,9 +497,9 @@ function get_mindMap_data(pageUrl, mind) {
     const key_mindMap = 'mindMap' + pageUrl;
     chrome.storage.local.get(key_mindMap, (result) => {
         const data_mindMap = result[key_mindMap];
-        console.log("data_mindMap:", data_mindMap);
+        //console.log("data_mindMap:", data_mindMap);
         if (data_mindMap) {
-            console.log("data_mindMap:", data_mindMap);
+            //console.log("data_mindMap:", data_mindMap);
             getMind().init(data_mindMap);
         } else {
             const root_noteCard = getMind().getData();

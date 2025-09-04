@@ -342,10 +342,10 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
 
             if (groupId) {
                 if (note.length > 0) {
-                    console.log(`[debug] note in onblur: ${note}`);
+                    //console.log(`[debug] note in onblur: ${note}`);
                     document.querySelectorAll('.html-note-highlight[data-group-id="' + groupId + '"]').forEach(span => {
                         const notes = get_doc_json();
-                        console.log(`[debug] notes in onblur: ${notes}`);
+                        //console.log(`[debug] notes in onblur: ${notes}`);
                         span.setAttribute('data-note', notes);
                         //span.title = note ;
                     });
@@ -376,7 +376,7 @@ function showNoteEditor(highlightElement, groupId, mouseEvent) {
         const isInColorPicker = ev.target.closest('.color-picker-float');
 
         if (!editor.contains(ev.target) && !isInToolbar && !isInColorPicker) {
-            console.log("[debug] if it can chekc the editor");
+            //console.log("[debug] if it can chekc the editor");
             saveNotesContent(textArea, tags, groupId, currentPageUrl);
             editor.remove();
             document.removeEventListener('mousedown', onDocMouseDown);
@@ -545,7 +545,7 @@ function removeListener(textArea) {
 }
 
 function update_storage_note(groupId) {
-    console.log(`[debug] update_storage_note: ${get_doc_json()}`);
+    //console.log(`[debug] update_storage_note: ${get_doc_json()}`);
     chrome.storage.local.get(groupId, function (result) {
         if (result) {
             result[groupId].note = get_doc_json();
