@@ -20,11 +20,12 @@ function setMind(mindInstance) {
 function setPageUrl(pageUrl) {
     _pageUrl = pageUrl;
 }
-
+export {getMind};
 function getMind() {
     return _mind;
 }
 
+export {getPageUrl};
 function getPageUrl() {
     return _pageUrl;
 }
@@ -33,67 +34,30 @@ function setNodeEle(nodeEle) {
     _nodeEle = nodeEle;
 }
 
+export {getNodeEle};
 function getNodeEle() {
     return _nodeEle;
 }
+export{
+    storage_mindMap_data,
+    sync_note_card_notes,
+    setPageUrl,
+    setNodeEle,
+    setMind,
+    loadNoteCard,
+    add_noteCard_to_mindMap
+    
+}
 
-document.addEventListener('DOMContentLoaded', function () {
-    //send message to service worker, ask for pageUrl
-    chrome.runtime.sendMessage({type: 'side_panel_ready'}, (response) => {
-        console.log('response:', response);
-    });
-});
-// event listener for click outside the note_card_editor 
-document.addEventListener('mousedown', (event) => {
-
+export {hide_note_card_editor};
+function hide_note_card_editor() {
     const note_card_editor = document.querySelector('.note-card-editor');
     const panel = document.querySelector('#map');
     if (note_card_editor) {
-        if (note_card_editor.contains(event.target)) {
-            return;
-        } else {
-            hideNoteCardEditor(panel, note_card_editor, getNodeEle(), getMind(), getPageUrl());
-        }
-    }
-
-});
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    if (message.type === 'init_mindmap') {
-        // console.log('pageUrl:',message.pageUrl);
-        // console.log('document:',document.innerHTML);
-        // console.log('document.getElementById("mindmap-panel"):',document.getElementById('mindmap-panel'));
-        console.log('message:', message);
-        setPageUrl(message.pageUrl);
-        showMindMapPanel(message.pageUrl);
-
-    }
-
-    if (message.type === 'add_noteCard_to_mindMap') {
-        add_noteCard_to_mindMap(message.pageUrl, message.groupId);
-    }
-    if (message.type === 'sync_mindMap_data_ready') {
-        console.log('message:', message);
-        loadNoteCard(message.pageUrl, getMind(), getMind().getData());
-        storage_mindMap_data();
-    }
-    if (message.type === 'update_storage_note') {
-        sync_note_card_notes(message.groupId, message.note);
-    }
-    if (message.type === 'remove_mindmap_editor') {
-        const note_card_editor = document.querySelector('.note-card-editor');
-        const panel = document.querySelector('#map');
-        if (note_card_editor) {
-            hideNoteCardEditor(panel, note_card_editor, getNodeEle(), getMind(), getPageUrl());
-        }
-
-    }
-});
-function remove_mindmap_editor() {
-    const mindmap_editor = document.querySelector('.note-card-editor');
-    if (mindmap_editor) {
-        mindmap_editor.remove();
+        hideNoteCardEditor(panel, note_card_editor, getNodeEle(), getMind(), getPageUrl());
     }
 }
+
 export {showMindMapPanel};
 function showMindMapPanel(pageUrl) {
 
@@ -656,7 +620,22 @@ function create_mindMap_toolbar() {// on the right top corner and fix
 
     mindMap_container.appendChild(toolbar);
 }
+export {remove_panel};
+function remove_panel(){
+    const panel = document.querySelectorAll('#mindmap-panel');
+    console.log('panel:', panel);
+    if (panel.length > 0) {
+        panel.forEach(panel => {
+            panel.remove();
+        });
 
+    
+    }
+    else{
+        console.log('panel not found');
+        return;
+    }
+}
 function show_note_list() {
     storage_mindMap_data();
     const panel = document.querySelector('#map');

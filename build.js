@@ -13,11 +13,11 @@ esbuild.build({
 }).catch(() => process.exit(1)); 
 
 esbuild.build({
-  entryPoints: ['script/mindMap.js'],
+  entryPoints: ['script/sideBar/mindMapSidePanel.js'],
   bundle: true,
-  outfile: 'dist/mindMap.bundle.js',
+  outfile: 'dist/mindMapSidePanel.bundle.js',
   format: 'iife',
-  globalName: 'MindMapBundle',
+  globalName: 'MindMapSidePanelBundle',
   platform: 'browser',
   target: 'es2020',
   minify: false,

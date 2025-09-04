@@ -136,6 +136,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     });
 
   }
+  if (message.type === 'toggle_side_bar') {
+    chrome.tabs.sendMessage(sender.tab.id, {
+      type: 'toggle_side_bar',
+      pageUrl: message.pageUrl,
+    });
+  }
   if (message.type === 'close_side_panel') {
     chrome.sidePanel.close({ windowId: chrome.windows.WINDOW_ID_CURRENT });
   }
