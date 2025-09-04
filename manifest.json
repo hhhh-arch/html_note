@@ -3,23 +3,28 @@
   "name": "HTML Note Highlighter",
   "version": "1.0",
   "description": "本地网页高亮和笔记工具",
-  "permissions": ["scripting", "activeTab","storage"],
+  "permissions": ["scripting", "activeTab","storage","sidePanel","contextMenus"],
   "action": {
     "default_popup": "popup.html",
     "default_title": "HTML Note Highlighter"
+
+  },
+  "side_panel": {
+    "default_path": "script/sideBar/side_panel.html"
+  },
+  "background": {
+    "service_worker": "script/background/service-worker.js",
+    "background": "script/background/background.js"
   },
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
       "js": [
         "libs/purify.min.js",
-      "libs/marked.min.js",
-      "libs/css-selector-generator.min.js",
-      "libs/crypto-js.min.js",
-      "script/content.js", 
-      "script/editor.js",
-      "script/markdownSupport.js"],
-      "css": ["style.css"]
+        "dist/content.bundle.js"
+],
+      
+      "css": ["script/fullScreenMindMap/styleFullScreen.css","node_modules/mind-elixir/dist/style.css","style.css","script/prosemirror.css"]
     }
   ],
   "icons": {

@@ -36,7 +36,7 @@
   position: absolute;
   min-width: 340px;
   background: #232734;
-  color: #fff;
+  color: #ffffff;
   border-radius: 12px;
   box-shadow: 0 4px 24px rgba(0,0,0,0.22);
   z-index: 10022;
@@ -50,7 +50,9 @@
   opacity: 0;
   max-width:340px !important;
 }
-
+.note-editor * {
+  all: revert;
+}
 .note-editor.show {
   transform: translate(0, 0);
   opacity: 1;
@@ -83,13 +85,13 @@
 .note-editor-textarea {
   width: 100%;
   background: #232734;
-  color: #bfc4d1;
+  color: #fff !important;
   border: none;
   border-radius: 0 0 12px 12px;
 
   padding: 16px 18px 18px 18px;
-  resize: none; /* ⛔ 禁止用户手动拉伸 */
-  overflow: hidden; /* ✅ 防止滚动条出现 */
+  resize: none; 
+  overflow: hidden; 
   box-sizing: border-box;
   outline: none;
   margin-top: 2px;
@@ -98,6 +100,7 @@
   min-height: 56px;
 
 }
+
 .note-editor-textarea-div {
   width: 100%;
   background: #232734;
@@ -333,4 +336,14 @@
   outline:none;
   width:120px;
   height:28px;
+}
+.prosemirror-container {
+  color: #FFFFFF !important;
+  font-family: Arial, sans-serif;
+  background: #232734 !important;
+}
+
+/* 重置所有子元素，让它们继承我们的样式 */
+.prosemirror-container * {
+  all: revert;
 }

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<html>
+  <head>
+    <title>My Sidepanel</title>
+    <link rel="stylesheet" href="../../node_modules/mind-elixir/dist/style.css">
+    <link rel="stylesheet" href="../../script/mindMap.css">
+    <link rel="stylesheet" href="../../node_modules/prosemirror-view/style/prosemirror.css">
+    <link rel="stylesheet" href="../../node_modules/prosemirror-example-setup/style/style.css">
+    <link rel="stylesheet" href="../../node_modules/prosemirror-menu/style/menu.css">
+  </head>
+  <body> 
+    <div id="mindmap-panel">
+        <div id="mindmap-container">
+            <div id="map"></div>
+            <style>
+                #map {
+                    height: 100%;
+                    width: 100%;
+                }
+            </style>
+        </div>
+    </div>
+    <script type="module" src="../../dist/mindMapSidePanel.bundle.js"></script>
+  </body>
+</html>
