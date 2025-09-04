@@ -21,10 +21,10 @@
       "matches": ["<all_urls>"],
       "js": [
         "libs/purify.min.js",
-        "dist/content.js"
+        "dist/content.bundle.js"
 ],
       
-      "css": ["script/fullScreenMindMap/styleFullScreen.css","libs/mind-elixir/style.css","style.css","script/prosemirror.css"]
+      "css": ["script/fullScreenMindMap/styleFullScreen.css","node_modules/mind-elixir/dist/style.css","style.css","script/prosemirror.css"]
     }
   ],
   "icons": {

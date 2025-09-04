@@ -22,7 +22,7 @@ import {
 import {dropCursor} from "prosemirror-dropcursor";
 import {gapCursor} from "prosemirror-gapcursor";
 
-const DOMPurify = window.DOMPurify;
+import DOMPurify from 'dompurify';
 export {getMarkdown};
 
 function getMarkdown() {

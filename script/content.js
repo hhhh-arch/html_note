@@ -1,6 +1,6 @@
 import {showNoteEditor, saveNotesContent} from './editor.js';
 import CryptoJS from '../libs/crypto-js.min.js';
-
+import { toggleFullscreen } from './fullScreenMindMap/mindMapFullscreen.js';
 class HTMLNoteHighlighter {
     constructor() {
         this.isActive = false;

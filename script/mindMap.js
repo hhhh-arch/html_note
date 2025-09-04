@@ -1,22 +1,13 @@
-import MindElixir from '../../libs/mind-elixir/MindElixir.js'
-import {
-    checkPackage,
-    createAnNewContainer,
-    loadAllMarkdown,
-    markdownInputMonitor,
-    monitorInsertIn,
-    parseAllDataNote
-} from '../script/sideBar/markdownSupportES6.js';
-// import {initProsemirror} from '../script/sideBar/prosemirror.js';
+import MindElixir from 'mind-elixir';
 
-// 从全局变量获取initProsemirror函数
-const {
+
+import {
     initProsemirror_without_notes,
     get_doc_json, get_hmtl,
     initProsemirror_with_notes,
     setup_markdown_input_rules,
     init_notes_html
-} = window.ProseMirrorBundle || {};
+} from '../script/sideBar/prosemirror.js';
 
 let _mind = null;
 let _pageUrl = null;
@@ -103,6 +94,7 @@ function remove_mindmap_editor() {
         mindmap_editor.remove();
     }
 }
+export {showMindMapPanel};
 function showMindMapPanel(pageUrl) {
 
     // if (!pageUrl){
@@ -116,7 +108,7 @@ function showMindMapPanel(pageUrl) {
         console.error('panel not found');
         return;
     }
-    checkPackage();
+    // checkPackage();
     create_mindMap_toolbar(panel);
     const mind = initMindMap(MindElixir, pageUrl, null);
     (function overide_node_edit(mind) {

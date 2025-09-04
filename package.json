@@ -8,6 +8,7 @@
   "dependencies": {
     "dompurify": "^3.2.6",
     "jsdom": "^26.1.0",
+    "mind-elixir": "^5.0.6",
     "prosemirror-commands": "^1.7.1",
     "prosemirror-dropcursor": "^1.8.2",
     "prosemirror-example-setup": "^1.2.3",
